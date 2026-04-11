@@ -20,6 +20,36 @@ use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    public function register(NguoiDungDangKyRequest $request)
+    {
+        try {
+            $nguoiDung = NguoiDung::create([
+                'ho_ten'     => $request->ho_ten,
+                'email'      => $request->email,
+                'mat_khau'   => Hash::make($request->password),
+                'sdt'        => preg_replace('/[^0-9]/', '', $request->sdt),
+                'ngay_sinh'  => $request->ngay_sinh,
+                'vai_tro_id' => 3,
+                'trang_thai' => 1,
+            ]);
+
+            return response()->json([
+                'status'  => 1,
+                'message' => 'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.',
+                'data'    => [
+                    'id'     => $nguoiDung->id,
+                    'email'  => $nguoiDung->email,
+                    'ho_ten' => $nguoiDung->ho_ten,
+                ],
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 0,
+                'message' => 'Hệ thống đang bảo trì. Vui lòng thử lại sau!',
+                'error'   => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
     public function loginGoogle(Request $request)
     {
         $idToken = $request->input('id_token') ?? $request->input('credential');
