@@ -1,4 +1,5 @@
 <template>
+  <div ref="navbarRoot" class="container-fluid d-flex flex-wrap align-items-center py-lg-0">
   <!-- Logo -->
   <router-link to="/" class="navbar-brand d-flex align-items-center">
     <h1 class="m-0 text-primary">
@@ -7,115 +8,272 @@
   </router-link>
 
   <!-- Toggle -->
-  <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+  <button
+    type="button"
+    class="navbar-toggler"
+    data-bs-toggle="collapse"
+    data-bs-target="#navbarCollapse"
+  >
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <div class="navbar-nav mx-auto align-items-lg-center">
       <!-- Trang chủ -->
-      <router-link to="/" class="nav-item nav-link px-3 rounded-pill mx-1" active-class="active">
+      <router-link
+        to="/"
+        class="nav-item nav-link px-3 rounded-pill mx-1"
+        active-class="active"
+      >
         🏠 Trang Chủ
       </router-link>
 
       <!-- Học tập -->
       <div class="nav-item dropdown">
-        <a href="#" class="nav-link dropdown-toggle px-3 rounded-pill mx-1" data-bs-toggle="dropdown">
+        <a
+          href="#"
+          class="nav-link dropdown-toggle px-3 rounded-pill mx-1"
+          data-bs-toggle="dropdown"
+        >
           📚 Học Tập
         </a>
 
         <div class="dropdown-menu rounded-4 border-0 shadow-sm m-0 p-2">
-          <router-link to="/chu-de" class="dropdown-item rounded-3 py-2">
+          <router-link
+            to="/chu-de"
+            class="dropdown-item rounded-3 py-2"
+          >
             🎯 Chọn Chủ Đề
           </router-link>
 
-          <router-link to="/bai-hoc" class="dropdown-item rounded-3 py-2">
+          <router-link
+            to="/bai-hoc"
+            class="dropdown-item rounded-3 py-2"
+          >
             📖 Chọn Bài Học
           </router-link>
 
-          <router-link to="/luyen-tap" class="dropdown-item rounded-3 py-2">
+          <router-link
+            to="/luyen-tap"
+            class="dropdown-item rounded-3 py-2"
+          >
             🎤 Luyện Tập
           </router-link>
 
-          <router-link to="/bai-kiem-tra" class="dropdown-item rounded-3 py-2">
+          <router-link
+            to="/bai-kiem-tra"
+            class="dropdown-item rounded-3 py-2"
+          >
             📝 Kiểm Tra
           </router-link>
         </div>
       </div>
 
       <!-- Tiến độ -->
-      <router-link to="/tien-do" class="nav-item nav-link px-3 rounded-pill mx-1" active-class="active">
+      <router-link
+        to="/tien-do"
+        class="nav-item nav-link px-3 rounded-pill mx-1"
+        active-class="active"
+      >
         ⭐ Tiến Độ
       </router-link>
 
       <!-- Chuỗi ngày học -->
-      <router-link to="/chuoi-ngay-hoc" class="nav-item nav-link px-3 rounded-pill mx-1" active-class="active">
+      <router-link
+        to="/chuoi-ngay-hoc"
+        class="nav-item nav-link px-3 rounded-pill mx-1"
+        active-class="active"
+      >
         🔥 Chuỗi Ngày Học
       </router-link>
 
       <!-- Bảng xếp hạng -->
-      <router-link to="/xep-hang" class="nav-item nav-link px-3 rounded-pill mx-1" active-class="active">
+      <router-link
+        to="/xep-hang"
+        class="nav-item nav-link px-3 rounded-pill mx-1"
+        active-class="active"
+      >
         🏅 Xếp Hạng
+      </router-link>
+
+      <!-- Đăng nhập (mobile) -->
+      <router-link
+        v-if="!daDangNhap"
+        to="/dang-nhap"
+        class="nav-item nav-link px-3 rounded-pill mx-1 d-lg-none"
+        active-class="active"
+      >
+        🔑 Đăng nhập
       </router-link>
     </div>
 
-    <!-- User Dropdown -->
-    <div class="user-dropdown-wrapper d-none d-lg-block">
-      <div class="user-toggle" @click="showUserMenu = !showUserMenu">
-        <img src="/Client/images/user.jpg" class="user-avatar" alt="" />
+    <!-- Chưa đăng nhập — desktop -->
+    <router-link
+      v-if="!daDangNhap"
+      to="/dang-nhap"
+      class="link-dang-nhap ms-lg-auto d-none d-lg-inline-flex"
+      active-class="link-dang-nhap--active"
+    >
+      Đăng nhập
+    </router-link>
+
+    <!-- Đã đăng nhập — User Dropdown -->
+    <div
+      v-else
+      class="user-dropdown-wrapper ms-lg-auto d-none d-lg-block"
+    >
+      <div
+        class="user-toggle"
+        :class="{ 'user-toggle--no-avatar': !user.avatarDisplayUrl }"
+        @click="showUserMenu = !showUserMenu"
+      >
+        <img
+          v-if="user.avatarDisplayUrl"
+          :src="user.avatarDisplayUrl"
+          class="user-avatar"
+          alt=""
+        />
 
         <div class="user-info">
-          <h6 class="mb-0">Minh Khang</h6>
-          <small>Level 4</small>
+          <h6 class="mb-0">{{ user.name }}</h6>
+          <small>{{ phuDeNguoiDung }}</small>
         </div>
       </div>
 
       <transition name="dropdown-fade">
-        <div v-if="showUserMenu" class="user-dropdown-menu">
-          <router-link to="/profile" class="user-menu-item">
+        <div
+          v-if="showUserMenu"
+          class="user-dropdown-menu"
+        >
+          <router-link
+            to="/profile"
+            class="user-menu-item"
+          >
             <i class="fa fa-user-circle"></i>
             Profile
           </router-link>
 
           <div class="dropdown-divider my-2"></div>
 
-          <router-link to="/dang-nhap" class="user-menu-item logout-item">
+          <a
+            href="#"
+            class="user-menu-item logout-item"
+            @click.prevent="dangXuat"
+          >
             <i class="fa fa-sign-out-alt"></i>
             Đăng Xuất
-          </router-link>
+          </a>
         </div>
       </transition>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
+import axios from "axios";
+
+const PROFILE_LS_KEYS = ["ho_ten", "email", "check_token", "ten_vai_tro", "anh_dai_dien"];
+
 export default {
-  name: "ClientNavbar",
 
   data() {
     return {
-      showUserMenu: false
+      showUserMenu: false,
+      user: {},
+      daDangNhap: false,
     };
+  },
+
+  computed: {
+    phuDeNguoiDung() {
+      return this.daDangNhap ? "Bạn học" : "Khách";
+    },
+  },
+
+  watch: {
+    $route() {
+      this.showUserMenu = false;
+      this.dongBoUserTuLocal();
+    },
   },
 
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
+    this.dongBoUserTuLocal();
+    window.addEventListener("storage", this.dongBoUserTuLocal);
   },
 
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
+    window.removeEventListener("storage", this.dongBoUserTuLocal);
   },
 
   methods: {
+    duongDanAnh(raw, macDinh = "") {
+      if (!raw) {
+        return macDinh;
+      }
+      if (raw.startsWith("http://") || raw.startsWith("https://")) {
+        return raw;
+      }
+      const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+      return `${base}/storage/${String(raw).replace(/^\//, "")}`;
+    },
+    dongBoUserTuLocal() {
+      const token = localStorage.getItem("token_nguoi_dung");
+      const rawAnh = localStorage.getItem("anh_dai_dien");
+      const daDangNhap = !!token;
+      const coAnhThat = !!(rawAnh && String(rawAnh).trim());
+      this.daDangNhap = daDangNhap;
+      this.user = {
+        name: localStorage.getItem("ho_ten") || (daDangNhap ? "Bạn học" : "Khách"),
+        avatarDisplayUrl:
+          daDangNhap && coAnhThat ? this.duongDanAnh(rawAnh) : null,
+      };
+    },
+    dangXuat() {
+      this.showUserMenu = false;
+      const token = localStorage.getItem("token_nguoi_dung");
+      axios
+        .post(
+          "http://127.0.0.1:8000/api/dang-xuat",
+          {},
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        )
+        .then((res) => {
+          if (res.data.status) {
+            localStorage.removeItem("token_nguoi_dung");
+            PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k));
+            this.$toast.success(res.data.message);
+            this.dongBoUserTuLocal();
+            this.$router.push("/dang-nhap");
+          } else {
+            this.$toast.error("Có lỗi xảy ra");
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem("token_nguoi_dung");
+          PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k));
+          this.dongBoUserTuLocal();
+          this.$router.push("/dang-nhap");
+        });
+    },
     handleClickOutside(event) {
-      const dropdown = this.$el.querySelector(".user-dropdown-wrapper");
-
+      const root = this.$refs.navbarRoot;
+      if (!root?.querySelector) {
+        return;
+      }
+      const dropdown = root.querySelector(".user-dropdown-wrapper");
       if (dropdown && !dropdown.contains(event.target)) {
         this.showUserMenu = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -209,7 +367,6 @@ export default {
   left: 50% !important;
   transform: translateX(-50%);
 }
-
 .nav-item.dropdown {
   position: relative;
 }
@@ -217,7 +374,6 @@ export default {
 .nav-item.dropdown .dropdown-menu {
   top: 100%;
 }
-
 .dropdown-item {
   padding: 16px 20px;
   border-radius: 16px;
@@ -231,6 +387,31 @@ export default {
   background: linear-gradient(135deg, #fff3ef, #ffe7db);
   color: #ff6b35;
   transform: translateX(5px);
+}
+
+.link-dang-nhap {
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff !important;
+  text-decoration: none;
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
+  box-shadow: 0 10px 20px rgba(255, 107, 53, 0.22);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.link-dang-nhap:hover {
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(255, 107, 53, 0.28);
+}
+
+.link-dang-nhap--active {
+  opacity: 0.95;
 }
 
 .user-dropdown-wrapper {
@@ -248,6 +429,10 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 8px 18px rgba(255, 107, 53, 0.1);
+}
+
+.user-toggle--no-avatar {
+  padding-left: 14px;
 }
 
 .user-toggle:hover {

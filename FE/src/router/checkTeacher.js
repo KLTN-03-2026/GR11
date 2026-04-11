@@ -3,10 +3,10 @@ import { createToaster } from "@meforma/vue-toaster";
 const toaster = createToaster({ position: "top-right" });
 
 export default function (to, from, next) {
-  var token = localStorage.getItem("token_nguoi_dung");
+  var token = localStorage.getItem("token_teacher");
 
   if (!token) {
-    toaster.error("Vui lòng đăng nhập để sử dụng chức năng này.");
+    toaster.error("Vui lòng đăng nhập với tài khoản Giáo viên!");
     return next("/dang-nhap");
   }
 
@@ -15,7 +15,7 @@ export default function (to, from, next) {
       headers: { Authorization: "Bearer " + token },
     })
     .then((response) => {
-      if (response.data.status) {
+      if (response.data.status && response.data.vai_tro_id === 2) {
         const d = response.data;
         localStorage.setItem("ho_ten", d.ho_ten ?? "");
         localStorage.setItem("email", d.email ?? "");
@@ -32,12 +32,12 @@ export default function (to, from, next) {
         }
         next();
       } else {
-        toaster.error("Phiên đăng nhập hết hạn!");
-        next("/dang-nhap");
+        toaster.error("Khu vực này chỉ dành cho Giáo viên!");
+        next("/");
       }
     })
     .catch(() => {
-      toaster.error("Vui lòng đăng nhập lại!");
+      toaster.error("Phiên đăng nhập hết hạn hoặc lỗi xác thực!");
       next("/dang-nhap");
     });
 }
