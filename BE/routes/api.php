@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/check-token', [NguoiDungController::class, 'checkToken']);
 Route::post('/login-google', [NguoiDungController::class, 'loginGoogle']);
 Route::post('/dang-nhap', [NguoiDungController::class, 'login']);
+Route::post('/dang-ky', [NguoiDungController::class, 'register']);
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {
 
