@@ -20,6 +20,15 @@ use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    public function logOut(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'status'  => true,
+            'message' => "Đăng xuất thành công",
+        ]);
+    }
     public function forgotPassword(QuenMatKhauRequest $request)
     {
         try {
