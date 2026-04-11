@@ -1,28 +1,43 @@
 import axios from "axios";
 import { createToaster } from "@meforma/vue-toaster";
-
 const toaster = createToaster({ position: "top-right" });
 
 export default function (to, from, next) {
   var token = localStorage.getItem("token_admin");
+
+  if (!token) {
+    toaster.error("Bạn chưa đăng nhập. Vui lòng đăng nhập!");
+    return next("/dang-nhap");
+  }
+
   axios
-    .get("http://127.0.0.1:8000/api/admin/check-token", {
-      headers: {
-        Authorization: "Bearer " + token,
-      },
+    .get("http://127.0.0.1:8000/api/check-token", {
+      headers: { Authorization: "Bearer " + token },
     })
     .then((response) => {
-      if (response.data.status) {
-        
+      if (response.data.status && response.data.vai_tro_id === 1) {
+        const d = response.data;
+        localStorage.setItem("ho_ten", d.ho_ten ?? "");
+        localStorage.setItem("email", d.email ?? "");
+        localStorage.setItem("check_token", String(d.status));
+        if (d.ten_vai_tro != null && d.ten_vai_tro !== "") {
+          localStorage.setItem("ten_vai_tro", String(d.ten_vai_tro));
+        } else {
+          localStorage.removeItem("ten_vai_tro");
+        }
+        if (d.anh_dai_dien) {
+          localStorage.setItem("anh_dai_dien", String(d.anh_dai_dien));
+        } else {
+          localStorage.removeItem("anh_dai_dien");
+        }
         next();
       } else {
-        toaster.error(response.data.message || "Phiên đăng nhập hết hạn!");
-        next("/admin/dang-nhap");
+        toaster.error("Bạn không có quyền truy cập khu vực này!");
+        next("/dang-nhap");
       }
     })
-    .catch((error) => {
-      console.error("Lỗi xác thực token:", error);
-      toaster.error("Bạn chưa đăng nhập. Vui lòng đăng nhập!");
-      next("/admin/dang-nhap");
+    .catch(() => {
+      toaster.error("Phiên đăng nhập hết hạn hoặc lỗi xác thực!");
+      next("/dang-nhap");
     });
 }

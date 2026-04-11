@@ -10,6 +10,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "firebase/php-jwt": "7.0",
+        "google/apiclient": "^2.19",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1"
@@ -28,7 +30,13 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Google\\Service\\": "vendor/google/apiclient-services/src/",
+            "Google\\": "vendor/google/apiclient/src/",
+            "Firebase\\JWT\\": "vendor/firebase/php-jwt/src/",
+            "Google\\Auth\\": "vendor/google/auth/src/",
+            "phpseclib3\\": "vendor/phpseclib/phpseclib/phpseclib/",
+            "ParagonIE\\ConstantTime\\": "vendor/paragonie/constant_time_encoding/src/"
         }
     },
     "autoload-dev": {

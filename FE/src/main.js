@@ -7,7 +7,13 @@ import TeachLayout from './layout/wrapper/teach_index.vue'
 import BlankLayout from './layout/wrapper/blank_index.vue'
 import Toaster from "@meforma/vue-toaster";
 
+const PUBLIC_KEYS = {
+  recaptchaSiteKey: '6Ldr07AsAAAAALCiIdCQjTQy8o2CDxlNxiK2ayh3',
+  googleClientId: '1080697078741-6pe1vbokat8b72nn4nn9q3hhfr99dspl.apps.googleusercontent.com',
+}
+
 const app = createApp(App)
+app.config.globalProperties.$publicKeys = PUBLIC_KEYS
 
 app.use(router)
 

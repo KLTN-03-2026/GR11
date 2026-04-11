@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
+import checkClient from "./checkClient";
+import checkAdmin from "./checkAdmin";
+import checkTeacher from "./checkTeacher";
 
 const routes = [
   //---------------------------------------------CLIENT--------------------------------------------------------------

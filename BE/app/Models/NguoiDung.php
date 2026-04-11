@@ -29,6 +29,12 @@ class NguoiDung extends Authenticatable
         'hash_active',
         'hash_reset',
     ];
-    const ROLE_KHACH_HANG = 0;
     const ROLE_ADMIN = 1;
+    const ROLE_TEACHER = 2;
+    const ROLE_USER = 3;
+
+    public function vaiTro()
+    {
+        return $this->belongsTo(VaiTro::class, 'vai_tro_id');
+    }
 }
