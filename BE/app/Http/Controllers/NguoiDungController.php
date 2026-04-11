@@ -20,6 +20,85 @@ use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    public function forgotPassword(QuenMatKhauRequest $request)
+    {
+        try {
+            $email = $request->validated('email');
+            $user = NguoiDung::where('email', $email)->firstOrFail();
+
+            $otp = (string) random_int(100000, 999999);
+            $user->hash_reset = $otp;
+            $user->save();
+
+            Mail::to($user->email)->send(new QuenMatKhauMail($user->ho_ten, $otp));
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Mã xác nhận đã được gửi! Vui lòng kiểm tra hộp thư email của bạn.',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi gửi mail quên mật khẩu:', [
+                'email' => $request->validated('email'),
+                'chi_tiet_loi' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Hệ thống đang bận hoặc có lỗi khi gửi email. Vui lòng thử lại sau ít phút.',
+            ], 500);
+        }
+    }
+    public function resetPassword(DatLaiMatKhauRequest $request)
+    {
+        $data = $request->validated();
+
+        try {
+            // 1. Tìm user có email và mã OTP khớp nhau
+            $user = NguoiDung::where('email', $data['email'])
+                ->where('hash_reset', $data['otp'])
+                ->first();
+
+            // 2. Nếu không tìm thấy (OTP sai hoặc Email sai)
+            if (!$user) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Mã xác nhận không chính xác. Vui lòng kiểm tra lại!'
+                ]);
+            }
+
+            // ========================================================
+            // 3. KIỂM TRA THỜI GIAN HẾT HẠN CỦA MÃ OTP (Giới hạn 5 phút)
+            // ========================================================
+            // Tính số phút chênh lệch từ lúc tạo mã (updated_at) đến hiện tại (now)
+            $soPhutDaQua = now()->diffInMinutes($user->updated_at);
+
+            if ($soPhutDaQua >= 5) {
+                // Mã đã hết hạn -> Xóa mã cũ đi để bảo mật
+                $user->hash_reset = null;
+                $user->save();
+
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Mã xác nhận đã hết hạn (quá 5 phút). Vui lòng gửi yêu cầu cấp lại mã mới!'
+                ]);
+            }
+
+            // 4. Nếu OTP đúng và còn hạn -> Tiến hành đổi mật khẩu
+            $user->mat_khau = Hash::make($data['new_password']);
+            $user->hash_reset = null; // Xóa mã OTP đi sau khi dùng xong
+            $user->save();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Đổi mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'
+            ], 500);
+        }
+    }
     public function register(NguoiDungDangKyRequest $request)
     {
         try {

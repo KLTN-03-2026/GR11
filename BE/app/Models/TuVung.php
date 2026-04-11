@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TuVung extends Model
 {
@@ -20,4 +21,12 @@ class TuVung extends Model
         'thu_tu',
         'ngay_tao',
     ];
+
+    /**
+     * @return BelongsTo<BaiHoc, $this>
+     */
+    public function baiHoc(): BelongsTo
+    {
+        return $this->belongsTo(BaiHoc::class, 'bai_hoc_id');
+    }
 }

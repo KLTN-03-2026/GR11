@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BaiHoc extends Model
 {
@@ -17,4 +19,20 @@ class BaiHoc extends Model
         'thu_tu',
         'trang_thai',
     ];
+
+    /**
+     * @return BelongsTo<DanhMucBaiHoc, $this>
+     */
+    public function danhMuc(): BelongsTo
+    {
+        return $this->belongsTo(DanhMucBaiHoc::class, 'danh_muc_id');
+    }
+
+    /**
+     * @return HasMany<TuVung, $this>
+     */
+    public function tuVungs(): HasMany
+    {
+        return $this->hasMany(TuVung::class, 'bai_hoc_id')->orderBy('thu_tu');
+    }
 }

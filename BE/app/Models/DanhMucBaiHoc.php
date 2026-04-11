@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DanhMucBaiHoc extends Model
 {
@@ -16,4 +17,12 @@ class DanhMucBaiHoc extends Model
         'thu_tu',
         'ngay_tao',
     ];
+
+    /**
+     * @return HasMany<BaiHoc, $this>
+     */
+    public function baiHocs(): HasMany
+    {
+        return $this->hasMany(BaiHoc::class, 'danh_muc_id');
+    }
 }
