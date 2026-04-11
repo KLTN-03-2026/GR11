@@ -56,10 +56,10 @@
         <ul class="navbar-list">
           <li>
             <a href="#" class="search-toggle iq-waves-effect d-flex align-items-center bg-danger rounded">
-              <img src="/Admin/images/user/1.jpg" class="img-fluid rounded mr-3" alt="user">
+              <img :src="user.avatarUrl" class="img-fluid rounded mr-3" alt="user" style="width:40px;height:40px;object-fit:cover;">
               <div class="caption">
-                <h6 class="mb-0 line-height text-white">Nik jone</h6>
-                <span class="font-size-12 text-white">Available</span>
+                <h6 class="mb-0 line-height text-white">{{ user.name }}</h6>
+                <span class="font-size-12 text-white">Giáo viên</span>
               </div>
             </a>
             <div class="iq-sub-dropdown iq-user-dropdown"
@@ -82,7 +82,7 @@
                   </a>
 
                   <div class="w-100 text-center p-3">
-                    <a class="btn btn-danger" href="/dang-xuat" role="button"
+                    <a class="btn btn-danger" href="#" role="button" @click.prevent="dangXuat"
                       style="background-color: #dc3545 !important; border-color: #dc3545 !important; color: #ffffff !important; box-shadow: none !important; border-radius: 10px !important;">
                       Đăng xuất <i class="ri-login-box-line ml-2"></i>
                     </a>
@@ -98,6 +98,70 @@
   </div>
 </template>
 <script>
-export default {};
+import axios from 'axios'
+
+const ANH_MAC_DINH = '/Admin/images/user/1.jpg'
+const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien']
+
+export default {
+  data() {
+    return {
+      user: {},
+    }
+  },
+  mounted() {
+    this.dongBoUserTuLocal()
+    window.addEventListener('storage', this.dongBoUserTuLocal)
+  },
+  beforeUnmount() {
+    window.removeEventListener('storage', this.dongBoUserTuLocal)
+  },
+  methods: {
+    duongDanAnh(raw, macDinh) {
+      if (!raw) {
+        return macDinh
+      }
+      if (raw.startsWith('http://') || raw.startsWith('https://')) {
+        return raw
+      }
+      const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
+      return `${base}/storage/${String(raw).replace(/^\//, '')}`
+    },
+    dongBoUserTuLocal() {
+      this.user = {
+        name: localStorage.getItem('ho_ten') || 'Giáo viên',
+        avatarUrl: this.duongDanAnh(localStorage.getItem('anh_dai_dien'), ANH_MAC_DINH),
+      }
+    },
+    dangXuat() {
+      const token = localStorage.getItem('token_teacher')
+      axios
+        .post(
+          'http://127.0.0.1:8000/api/dang-xuat',
+          {},
+          {
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          }
+        )
+        .then((res) => {
+          if (res.data.status) {
+            localStorage.removeItem('token_teacher')
+            PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
+            this.$toast.success(res.data.message)
+            this.$router.push('/dang-nhap')
+          } else {
+            this.$toast.error('Có lỗi xảy ra')
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem('token_teacher')
+          PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
+          this.$router.push('/dang-nhap')
+        })
+    },
+  },
+}
 </script>
 <style></style>
