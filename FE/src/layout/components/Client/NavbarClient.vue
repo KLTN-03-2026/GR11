@@ -3,7 +3,7 @@
   <!-- Logo -->
   <router-link to="/" class="navbar-brand d-flex align-items-center">
     <h1 class="m-0 text-primary">
-      <i class="fa fa-book-reader me-3"></i>EchoKids
+      <i :class="branding.logo_icon"></i>{{ branding.site_name }}
     </h1>
   </router-link>
 
@@ -182,6 +182,10 @@ export default {
       showUserMenu: false,
       user: {},
       daDangNhap: false,
+      branding: {
+        logo_icon: "fa fa-book-reader me-3",
+        site_name: "EchoKids",
+      },
     };
   },
 
@@ -201,6 +205,7 @@ export default {
   mounted() {
     document.addEventListener("click", this.handleClickOutside);
     this.dongBoUserTuLocal();
+    this.taiCauHinhChung();
     window.addEventListener("storage", this.dongBoUserTuLocal);
   },
 
@@ -210,6 +215,19 @@ export default {
   },
 
   methods: {
+    taiCauHinhChung() {
+      axios
+        .get("http://127.0.0.1:8000/api/admin/cau-hinh/chung/data")
+        .then((res) => {
+          if (res.data?.status && res.data?.data) {
+            this.branding.logo_icon =
+              res.data.data.logo_icon || this.branding.logo_icon;
+            this.branding.site_name =
+              res.data.data.site_name || this.branding.site_name;
+          }
+        })
+        .catch(() => {});
+    },
     duongDanAnh(raw, macDinh = "") {
       if (!raw) {
         return macDinh;

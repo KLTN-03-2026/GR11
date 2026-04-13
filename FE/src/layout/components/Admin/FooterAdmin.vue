@@ -15,7 +15,7 @@
             </ul>
           </div>
           <div class="col-lg-6 text-right">
-            Copyright 2026 <a href="#">DTU</a>.
+            Copyright 2026 <a href="#">{{ footer.site_name }}</a>.
           </div>
         </div>
       </div>
@@ -24,6 +24,31 @@
 </div>
 </template>
 <script>
-export default {};
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      footer: {
+        site_name: "EchoKids",
+      },
+    };
+  },
+  mounted() {
+    this.taiCauHinhFooter();
+  },
+  methods: {
+    taiCauHinhFooter() {
+      axios
+        .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
+        .then((res) => {
+          if (res.data?.status && res.data?.data) {
+            this.footer.site_name = res.data.data.site_name || this.footer.site_name;
+          }
+        })
+        .catch(() => {});
+    },
+  },
+};
 </script>
 <style></style>

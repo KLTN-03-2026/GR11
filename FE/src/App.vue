@@ -1,4 +1,5 @@
 <template>
+  <SystemAlert />
   <component :is="layout" />
 
   <!-- ChatBox chỉ hiện ở Client -->
@@ -7,12 +8,14 @@
 
 <script>
 import ChatBox from './components/Client/ChatBox/index.vue';
+import SystemAlert from './components/SystemAlert.vue';
 
 const default_layout = "client";
 
 export default {
   components: {
-    ChatBox
+    ChatBox,
+    SystemAlert
   },
   computed: {
     layout() {

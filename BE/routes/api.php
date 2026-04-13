@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BaiHocController;
+use App\Http\Controllers\CauHinhController;
 use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
 use App\Http\Controllers\NguoiDungController;
@@ -16,62 +17,87 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 });
+
 //---------------------------------------------ADMIN--------------------------------------------------------------
-Route::prefix('/admin/quan-ly-tai-khoan')->group(function () {
-    Route::post('/create', [AdminController::class, 'store']);
-    Route::get('/data', [AdminController::class, 'getdata']);
-    Route::post('/update', [AdminController::class, 'update']);
-    Route::post('/change-status', [AdminController::class, 'changeStatus']);
-    Route::post('/tim-kiem', [AdminController::class, 'search']);
-    Route::post('/filter-by-role', [AdminController::class, 'filterByRole']);
+
+Route::prefix('/admin')->group(function () {
+    Route::prefix('/quan-ly-tai-khoan')->group(function () {
+        Route::post('/create', [AdminController::class, 'store']);
+        Route::get('/data', [AdminController::class, 'getdata']);
+        Route::post('/update', [AdminController::class, 'update']);
+        Route::post('/change-status', [AdminController::class, 'changeStatus']);
+        Route::post('/tim-kiem', [AdminController::class, 'search']);
+        Route::post('/filter-by-role', [AdminController::class, 'filterByRole']);
+    });
+
+    Route::prefix('/danh-muc-bai-hoc')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [KiemDuyetBaiHocConTroller::class, 'index']);
+        Route::post('/', [KiemDuyetBaiHocConTroller::class, 'store']);
+        Route::put('/{id}', [KiemDuyetBaiHocConTroller::class, 'update']);
+        Route::delete('/{id}', [KiemDuyetBaiHocConTroller::class, 'destroy']);
+        Route::patch('/{id}/trang-thai', [KiemDuyetBaiHocConTroller::class, 'changeStatus']);
+
+        Route::get('/{id}/bai-hoc', [KiemDuyetBaiHocConTroller::class, 'getBaiHoc']);
+    });
+
+    Route::prefix('/kiem-duyet-bai-hoc')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [KiemDuyetBaiHocConTroller::class, 'index']);
+        Route::patch('/{id}/trang-thai', [KiemDuyetBaiHocConTroller::class, 'changeStatus']);
+        Route::get('/{id}/tu-vung', [KiemDuyetBaiHocConTroller::class, 'getTuVung']);
+    });
+
+    Route::prefix('/vai-tro')->middleware('auth:sanctum')->group(function () {
+        Route::get('/data', [VaiTroController::class, 'getData']);
+        Route::post('/create', [VaiTroController::class, 'store']);
+    });
+
+    Route::prefix('/phan-quyen')->middleware('auth:sanctum')->group(function () {
+        Route::get('/data', [VaiTroQuyenController::class, 'getData']);
+        Route::post('/dong-bo', [VaiTroQuyenController::class, 'sync']);
+    });
+
+    Route::prefix('/cau-hinh')->group(function () {
+        Route::get('/chung/data', [CauHinhController::class, 'getGeneralSettings']);
+        Route::post('/chung/update', [CauHinhController::class, 'updateGeneralSettings']);
+
+        Route::get('/ai/data', [CauHinhController::class, 'getAiSettings']);
+        Route::put('/ai/update', [CauHinhController::class, 'updateAiSettings']);
+
+        Route::get('/thong-bao/data', [CauHinhController::class, 'getAlertSettings']);
+        Route::put('/thong-bao/update', [CauHinhController::class, 'updateAlertSettings']);
+
+        Route::get('/banners/data', [CauHinhController::class, 'index']);
+        Route::post('/banners/create', [CauHinhController::class, 'store']);
+        Route::patch('/banners/update/{id}', [CauHinhController::class, 'update']);
+        Route::delete('/banners/delete/{id}', [CauHinhController::class, 'destroy']);
+    });
 });
 
-
-Route::prefix('/admin/danh-muc-bai-hoc')->middleware('auth:sanctum')->group(function () {
-    Route::get('/', [KiemDuyetBaiHocConTroller::class, 'index']);
-    Route::post('/', [KiemDuyetBaiHocConTroller::class, 'store']);
-    Route::put('/{id}', [KiemDuyetBaiHocConTroller::class, 'update']);
-    Route::delete('/{id}', [KiemDuyetBaiHocConTroller::class, 'destroy']);
-    Route::patch('/{id}/trang-thai', [KiemDuyetBaiHocConTroller::class, 'changeStatus']);
-
-    Route::get('/{id}/bai-hoc', [KiemDuyetBaiHocConTroller::class, 'getBaiHoc']);
-});
+Route::get('/cau-hinh/footer/data', [CauHinhController::class, 'getFooterSettings']);
+Route::get('/cau-hinh/thong-bao', [CauHinhController::class, 'getAlertSettings']);
 
 
-Route::prefix('/admin/kiem-duyet-bai-hoc')->middleware('auth:sanctum')->group(function () {
-    Route::get('/', [KiemDuyetBaiHocConTroller::class, 'index']);
-    Route::patch('/{id}/trang-thai', [KiemDuyetBaiHocConTroller::class, 'changeStatus']);
+//------------------------------------------------Auth-----------------------------------------------------------
 
-    Route::get('/{id}/tu-vung', [KiemDuyetBaiHocConTroller::class, 'getTuVung']);
-});
-
-Route::prefix('/admin/vai-tro')->middleware('auth:sanctum')->group(function () {
-    Route::get('/data', [VaiTroController::class, 'getData']);
-    Route::post('/create', [VaiTroController::class, 'store']);
-});
-
-Route::prefix('/admin/phan-quyen')->middleware('auth:sanctum')->group(function () {
-    Route::get('/data', [VaiTroQuyenController::class, 'getData']);
-    Route::post('/dong-bo', [VaiTroQuyenController::class, 'sync']);
-});
-
-//---------------------------------------------CLIENT--------------------------------------------------------------
 Route::get('/check-token', [NguoiDungController::class, 'checkToken']);
 Route::post('/login-google', [NguoiDungController::class, 'loginGoogle']);
 Route::post('/dang-nhap', [NguoiDungController::class, 'login']);
-Route::post('/login-google', [NguoiDungController::class, 'loginGoogle']);
 Route::post('/dang-ky', [NguoiDungController::class, 'register']);
 
 Route::post('/quen-mat-khau', [NguoiDungController::class, 'forgotPassword']);
 Route::post('/dat-lai-mat-khau', [NguoiDungController::class, 'resetPassword']);
 
+
+
+
+
+
+//---------------------------------------------CLIENT--------------------------------------------------------------
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/check-token', [NguoiDungController::class, 'checkToken']);
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
     Route::post('/dang-xuat', [NguoiDungController::class, 'logOut']);
-
 });
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {
@@ -89,3 +115,5 @@ Route::prefix('/tts-vi')->group(function () {
 
     Route::get('/', [TtsController::class, 'vietnamese']);
 });
+
+
