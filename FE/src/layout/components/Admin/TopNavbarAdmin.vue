@@ -75,7 +75,7 @@
                         </div>
                         <div class="media-body ml-3">
                           <h6 class="mb-0">My Profile</h6>
-                          <p class="mb-0 font-size-12">View personal profile details.</p>
+                          <p class="mb-0 font-size-12">Xem thông tin chi tiết hồ sơ cá nhân.</p>
                         </div>
                       </div>
                     </router-link>

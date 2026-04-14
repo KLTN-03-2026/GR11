@@ -98,6 +98,10 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('/dang-xuat', [NguoiDungController::class, 'logOut']);
+    Route::get('/profile', [NguoiDungController::class, 'profile']);
+    Route::post('/profile/update', [NguoiDungController::class, 'updateProfile']);
+    Route::post('/profile/update-avatar', [NguoiDungController::class, 'updateProfileAvatar']);
+    Route::post('/profile/change-password', [NguoiDungController::class, 'changeProfilePassword']);
 });
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {

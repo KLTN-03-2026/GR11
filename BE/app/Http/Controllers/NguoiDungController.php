@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DangNhapRequest;
 use App\Http\Requests\DatLaiMatKhauRequest;
+use App\Http\Requests\ChangeProfilePasswordRequest;
 use App\Http\Requests\NguoiDungDangKyRequest;
 use App\Http\Requests\QuenMatKhauRequest;
+use App\Http\Requests\UpdateProfileAvatarRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\NguoiDung;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,10 +19,122 @@ use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    private function buildProfilePayload($user): array
+    {
+        return [
+            'id' => $user->id,
+            'ho_va_ten' => $user->ho_ten,
+            'email' => $user->email,
+            'so_dien_thoai' => $user->sdt,
+            'anh_dai_dien' => $user->anh_dai_dien,
+            'dia_chi' => null,
+            'chuc_vu' => [
+                'ten_chuc_vu' => $user->vaiTro?->ten_vai_tro,
+            ],
+            'vai_tro_id' => $user->vai_tro_id,
+        ];
+    }
+
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        $user->load('vaiTro');
+
+        return response()->json([
+            'status' => true,
+            'thong_tin' => $this->buildProfilePayload($user),
+        ]);
+    }
+
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        $user->update([
+            'ho_ten' => $request->input('ho_va_ten'),
+            'sdt' => $request->input('so_dien_thoai'),
+        ]);
+
+        $user->load('vaiTro');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Cập nhật thông tin thành công.',
+            'thong_tin' => $this->buildProfilePayload($user),
+        ]);
+    }
+
+    public function updateProfileAvatar(UpdateProfileAvatarRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        $anhCu = $user->anh_dai_dien;
+        if ($anhCu && !preg_match('/^https?:\/\//i', $anhCu) && Storage::disk('public')->exists($anhCu)) {
+            Storage::disk('public')->delete($anhCu);
+        }
+
+        $duongDanAnh = $request->file('anh_dai_dien')->store('avatars', 'public');
+        $user->anh_dai_dien = $duongDanAnh;
+        $user->save();
+        $user->load('vaiTro');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Cập nhật ảnh đại diện thành công.',
+            'thong_tin' => $this->buildProfilePayload($user),
+        ]);
+    }
+
+    public function changeProfilePassword(ChangeProfilePasswordRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        if (!Hash::check($request->old_password, $user->mat_khau)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mật khẩu hiện tại không đúng.',
+            ], 422);
+        }
+
+        $user->mat_khau = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Đổi mật khẩu thành công.',
+        ]);
+    }
+
     public function logOut(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
