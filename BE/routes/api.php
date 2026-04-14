@@ -6,6 +6,8 @@ use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
 use App\Http\Controllers\NguoiDungController;
 use App\Http\Controllers\TtsController;
+use App\Http\Controllers\VaiTroController;
+use App\Http\Controllers\VaiTroQuyenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,7 +45,15 @@ Route::prefix('/admin/kiem-duyet-bai-hoc')->middleware('auth:sanctum')->group(fu
     Route::get('/{id}/tu-vung', [KiemDuyetBaiHocConTroller::class, 'getTuVung']);
 });
 
+Route::prefix('/admin/vai-tro')->middleware('auth:sanctum')->group(function () {
+    Route::get('/data', [VaiTroController::class, 'getData']);
+    Route::post('/create', [VaiTroController::class, 'store']);
+});
 
+Route::prefix('/admin/phan-quyen')->middleware('auth:sanctum')->group(function () {
+    Route::get('/data', [VaiTroQuyenController::class, 'getData']);
+    Route::post('/dong-bo', [VaiTroQuyenController::class, 'sync']);
+});
 
 //---------------------------------------------CLIENT--------------------------------------------------------------
 Route::get('/check-token', [NguoiDungController::class, 'checkToken']);
