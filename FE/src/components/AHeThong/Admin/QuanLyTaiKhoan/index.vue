@@ -174,8 +174,8 @@
                   <input type="email" class="form-control shadow-none" v-model="create.email" required>
                 </div>
                 <div class="col-md-12">
-                  <label class="form-label text-muted small fw-semibold mb-1">Mật khẩu khởi tạo</label>
-                  <input type="password" class="form-control shadow-none" v-model="create.mat_khau" placeholder="Để trống sẽ dùng mặc định phía server">
+                  <label class="form-label text-muted small fw-semibold mb-1">Mật khẩu khởi tạo <span class="text-danger">*</span></label>
+                  <input type="password" class="form-control shadow-none" v-model="create.mat_khau">
                 </div>
                 <div class="col-12 mt-3 ms-3">
                   <div class="form-check form-switch">
@@ -280,7 +280,7 @@
 <script>
 import axios from 'axios'
 
-const API_URL = 'http://127.0.0.1:8000/api/admin/nguoi-dungs'
+const API_URL = 'http://127.0.0.1:8000/api/admin/quan-ly-tai-khoan'
 
 export default {
   data() {
@@ -313,7 +313,15 @@ export default {
 
   computed: {
     danh_sach_nguoi_dung() {
-      return (this.list || []).map((item) => this.chuanHoaDuLieuNguoiDung(item))
+      const isBlockFilter = this.search.is_block
+      return (this.list || [])
+        .map((item) => this.chuanHoaDuLieuNguoiDung(item))
+        .filter((user) => {
+          if (isBlockFilter === '' || isBlockFilter == null) {
+            return true
+          }
+          return Number(user.is_block) === Number(isBlockFilter)
+        })
     },
   },
 
@@ -345,7 +353,8 @@ export default {
         email: item.email ?? '',
         phone: item.sdt ?? '',
         role: this.chuyenVaiTro(item.vai_tro_id),
-        status: Number(item.is_block) === 1 ? 'Tạm khóa' : 'Đang hoạt động',
+        is_block: Number(item.is_block ?? 0),
+        status: Number(item.is_block ?? 0) === 1 ? 'Tạm khóa' : 'Đang hoạt động',
         joinedAt: item.ngay_tao ? new Date(item.ngay_tao).toLocaleDateString('vi-VN') : '',
       }
     },
@@ -366,35 +375,47 @@ export default {
       const params = {}
       const kw = (this.search.keyword || '').trim()
       if (kw !== '') {
-        params.keyword = kw
+        params.key = kw
       }
       if (this.search.vai_tro_id !== '' && this.search.vai_tro_id != null) {
         params.vai_tro_id = this.search.vai_tro_id
-      }
-      if (this.search.is_block !== '' && this.search.is_block != null) {
-        params.is_block = this.search.is_block
       }
       return params
     },
 
     fetchDanhSach() {
       const params = this.thamSoTruyVan()
-      const coTuKhoa = params.keyword !== undefined && params.keyword !== ''
-      const url = coTuKhoa ? `${API_URL}/search` : API_URL
-      const query = { ...params }
-      if (!coTuKhoa) {
-        delete query.keyword
+      const coTuKhoa = params.key !== undefined && params.key !== ''
+      const coVaiTro = params.vai_tro_id !== undefined && params.vai_tro_id !== ''
+
+      let url = `${API_URL}/data`
+      let requestMethod = 'get'
+      let payload = {}
+
+      if (coTuKhoa) {
+        url = `${API_URL}/tim-kiem`
+        requestMethod = 'post'
+        payload = { key: params.key }
+      } else if (coVaiTro) {
+        url = `${API_URL}/filter-by-role`
+        requestMethod = 'post'
+        payload = { vai_tro_id: Number(params.vai_tro_id) }
       }
 
-      axios
-        .get(url, {
-          headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
-          },
-          params: query,
-        })
+      axios({
+        method: requestMethod,
+        url,
+        data: payload,
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
+        },
+      })
         .then((res) => {
-          this.list = res.data.data || []
+          let data = res.data.data || []
+          if (coTuKhoa && coVaiTro) {
+            data = data.filter((item) => Number(item.vai_tro_id) === Number(params.vai_tro_id))
+          }
+          this.list = data
         })
         .catch((res) => {
           this.xuLyLoiAxios(res)
@@ -402,7 +423,7 @@ export default {
     },
 
     themMoi() {
-      if (!this.create.ho_ten || !this.create.email || !this.create.vai_tro_id) {
+      if (!this.create.ho_ten || !this.create.email || !this.create.vai_tro_id || !this.create.mat_khau) {
         this.$toast.error('Vui lòng điền đủ các trường bắt buộc')
         return
       }
@@ -412,15 +433,12 @@ export default {
         email: this.create.email,
         sdt: this.create.sdt || null,
         vai_tro_id: this.create.vai_tro_id,
-        is_block: this.create.kich_hoat ? 0 : 1,
-        trang_thai: 1,
-      }
-      if (this.create.mat_khau) {
-        payload.mat_khau = this.create.mat_khau
+        mat_khau: this.create.mat_khau,
+        trang_thai: this.create.kich_hoat ? 1 : 0,
       }
 
       axios
-        .post(API_URL, payload, {
+        .post(`${API_URL}/create`, payload, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
           },
@@ -475,7 +493,7 @@ export default {
       }
 
       axios
-        .put(`${API_URL}/${this.edit.id}`, payload, {
+        .post(`${API_URL}/update`, { id: this.edit.id, ...payload }, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
           },
@@ -504,10 +522,9 @@ export default {
       if (!this.nguoi_dung_can_doi_trang_thai) return
 
       const u = this.nguoi_dung_can_doi_trang_thai
-      const isBlock = u.status === 'Đang hoạt động' ? 1 : 0
 
       axios
-        .patch(`${API_URL}/${u.id}/status`, { is_block: isBlock }, {
+        .post(`${API_URL}/change-status`, { id: u.id }, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
           },
