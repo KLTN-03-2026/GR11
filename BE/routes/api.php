@@ -6,6 +6,9 @@ use App\Http\Controllers\CauHinhController;
 use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
 use App\Http\Controllers\NguoiDungController;
+use App\Http\Controllers\QuanHeGvHvController;
+use App\Http\Controllers\TeacherQuanLyBaiHocController;
+use App\Http\Controllers\TeacherTuVungController;
 use App\Http\Controllers\TtsController;
 use App\Http\Controllers\VaiTroController;
 use App\Http\Controllers\VaiTroQuyenController;
@@ -76,6 +79,38 @@ Route::prefix('/admin')->group(function () {
 Route::get('/cau-hinh/footer/data', [CauHinhController::class, 'getFooterSettings']);
 Route::get('/cau-hinh/thong-bao', [CauHinhController::class, 'getAlertSettings']);
 
+//---------------------------------------------Teacher--------------------------------------------------------------
+
+Route::prefix('/teacher')->middleware(['auth:sanctum', 'role:2'])->group(function () {
+    Route::prefix('/danh-muc-bai-hoc')->group(function () {
+        Route::get('/', [TeacherQuanLyBaiHocController::class, 'indexDanhMuc']);
+        Route::post('/', [TeacherQuanLyBaiHocController::class, 'storeDanhMuc']);
+        Route::put('/{id}', [TeacherQuanLyBaiHocController::class, 'updateDanhMuc']);
+        Route::delete('/{id}', [TeacherQuanLyBaiHocController::class, 'destroyDanhMuc']);
+        Route::get('/{id}/bai-hoc', [TeacherQuanLyBaiHocController::class, 'indexBaiHocTheoDanhMuc']);
+    });
+
+    Route::prefix('/bai-hoc')->group(function () {
+        Route::get('/{id}/tu-vung', [TeacherTuVungController::class, 'index']);
+        Route::post('/{id}/tu-vung', [TeacherTuVungController::class, 'store']);
+        Route::post('/', [TeacherQuanLyBaiHocController::class, 'storeBaiHoc']);
+        Route::put('/{id}', [TeacherQuanLyBaiHocController::class, 'updateBaiHoc']);
+        Route::delete('/{id}', [TeacherQuanLyBaiHocController::class, 'destroyBaiHoc']);
+    });
+
+    Route::prefix('/tu-vung')->group(function () {
+        Route::put('/{id}', [TeacherTuVungController::class, 'update']);
+        Route::delete('/{id}', [TeacherTuVungController::class, 'destroy']);
+    });
+
+    Route::prefix('/gv-hv')->group(function () {
+        Route::get('/hoc-vien', [QuanHeGvHvController::class, 'danhSachHocVien']);
+        Route::get('/hoc-vien/{id}', [QuanHeGvHvController::class, 'chiTietHocVien']);
+        Route::get('/bai-hoc-goi-y', [QuanHeGvHvController::class, 'danhSachBaiHocGoiY']);
+        Route::post('/goi-y', [QuanHeGvHvController::class, 'guiGoiY']);
+    });
+});
+
 
 //------------------------------------------------Auth-----------------------------------------------------------
 
@@ -86,9 +121,6 @@ Route::post('/dang-ky', [NguoiDungController::class, 'register']);
 
 Route::post('/quen-mat-khau', [NguoiDungController::class, 'forgotPassword']);
 Route::post('/dat-lai-mat-khau', [NguoiDungController::class, 'resetPassword']);
-
-
-
 
 
 
