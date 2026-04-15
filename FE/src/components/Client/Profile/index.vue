@@ -44,7 +44,6 @@
                                                     <span v-if="isUpdatingAvatar" class="spinner-border spinner-border-sm me-2"></span>
                                                     <i class="fa-solid fa-camera me-2" v-else></i>Đổi ảnh đại diện
                                                 </button>
-                                                <small class="text-muted d-block mt-2">Hỗ trợ JPG, PNG, WEBP (tối đa 2MB)</small>
                                             </div>
                                             <h3 class="mb-2 fw-bold text-dark">{{ thong_tin.ho_va_ten || 'Chưa có tên' }}</h3>
                                             <h6 class="mb-2 text-muted">{{ thong_tin.email }}</h6>
@@ -199,6 +198,12 @@ export default {
     name: 'NhanVienProfile',
     computed: {
         avatarDisplayUrl() {
+            if (this.localAvatarPreviewUrl) {
+                return this.localAvatarPreviewUrl;
+            }
+            if (this.thong_tin.anh_dai_dien_url) {
+                return this.thong_tin.anh_dai_dien_url;
+            }
             return this.duongDanAnh(this.thong_tin.anh_dai_dien || '');
         }
     },
@@ -219,7 +224,8 @@ export default {
             showConfirmPassword: false,
             isUpdatingProfile: false,
             isChangingPassword: false,
-            isUpdatingAvatar: false
+            isUpdatingAvatar: false,
+            localAvatarPreviewUrl: ''
         }
     },
     mounted() {
@@ -245,6 +251,30 @@ export default {
             if (localStorage.getItem("token_teacher")) return "/dang-nhap";
             return "/dang-nhap";
         },
+        capNhatProfileLocal(thongTin) {
+            if (!thongTin || typeof thongTin !== 'object') {
+                return;
+            }
+
+            const hoTen = thongTin.ho_va_ten || '';
+            if (hoTen) {
+                localStorage.setItem("ho_ten", hoTen);
+            }
+
+            if (thongTin.anh_dai_dien) {
+                localStorage.setItem("anh_dai_dien", thongTin.anh_dai_dien);
+            } else {
+                localStorage.removeItem("anh_dai_dien");
+            }
+
+            window.dispatchEvent(new CustomEvent('profile-updated', {
+                detail: {
+                    ho_ten: hoTen,
+                    anh_dai_dien: thongTin.anh_dai_dien || null,
+                    anh_dai_dien_url: thongTin.anh_dai_dien_url || null
+                }
+            }));
+        },
         loadProfile() {
             axios
                 .get("http://127.0.0.1:8000/api/profile", {
@@ -255,11 +285,7 @@ export default {
                 .then((res) => {
                     if (res.data.status) {
                         this.thong_tin = res.data.thong_tin;
-                        if (res.data.thong_tin?.anh_dai_dien) {
-                            localStorage.setItem("anh_dai_dien", res.data.thong_tin.anh_dai_dien);
-                        } else {
-                            localStorage.removeItem("anh_dai_dien");
-                        }
+                        this.capNhatProfileLocal(res.data.thong_tin);
                         // Populate profile form
                         this.profileData = {
                             ho_va_ten: res.data.thong_tin.ho_va_ten || '',
@@ -295,15 +321,7 @@ export default {
                         // Update thong_tin với dữ liệu mới
                         if (res.data.thong_tin) {
                             this.thong_tin = res.data.thong_tin;
-                            // Update localStorage nếu có ho_va_ten
-                            if (res.data.thong_tin.ho_va_ten) {
-                                localStorage.setItem("ho_ten", res.data.thong_tin.ho_va_ten);
-                            }
-                            if (res.data.thong_tin.anh_dai_dien) {
-                                localStorage.setItem("anh_dai_dien", res.data.thong_tin.anh_dai_dien);
-                            } else {
-                                localStorage.removeItem("anh_dai_dien");
-                            }
+                            this.capNhatProfileLocal(res.data.thong_tin);
                         }
                         // Reload profile để đảm bảo đồng bộ
                         this.loadProfile();
@@ -360,7 +378,20 @@ export default {
                 return;
             }
 
+            this.setAvatarPreview(file);
             this.uploadAvatar(file);
+        },
+        setAvatarPreview(file) {
+            if (this.localAvatarPreviewUrl) {
+                URL.revokeObjectURL(this.localAvatarPreviewUrl);
+            }
+            this.localAvatarPreviewUrl = URL.createObjectURL(file);
+        },
+        clearAvatarPreview() {
+            if (this.localAvatarPreviewUrl) {
+                URL.revokeObjectURL(this.localAvatarPreviewUrl);
+            }
+            this.localAvatarPreviewUrl = '';
         },
         uploadAvatar(file) {
             this.isUpdatingAvatar = true;
@@ -379,14 +410,12 @@ export default {
                         this.$toast.success(res.data.message || 'Cập nhật ảnh đại diện thành công.');
                         if (res.data.thong_tin) {
                             this.thong_tin = res.data.thong_tin;
-                            if (res.data.thong_tin.anh_dai_dien) {
-                                localStorage.setItem("anh_dai_dien", res.data.thong_tin.anh_dai_dien);
-                            } else {
-                                localStorage.removeItem("anh_dai_dien");
-                            }
+                            this.capNhatProfileLocal(res.data.thong_tin);
                         }
+                        this.clearAvatarPreview();
                     } else {
                         this.$toast.error(res.data.message || 'Không thể cập nhật ảnh đại diện.');
+                        this.clearAvatarPreview();
                     }
                 })
                 .catch((err) => {
@@ -404,6 +433,7 @@ export default {
                     } else {
                         this.$toast.error('Có lỗi xảy ra khi cập nhật ảnh đại diện');
                     }
+                    this.clearAvatarPreview();
                 })
                 .finally(() => {
                     this.isUpdatingAvatar = false;
@@ -458,6 +488,9 @@ export default {
             this.showNewPassword = false;
             this.showConfirmPassword = false;
         }
+    },
+    beforeUnmount() {
+        this.clearAvatarPreview();
     }
 }
 </script>

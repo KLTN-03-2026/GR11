@@ -112,9 +112,11 @@ export default {
   mounted() {
     this.dongBoUserTuLocal()
     window.addEventListener('storage', this.dongBoUserTuLocal)
+    window.addEventListener('profile-updated', this.dongBoUserTuLocal)
   },
   beforeUnmount() {
     window.removeEventListener('storage', this.dongBoUserTuLocal)
+    window.removeEventListener('profile-updated', this.dongBoUserTuLocal)
   },
   methods: {
     duongDanAnh(raw, macDinh) {

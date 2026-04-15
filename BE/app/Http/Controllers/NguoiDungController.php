@@ -24,6 +24,20 @@ use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    private function resolveAvatarUrl(?string $raw): ?string
+    {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        if (preg_match('/^https?:\/\//i', $raw)) {
+            return $raw;
+        }
+
+        return url(Storage::url($raw));
+    }
+
     private function buildProfilePayload($user): array
     {
         return [
@@ -32,6 +46,7 @@ class NguoiDungController extends Controller
             'email' => $user->email,
             'so_dien_thoai' => $user->sdt,
             'anh_dai_dien' => $user->anh_dai_dien,
+            'anh_dai_dien_url' => $this->resolveAvatarUrl($user->anh_dai_dien),
             'dia_chi' => null,
             'chuc_vu' => [
                 'ten_chuc_vu' => $user->vaiTro?->ten_vai_tro,

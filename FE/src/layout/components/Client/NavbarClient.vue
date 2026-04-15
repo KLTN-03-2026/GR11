@@ -207,11 +207,13 @@ export default {
     this.dongBoUserTuLocal();
     this.taiCauHinhChung();
     window.addEventListener("storage", this.dongBoUserTuLocal);
+    window.addEventListener("profile-updated", this.dongBoUserTuLocal);
   },
 
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
     window.removeEventListener("storage", this.dongBoUserTuLocal);
+    window.removeEventListener("profile-updated", this.dongBoUserTuLocal);
   },
 
   methods: {
