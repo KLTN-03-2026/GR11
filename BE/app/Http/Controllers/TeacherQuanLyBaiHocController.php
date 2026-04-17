@@ -41,87 +41,26 @@ class TeacherQuanLyBaiHocController extends Controller
 
     public function storeDanhMuc(StoreDanhMucBaiHocRequest $request): JsonResponse
     {
-        $icon = $request->input('icon');
-        $moTaPayload = $icon !== null && $icon !== ''
-            ? json_encode(['icon' => $icon], JSON_UNESCAPED_UNICODE)
-            : null;
-
-        $danhMuc = DanhMucBaiHoc::create([
-            'ten_danh_muc' => $request->ten_danh_muc,
-            'slug_danh_muc' => $request->slug_danh_muc,
-            'mo_ta' => $moTaPayload,
-            'thu_tu' => $request->thu_tu ?? 1,
-            'trang_thai' => (int) $request->input('trang_thai', 1),
-        ]);
-
         return response()->json([
-            'status' => true,
-            'message' => 'Đã thêm danh mục thành công',
-            'data' => [
-                'id' => $danhMuc->id,
-                'ten' => $danhMuc->ten_danh_muc,
-                'ten_danh_muc' => $danhMuc->ten_danh_muc,
-                'icon' => $this->iconFromMoTa($danhMuc->mo_ta),
-                'so_bai' => 0,
-            ],
-        ], 201);
+            'status' => false,
+            'message' => 'Giáo viên không có quyền thêm danh mục. Vui lòng liên hệ admin.',
+        ], 403);
     }
 
     public function updateDanhMuc(UpdateDanhMucBaiHocRequest $request, int $id): JsonResponse
     {
-        $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Không tìm thấy danh mục',
-            ], 404);
-        }
-
-        $icon = $request->input('icon');
-        $moTaPayload = $icon !== null && $icon !== ''
-            ? json_encode(['icon' => $icon], JSON_UNESCAPED_UNICODE)
-            : $danhMuc->mo_ta;
-
-        $danhMuc->update([
-            'ten_danh_muc' => $request->ten_danh_muc,
-            'slug_danh_muc' => $request->slug_danh_muc,
-            'mo_ta' => $moTaPayload,
-            'thu_tu' => $request->input('thu_tu', $danhMuc->thu_tu),
-            'trang_thai' => (int) $request->input('trang_thai', $danhMuc->trang_thai),
-        ]);
-
-        $danhMuc->refresh();
-        $danhMuc->loadCount('baiHocs');
-
         return response()->json([
-            'status' => true,
-            'message' => 'Đã cập nhật danh mục thành công',
-            'data' => [
-                'id' => $danhMuc->id,
-                'ten' => $danhMuc->ten_danh_muc,
-                'ten_danh_muc' => $danhMuc->ten_danh_muc,
-                'icon' => $this->iconFromMoTa($danhMuc->mo_ta),
-                'so_bai' => (int) $danhMuc->bai_hocs_count,
-            ],
-        ]);
+            'status' => false,
+            'message' => 'Giáo viên không có quyền sửa danh mục. Vui lòng liên hệ admin.',
+        ], 403);
     }
 
     public function destroyDanhMuc(DestroyDanhMucBaiHocRequest $request, int $id): JsonResponse
     {
-        $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Không tìm thấy danh mục',
-            ], 404);
-        }
-
-        $danhMuc->delete();
-
         return response()->json([
-            'status' => true,
-            'message' => 'Đã xóa danh mục thành công',
-        ]);
+            'status' => false,
+            'message' => 'Giáo viên không có quyền xóa danh mục. Vui lòng liên hệ admin.',
+        ], 403);
     }
 
     public function indexBaiHocTheoDanhMuc(GetBaiHocTheoDanhMucRequest $request, int $id): JsonResponse
@@ -180,7 +119,8 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $request->mo_ta,
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $thuTu,
-                'trang_thai' => (int) $request->input('trang_thai', 1),
+                // Giáo viên chỉ có thể gửi bài ở trạng thái chờ duyệt.
+                'trang_thai' => 0,
             ]);
         });
 
@@ -251,7 +191,8 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $request->mo_ta,
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $newThuTu,
-                'trang_thai' => (int) $request->input('trang_thai', $baiHoc->trang_thai),
+                // Mọi chỉnh sửa từ giáo viên đều đưa bài về hàng chờ admin duyệt lại.
+                'trang_thai' => 0,
             ]);
         });
 
