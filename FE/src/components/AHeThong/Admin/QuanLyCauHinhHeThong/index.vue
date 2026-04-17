@@ -273,7 +273,7 @@ export default {
     methods: {
         authHeaders() {
             return {
-                Authorization: "Bearer " + (localStorage.getItem("token_admin") || localStorage.getItem("key_admin") || "")
+                Authorization: "Bearer " + (localStorage.getItem("token_admin") || "")
             };
         },
         xuLyLoiAxios(err, defaultMessage) {

@@ -451,7 +451,7 @@ export default {
     methods: {
         authHeaders() {
             return {
-                Authorization: "Bearer " + (localStorage.getItem("key_admin") || localStorage.getItem("token_admin") || "")
+                Authorization: "Bearer " + (localStorage.getItem("token_admin") || "")
             };
         },
 

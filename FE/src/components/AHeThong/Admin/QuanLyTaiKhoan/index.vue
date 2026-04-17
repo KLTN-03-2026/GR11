@@ -339,6 +339,11 @@ export default {
   },
 
   methods: {
+    authHeaders() {
+      return {
+        Authorization: 'Bearer ' + (localStorage.getItem('token_admin') || ''),
+      }
+    },
     chuyenVaiTro(vai_tro_id) {
       if (Number(vai_tro_id) === 1) return 'Admin'
       if (Number(vai_tro_id) === 2) return 'Giáo viên'
@@ -406,9 +411,7 @@ export default {
         method: requestMethod,
         url,
         data: payload,
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
-        },
+        headers: this.authHeaders(),
       })
         .then((res) => {
           let data = res.data.data || []
@@ -434,14 +437,12 @@ export default {
         sdt: this.create.sdt || null,
         vai_tro_id: this.create.vai_tro_id,
         mat_khau: this.create.mat_khau,
-        trang_thai: this.create.kich_hoat ? 1 : 0,
+        is_block: this.create.kich_hoat ? 0 : 1,
       }
 
       axios
         .post(`${API_URL}/create`, payload, {
-          headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
-          },
+          headers: this.authHeaders(),
         })
         .then((res) => {
           if (res.data.status) {
@@ -494,9 +495,7 @@ export default {
 
       axios
         .post(`${API_URL}/update`, { id: this.edit.id, ...payload }, {
-          headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
-          },
+          headers: this.authHeaders(),
         })
         .then((res) => {
           if (res.data.status) {
@@ -525,9 +524,7 @@ export default {
 
       axios
         .post(`${API_URL}/change-status`, { id: u.id }, {
-          headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('key_admin'),
-          },
+          headers: this.authHeaders(),
         })
         .then((res) => {
           if (res.data.status) {
