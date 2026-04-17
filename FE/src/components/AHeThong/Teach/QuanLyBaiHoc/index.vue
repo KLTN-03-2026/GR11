@@ -20,10 +20,6 @@
                         <h6 class="fw-bold mb-0">
                             <i class="fa-solid fa-folder-tree text-primary me-2"></i> Danh mục
                         </h6>
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                            data-bs-target="#danhMucModal" @click="themDanhMuc" title="Thêm danh mục mới">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
                     </div>
                     <div class="card-body p-3">
                         <div v-if="loadingDanhMuc" class="text-center py-4 text-muted">
@@ -49,22 +45,6 @@
                                         :class="danh_muc_dang_chon === dm.id ? 'bg-white text-primary' : 'bg-secondary'">
                                         {{ demSoBaiHoc(dm) }}
                                     </span>
-                                    <div class="dropdown" @click.stop v-if="danh_muc_dang_chon === dm.id">
-                                        <button class="btn btn-sm p-0 text-white" type="button"
-                                            data-bs-toggle="dropdown">
-                                            <i class="fa-solid fa-ellipsis-vertical px-1"></i>
-                                        </button>
-                                        <ul class="dropdown-menu shadow-sm border-0">
-                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#danhMucModal" @click.prevent="suaDanhMuc(dm)"><i
-                                                        class="fa-solid fa-pen text-primary me-2"></i>Sửa danh mục</a>
-                                            </li>
-                                            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#xoaModal"
-                                                    @click.prevent="xoaDoiTuong(dm, 'danh_muc')"><i
-                                                        class="fa-solid fa-trash me-2"></i>Xóa danh mục</a></li>
-                                        </ul>
-                                    </div>
                                 </div>
                             </button>
                         </div>
@@ -195,10 +175,9 @@
 
                                                     <span
                                                         class="badge rounded-pill px-3 py-2 fw-medium d-flex align-items-center gap-1 border"
-                                                        :style="bai.trang_thai === 'hoat_dong' ? 'background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;' : 'background-color: #f1f5f9; color: #475569; border-color: #e2e8f0 !important;'">
-                                                        <i class="fa-solid"
-                                                            :class="bai.trang_thai === 'hoat_dong' ? 'fa-circle-check' : 'fa-clock'"></i>
-                                                        {{ bai.trang_thai === 'hoat_dong' ? 'Hoạt động' : 'Bản nháp' }}
+                                                        :style="styleTrangThaiBaiHoc(bai)">
+                                                        <i class="fa-solid" :class="iconTrangThaiBaiHoc(bai)"></i>
+                                                        {{ nhanTrangThaiBaiHoc(bai) }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -258,10 +237,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Trạng thái</label>
-                                <select class="form-select" v-model="formBaiHoc.trang_thai">
-                                    <option value="hoat_dong">Đang hoạt động</option>
-                                    <option value="nhap">Bản nháp (Ẩn)</option>
-                                </select>
+                                <input type="text" class="form-control" value="Chờ duyệt"
+                                    disabled>
                             </div>
                         </div>
                     </div>
@@ -361,7 +338,7 @@ export default {
                 tieu_de: '',
                 mo_ta: '',
                 cap_do: 'de',
-                trang_thai: 'hoat_dong',
+                trang_thai: 'nhap',
             },
             isEditDanhMuc: false,
             formDanhMuc: { id: null, ten: '', icon: 'fa-solid fa-folder' },
@@ -509,6 +486,25 @@ export default {
             const map = { de: 'Dễ', trung_binh: 'TB', kho: 'Khó' };
             return map[capDo] || 'Dễ';
         },
+        nhanTrangThaiBaiHoc(bai) {
+            const trangThaiSo = Number(bai.trang_thai_so);
+            if (trangThaiSo === 2) return 'Từ chối';
+            return bai.trang_thai === 'hoat_dong' ? 'Đã duyệt' : 'Chờ duyệt';
+        },
+        iconTrangThaiBaiHoc(bai) {
+            const trangThaiSo = Number(bai.trang_thai_so);
+            if (trangThaiSo === 2) return 'fa-circle-xmark';
+            return bai.trang_thai === 'hoat_dong' ? 'fa-circle-check' : 'fa-hourglass-half';
+        },
+        styleTrangThaiBaiHoc(bai) {
+            const trangThaiSo = Number(bai.trang_thai_so);
+            if (trangThaiSo === 2) {
+                return 'background-color: #fee2e2; color: #991b1b; border-color: #fecaca !important;';
+            }
+            return bai.trang_thai === 'hoat_dong'
+                ? 'background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;'
+                : 'background-color: #fef3c7; color: #92400e; border-color: #fde68a !important;';
+        },
         themDanhMuc() {
             this.isEditDanhMuc = false;
             this.formDanhMuc = { id: null, ten: '', icon: 'fa-solid fa-folder' };
@@ -559,7 +555,7 @@ export default {
                 tieu_de: '',
                 mo_ta: '',
                 cap_do: 'de',
-                trang_thai: 'hoat_dong',
+                trang_thai: 'nhap',
             };
         },
         suaBaiHoc(bai) {
@@ -588,7 +584,7 @@ export default {
                 tieu_de: tieuDe,
                 mo_ta: (this.formBaiHoc.mo_ta || '').trim() || null,
                 cap_do: this.formBaiHoc.cap_do,
-                trang_thai: this.formBaiHoc.trang_thai === 'hoat_dong' ? 1 : 0,
+                trang_thai: 0,
             };
             this.savingBaiHoc = true;
             const req = this.isEditBaiHoc
