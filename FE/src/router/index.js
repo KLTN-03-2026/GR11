@@ -87,6 +87,11 @@ const routes = [
     component: () => import("../components/KhachHang/TienDo/index.vue"),
     meta: { layout: "client" },
   },
+  {
+    path: "/on-tap-loi",
+    component: () => import("../components/Client/OntapLoiSai/index.vue"),
+    meta: { layout: "client" },
+  },
 
   //---------------------------------------------ADMIN--------------------------------------------------------------
   {

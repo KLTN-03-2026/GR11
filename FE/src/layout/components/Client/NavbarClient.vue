@@ -66,6 +66,13 @@
           >
             📝 Kiểm Tra
           </router-link>
+
+          <router-link
+            to="/on-tap-loi"
+            class="dropdown-item rounded-3 py-2"
+          >
+            ♻️ Ôn Tập Lỗi
+          </router-link>
         </div>
       </div>
 
