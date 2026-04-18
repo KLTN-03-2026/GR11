@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,17 +14,17 @@ class VaiTroQuyenSeeder extends Seeder
     {
         // 1. Lấy ID của các vai trò
         $adminId = DB::table('vai_tros')->where('ten_vai_tro', 'admin')->value('id');
-        $gvId    = DB::table('vai_tros')->where('ten_vai_tro', 'giao_vien')->value('id');
-        $hvId    = DB::table('vai_tros')->where('ten_vai_tro', 'nguoi_dung')->value('id');
+        $gvId = DB::table('vai_tros')->where('ten_vai_tro', 'giao_vien')->value('id');
+        $hvId = DB::table('vai_tros')->where('ten_vai_tro', 'nguoi_dung')->value('id');
 
         // 2. Lấy ID của các quyền
         $quyenThemBH = DB::table('quyens')->where('ma_quyen', 'them_bai_hoc')->value('id');
-        $quyenSuaBH  = DB::table('quyens')->where('ma_quyen', 'sua_bai_hoc')->value('id');
-        $quyenXoaBH  = DB::table('quyens')->where('ma_quyen', 'xoa_bai_hoc')->value('id');
-        $quyenXemBC  = DB::table('quyens')->where('ma_quyen', 'xem_bao_cao')->value('id');
-        $quyenTaoLT  = DB::table('quyens')->where('ma_quyen', 'tao_lo_trinh')->value('id');
-        $quyenGhiAm  = DB::table('quyens')->where('ma_quyen', 'ghi_am')->value('id');
-        $quyenChatAI  = DB::table('quyens')->where('ma_quyen', 'chat_ai')->value('id');
+        $quyenSuaBH = DB::table('quyens')->where('ma_quyen', 'sua_bai_hoc')->value('id');
+        $quyenXoaBH = DB::table('quyens')->where('ma_quyen', 'xoa_bai_hoc')->value('id');
+        $quyenXemBC = DB::table('quyens')->where('ma_quyen', 'xem_bao_cao')->value('id');
+        $quyenTaoLT = DB::table('quyens')->where('ma_quyen', 'tao_lo_trinh')->value('id');
+        $quyenGhiAm = DB::table('quyens')->where('ma_quyen', 'ghi_am')->value('id');
+        $quyenChatAI = DB::table('quyens')->where('ma_quyen', 'chat_ai')->value('id');
 
         // 3. Định nghĩa mảng phân quyền
         $data = [];
