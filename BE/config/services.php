@@ -38,9 +38,11 @@ return [
         'key' => env('AIzaSyCRzAiwhwC3AkPU7db4TRCDNqY9hMQT-Xc'),
     ],
 
-    'recaptcha' => [
-        'secret' => env('RECAPTCHA_SECRET_KEY') ?: env('RECAPTCHA_SECRET'),
-        'site_key' => env('RECAPTCHA_SITE_KEY'),
+    'fpt' => [
+        'tts_api_key' => env('FPT_TTS_API_KEY'),
+        'tts_voice' => env('FPT_TTS_VOICE', 'banmai'),
+        'tts_speed' => (int) env('FPT_TTS_SPEED', 0),
+        'tts_format' => env('FPT_TTS_FORMAT', 'mp3'),
     ],
 
 ];

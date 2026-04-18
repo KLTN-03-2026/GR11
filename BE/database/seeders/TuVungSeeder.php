@@ -12,10 +12,10 @@ class TuVungSeeder extends Seeder
      */
     public function run(): void
     {
-        $baiHocLN = DB::table('bai_hocs')->where('tieu_de', 'like', '%L và N%')->first();
-        $baiHocHocTap = DB::table('bai_hocs')->where('tieu_de', 'like', '%Đồ dùng học tập%')->first();
-        $baiHocPhongKhach = DB::table('bai_hocs')->where('tieu_de', 'like', '%Phòng khách%')->first();
-        $baiHocPhongBep = DB::table('bai_hocs')->where('tieu_de', 'like', '%Phòng bếp%')->first();
+        $baiHocLN = DB::table('bai_hocs')->where('tieu_de', 'Phát âm phụ âm L và N')->first();
+        $baiHocHocTap = DB::table('bai_hocs')->where('tieu_de', 'Từ vựng: Đồ dùng học tập')->first();
+        $baiHocPhongKhach = DB::table('bai_hocs')->where('tieu_de', 'Từ vựng: Phòng khách')->first();
+        $baiHocPhongBep = DB::table('bai_hocs')->where('tieu_de', 'Từ vựng: Phòng bếp')->first();
 
         $data = [
             ['tu' => 'Quả na', 'pa' => 'Quả na', 'cd' => 'de', 'bh' => $baiHocLN->id ?? null, 'img' => 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80'],
