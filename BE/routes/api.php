@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BaiHocController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
+use App\Http\Controllers\ChatBoxAIController;
 use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\ErrorHistoryController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
@@ -86,7 +87,6 @@ Route::get('/cau-hinh/thong-bao', [CauHinhController::class, 'getAlertSettings']
 Route::prefix('/teacher')->middleware(['auth:sanctum', 'role:2'])->group(function () {
     Route::prefix('/danh-muc-bai-hoc')->group(function () {
         Route::get('/', [TeacherQuanLyBaiHocController::class, 'indexDanhMuc']);
-        Route::post('/', [TeacherQuanLyBaiHocController::class, 'storeDanhMuc']);
         Route::put('/{id}', [TeacherQuanLyBaiHocController::class, 'updateDanhMuc']);
         Route::delete('/{id}', [TeacherQuanLyBaiHocController::class, 'destroyDanhMuc']);
         Route::get('/{id}/bai-hoc', [TeacherQuanLyBaiHocController::class, 'indexBaiHocTheoDanhMuc']);
@@ -137,6 +137,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/update', [NguoiDungController::class, 'updateProfile']);
     Route::post('/profile/update-avatar', [NguoiDungController::class, 'updateProfileAvatar']);
     Route::post('/profile/change-password', [NguoiDungController::class, 'changeProfilePassword']);
+    Route::post('/chat/system/session', [ChatBoxAIController::class, 'session']);
+    Route::post('/chat/system', [ChatBoxAIController::class, 'chatSystem']);
+    Route::get('/chat/system/history', [ChatBoxAIController::class, 'history']);
 });
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {
