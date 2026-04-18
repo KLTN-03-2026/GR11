@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BaiHocController;
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
 use App\Http\Controllers\DanhMucBaiHocController;
+use App\Http\Controllers\ErrorHistoryController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
 use App\Http\Controllers\NguoiDungController;
 use App\Http\Controllers\QuanHeGvHvController;
@@ -153,4 +155,21 @@ Route::prefix('/tts-vi')->group(function () {
     Route::get('/', [TtsController::class, 'vietnamese']);
 });
 
+//---------------------------------------------ERROR REVIEW--------------------------------------------------------------
+Route::prefix('/error-history')->middleware('auth:sanctum')->group(function () {
+    Route::get('/all', [ErrorHistoryController::class, 'getAllErrors']);
+    Route::get('/by-status', [ErrorHistoryController::class, 'getErrorsByStatus']);
+    Route::get('/statistics', [ErrorHistoryController::class, 'getErrorStatistics']);
+    Route::patch('/{error}/status', [ErrorHistoryController::class, 'updateErrorStatus']);
+    Route::delete('/{error}', [ErrorHistoryController::class, 'deleteError']);
+});
+
+Route::prefix('/bookmarks')->middleware('auth:sanctum')->group(function () {
+    Route::get('/statistics', [BookmarkController::class, 'getBookmarkStatistics']);
+    Route::patch('/{bookmark}/mark-completed', [BookmarkController::class, 'markAsCompleted']);
+    Route::patch('/{bookmark}', [BookmarkController::class, 'updateBookmark']);
+    Route::delete('/{bookmark}', [BookmarkController::class, 'deleteBookmark']);
+    Route::get('/', [BookmarkController::class, 'getAllBookmarks']);
+    Route::post('/', [BookmarkController::class, 'createBookmark']);
+});
 
