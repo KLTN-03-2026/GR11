@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PhienLuyenTap extends Model
 {
@@ -18,4 +19,12 @@ class PhienLuyenTap extends Model
         'tong_diem',
         'ngay_tao', 
     ];
+
+    /**
+     * @return BelongsTo<BaiHoc, $this>
+     */
+    public function baiHoc(): BelongsTo
+    {
+        return $this->belongsTo(BaiHoc::class, 'bai_hoc_id');
+    }
 }

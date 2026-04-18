@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DangNhapRequest;
 use App\Http\Requests\DatLaiMatKhauRequest;
+use App\Http\Requests\ChangeProfilePasswordRequest;
 use App\Http\Requests\NguoiDungDangKyRequest;
 use App\Http\Requests\QuenMatKhauRequest;
+use App\Http\Requests\UpdateProfileAvatarRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\NguoiDung;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,10 +19,255 @@ use Google\Client as GoogleClient;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    private function resolveAvatarUrl(?string $raw): ?string
+    {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        if (preg_match('/^https?:\/\//i', $raw)) {
+            return $raw;
+        }
+
+        return url(Storage::url($raw));
+    }
+
+    private function buildProfilePayload($user): array
+    {
+        return [
+            'id' => $user->id,
+            'ho_va_ten' => $user->ho_ten,
+            'email' => $user->email,
+            'so_dien_thoai' => $user->sdt,
+            'anh_dai_dien' => $user->anh_dai_dien,
+            'anh_dai_dien_url' => $this->resolveAvatarUrl($user->anh_dai_dien),
+            'dia_chi' => null,
+            'chuc_vu' => [
+                'ten_chuc_vu' => $user->vaiTro?->ten_vai_tro,
+            ],
+            'vai_tro_id' => $user->vai_tro_id,
+        ];
+    }
+
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        $user->load('vaiTro');
+
+        return response()->json([
+            'status' => true,
+            'thong_tin' => $this->buildProfilePayload($user),
+        ]);
+    }
+
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        $user->update([
+            'ho_ten' => $request->input('ho_va_ten'),
+            'sdt' => $request->input('so_dien_thoai'),
+        ]);
+
+        $user->load('vaiTro');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Cập nhật thông tin thành công.',
+            'thong_tin' => $this->buildProfilePayload($user),
+        ]);
+    }
+
+    public function updateProfileAvatar(UpdateProfileAvatarRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        $anhCu = $user->anh_dai_dien;
+        if ($anhCu && !preg_match('/^https?:\/\//i', $anhCu) && Storage::disk('public')->exists($anhCu)) {
+            Storage::disk('public')->delete($anhCu);
+        }
+
+        $duongDanAnh = $request->file('anh_dai_dien')->store('avatars', 'public');
+        $user->anh_dai_dien = $duongDanAnh;
+        $user->save();
+        $user->load('vaiTro');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Cập nhật ảnh đại diện thành công.',
+            'thong_tin' => $this->buildProfilePayload($user),
+        ]);
+    }
+
+    public function changeProfilePassword(ChangeProfilePasswordRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn chưa đăng nhập.',
+            ], 401);
+        }
+
+        if (!Hash::check($request->old_password, $user->mat_khau)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mật khẩu hiện tại không đúng.',
+            ], 422);
+        }
+
+        $user->mat_khau = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Đổi mật khẩu thành công.',
+        ]);
+    }
+
+    public function logOut(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'status'  => true,
+            'message' => "Đăng xuất thành công",
+        ]);
+    }
+    public function forgotPassword(QuenMatKhauRequest $request)
+    {
+        try {
+            $email = $request->validated('email');
+            $user = NguoiDung::where('email', $email)->firstOrFail();
+
+            $otp = (string) random_int(100000, 999999);
+            $user->hash_reset = $otp;
+            $user->save();
+
+            Mail::to($user->email)->send(new QuenMatKhauMail($user->ho_ten, $otp));
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Mã xác nhận đã được gửi! Vui lòng kiểm tra hộp thư email của bạn.',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi gửi mail quên mật khẩu:', [
+                'email' => $request->validated('email'),
+                'chi_tiet_loi' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Hệ thống đang bận hoặc có lỗi khi gửi email. Vui lòng thử lại sau ít phút.',
+            ], 500);
+        }
+    }
+    public function resetPassword(DatLaiMatKhauRequest $request)
+    {
+        $data = $request->validated();
+
+        try {
+            // 1. Tìm user có email và mã OTP khớp nhau
+            $user = NguoiDung::where('email', $data['email'])
+                ->where('hash_reset', $data['otp'])
+                ->first();
+
+            // 2. Nếu không tìm thấy (OTP sai hoặc Email sai)
+            if (!$user) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Mã xác nhận không chính xác. Vui lòng kiểm tra lại!'
+                ]);
+            }
+
+            // ========================================================
+            // 3. KIỂM TRA THỜI GIAN HẾT HẠN CỦA MÃ OTP (Giới hạn 5 phút)
+            // ========================================================
+            // Tính số phút chênh lệch từ lúc tạo mã (updated_at) đến hiện tại (now)
+            $soPhutDaQua = now()->diffInMinutes($user->updated_at);
+
+            if ($soPhutDaQua >= 5) {
+                // Mã đã hết hạn -> Xóa mã cũ đi để bảo mật
+                $user->hash_reset = null;
+                $user->save();
+
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Mã xác nhận đã hết hạn (quá 5 phút). Vui lòng gửi yêu cầu cấp lại mã mới!'
+                ]);
+            }
+
+            // 4. Nếu OTP đúng và còn hạn -> Tiến hành đổi mật khẩu
+            $user->mat_khau = Hash::make($data['new_password']);
+            $user->hash_reset = null; // Xóa mã OTP đi sau khi dùng xong
+            $user->save();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Đổi mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'
+            ], 500);
+        }
+    }
+    public function register(NguoiDungDangKyRequest $request)
+    {
+        try {
+            $nguoiDung = NguoiDung::create([
+                'ho_ten'     => $request->ho_ten,
+                'email'      => $request->email,
+                'mat_khau'   => Hash::make($request->password),
+                'sdt'        => preg_replace('/[^0-9]/', '', $request->sdt),
+                'ngay_sinh'  => $request->ngay_sinh,
+                'vai_tro_id' => 3,
+                'trang_thai' => 1,
+            ]);
+
+            return response()->json([
+                'status'  => 1,
+                'message' => 'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.',
+                'data'    => [
+                    'id'     => $nguoiDung->id,
+                    'email'  => $nguoiDung->email,
+                    'ho_ten' => $nguoiDung->ho_ten,
+                ],
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 0,
+                'message' => 'Hệ thống đang bảo trì. Vui lòng thử lại sau!',
+                'error'   => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
+    }
     public function loginGoogle(Request $request)
     {
         $idToken = $request->input('id_token') ?? $request->input('credential');

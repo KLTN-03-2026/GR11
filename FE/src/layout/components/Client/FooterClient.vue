@@ -1,9 +1,6 @@
 <template>
   <!-- Footer Start -->
-  <div
-    class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn"
-    data-wow-delay="0.1s"
-  >
+  <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
     <div class="container py-5">
       <div class="row g-5">
         <div class="col-lg-3 col-md-6">
@@ -12,14 +9,15 @@
             <i class="fa fa-map-marker-alt me-3"></i>TP. Hồ Chí Minh, Việt Nam
           </p>
           <p class="mb-2">
-            <i class="fa fa-phone-alt me-3"></i>0123 456 789
+            <i class="fa fa-phone-alt me-3"></i>{{ footer.hotline || '0123 456 789' }}
           </p>
           <p class="mb-2">
-            <i class="fa fa-envelope me-3"></i>support@echokids.vn
+            <i class="fa fa-envelope me-3"></i>{{ footer.support_email || 'support@echokids.vn' }}
           </p>
 
           <div class="d-flex pt-2">
-            <a class="btn btn-outline-light btn-social" href="">
+            <a class="btn btn-outline-light btn-social" :href="footer.facebook_url || '#'" target="_blank"
+              rel="noopener noreferrer">
               <i class="fab fa-facebook-f"></i>
             </a>
 
@@ -51,51 +49,27 @@
 
           <div class="row g-2 pt-2">
             <div class="col-4">
-              <img
-                class="img-fluid rounded bg-light p-1"
-                src="/Client/images/classes-1.jpg"
-                alt=""
-              />
+              <img class="img-fluid rounded bg-light p-1" src="/Client/images/classes-1.jpg" alt="" />
             </div>
 
             <div class="col-4">
-              <img
-                class="img-fluid rounded bg-light p-1"
-                src="/Client/images/classes-2.jpg"
-                alt=""
-              />
+              <img class="img-fluid rounded bg-light p-1" src="/Client/images/classes-2.jpg" alt="" />
             </div>
 
             <div class="col-4">
-              <img
-                class="img-fluid rounded bg-light p-1"
-                src="/Client/images/classes-3.jpg"
-                alt=""
-              />
+              <img class="img-fluid rounded bg-light p-1" src="/Client/images/classes-3.jpg" alt="" />
             </div>
 
             <div class="col-4">
-              <img
-                class="img-fluid rounded bg-light p-1"
-                src="/Client/images/classes-4.jpg"
-                alt=""
-              />
+              <img class="img-fluid rounded bg-light p-1" src="/Client/images/classes-4.jpg" alt="" />
             </div>
 
             <div class="col-4">
-              <img
-                class="img-fluid rounded bg-light p-1"
-                src="/Client/images/classes-5.jpg"
-                alt=""
-              />
+              <img class="img-fluid rounded bg-light p-1" src="/Client/images/classes-5.jpg" alt="" />
             </div>
 
             <div class="col-4">
-              <img
-                class="img-fluid rounded bg-light p-1"
-                src="/Client/images/classes-6.jpg"
-                alt=""
-              />
+              <img class="img-fluid rounded bg-light p-1" src="/Client/images/classes-6.jpg" alt="" />
             </div>
           </div>
         </div>
@@ -108,17 +82,12 @@
           </p>
 
           <div class="position-relative mx-auto" style="max-width: 400px;">
-            <input
-              class="form-control bg-transparent w-100 py-3 ps-4 pe-5"
-              type="text"
-              placeholder="Nhập email của bạn"
-            />
-
-            <button
-              type="button"
-              class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2"
-            >
-              Đăng Ký
+            <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text"
+              placeholder="Nhập email của bạn" />
+            <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">
+              <router-link to="/dang-ky" class="text-white">
+                Đăng Ký
+              </router-link>
             </button>
           </div>
         </div>
@@ -130,7 +99,7 @@
         <div class="row">
           <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
             &copy;
-            <a class="border-bottom" href="#">EchoKids</a>, Hệ thống hỗ trợ
+            <a class="border-bottom" href="#">{{ footer.site_name || 'EchoKids' }}</a>, Hệ thống hỗ trợ
             luyện phát âm tiếng Việt cho trẻ em.
 
             <br />
@@ -153,7 +122,35 @@
 </template>
 
 <script>
-export default {};
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      footer: {
+        site_name: "EchoKids",
+        hotline: "0123 456 789",
+        support_email: "support@echokids.vn",
+        facebook_url: "",
+      },
+    };
+  },
+  mounted() {
+    this.taiCauHinhFooter();
+  },
+  methods: {
+    taiCauHinhFooter() {
+      axios
+        .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
+        .then((res) => {
+          if (res.data?.status && res.data?.data) {
+            this.footer = { ...this.footer, ...res.data.data };
+          }
+        })
+        .catch(() => { });
+    },
+  },
+};
 </script>
 
 <style>
@@ -213,7 +210,7 @@ export default {};
 
 .footer .btn-link {
   display: block;
-  color: rgba(255,255,255,0.7) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
   text-decoration: none;
   padding: 6px 0;
   transition: all 0.3s ease;
@@ -229,7 +226,7 @@ export default {};
   height: 46px;
   border-radius: 50% !important;
   border: none !important;
-  background: rgba(255,255,255,0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,19 +252,19 @@ export default {};
 .footer input.form-control {
   height: 58px;
   border-radius: 999px;
-  border: 2px solid rgba(255,255,255,0.15);
+  border: 2px solid rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
 .footer input.form-control:focus {
   border-color: #ff6b35;
   box-shadow: none;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
 }
 
 .footer input.form-control::placeholder {
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .footer .btn-primary {
@@ -286,7 +283,7 @@ export default {};
 }
 
 .copyright {
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 24px;
   padding-bottom: 12px;
   position: relative;
@@ -305,11 +302,12 @@ export default {};
 
 .footer-menu a {
   margin-left: 16px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 .footer-menu a:hover {
   color: #ff6b35;
-}</style>
+}
+</style>

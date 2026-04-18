@@ -67,8 +67,8 @@
               <div class="iq-card shadow-none m-0">
                 <div class="iq-card-body p-0">
 
-                  <a href="/teacher/pro-file" class="iq-sub-card iq-bg-danger-hover">
-                    <router-link to="/teacher/pro-file" class="nav-link">
+                  <a href="/thong-tin-ca-nhan" class="iq-sub-card iq-bg-danger-hover">
+                    <router-link to="/thong-tin-ca-nhan" class="nav-link">
                       <div class="media align-items-center">
                         <div class="rounded iq-card-icon iq-bg-danger">
                           <i class="ri-file-user-line"></i>
@@ -112,9 +112,11 @@ export default {
   mounted() {
     this.dongBoUserTuLocal()
     window.addEventListener('storage', this.dongBoUserTuLocal)
+    window.addEventListener('profile-updated', this.dongBoUserTuLocal)
   },
   beforeUnmount() {
     window.removeEventListener('storage', this.dongBoUserTuLocal)
+    window.removeEventListener('profile-updated', this.dongBoUserTuLocal)
   },
   methods: {
     duongDanAnh(raw, macDinh) {

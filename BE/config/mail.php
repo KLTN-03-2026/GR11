@@ -14,7 +14,11 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    /*
+    | Gợi ý: "failover" = thử smtp trước, lỗi thì ghi log (OTP vẫn có trong laravel.log).
+    | Gmail: MAIL_USERNAME + Mật khẩu ứng dụng 16 ký tự; không đặt MAIL_SCHEME (Laravel tự chọn smtp/smtps theo cổng).
+    */
+    'default' => env('MAIL_MAILER', 'failover'),
 
     /*
     |--------------------------------------------------------------------------
@@ -39,10 +43,11 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
-            'url' => env('MAIL_URL'),
+            // Để null: Laravel tự dùng smtp (cổng 587/25) hoặc smtps (465). Không dùng giá trị "tls".
+            'scheme' => env('MAIL_SCHEME') ?: null,
+            'url' => env('MAIL_URL') ?: null,
             'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
+            'port' => (int) env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
