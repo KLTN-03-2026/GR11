@@ -25,29 +25,34 @@ class ErrorHistoryController extends Controller
             ->where('nguoi_dung_id', $user->id)
             ->with([
                 'tuVung' => function ($q): void {
-                    $q->select('id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url');
-                },
-                'baiHoc' => function ($q): void {
-                    $q->select('id', 'tieu_de', 'cap_do');
+                    $q->select('id', 'bai_hoc_id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url')
+                        ->with([
+                            'baiHoc' => function ($qq): void {
+                                $qq->select('id', 'tieu_de', 'cap_do');
+                            },
+                        ]);
                 },
             ])
             ->orderByDesc('lan_mac_loi_gan_nhat')
             ->paginate(20);
 
         $data = $errors->map(function ($error) {
+            $tuVung = $error->tuVung;
+            $baiHoc = $tuVung?->baiHoc;
+
             return [
                 'id' => $error->id,
                 'tu_vung' => [
-                    'id' => $error->tuVung->id,
-                    'tu_chuan' => $error->tuVung->tu_chuan,
-                    'phien_am' => $error->tuVung->phien_am,
-                    'hinh_anh_url' => $this->resolveMediaUrl($error->tuVung->hinh_anh_url),
-                    'am_thanh_mau_url' => $this->resolveMediaUrl($error->tuVung->am_thanh_mau_url),
+                    'id' => $tuVung?->id,
+                    'tu_chuan' => $tuVung?->tu_chuan,
+                    'phien_am' => $tuVung?->phien_am,
+                    'hinh_anh_url' => $this->resolveMediaUrl($tuVung?->hinh_anh_url),
+                    'am_thanh_mau_url' => $this->resolveMediaUrl($tuVung?->am_thanh_mau_url),
                 ],
                 'bai_hoc' => [
-                    'id' => $error->baiHoc->id,
-                    'tieu_de' => $error->baiHoc->tieu_de,
-                    'cap_do' => $error->baiHoc->cap_do,
+                    'id' => $baiHoc?->id,
+                    'tieu_de' => $baiHoc?->tieu_de,
+                    'cap_do' => $baiHoc?->cap_do,
                 ],
                 'loai_loi' => $error->loai_loi,
                 'so_lan_mac_loi' => $error->so_lan_mac_loi,
@@ -94,10 +99,12 @@ class ErrorHistoryController extends Controller
             ->where('nguoi_dung_id', $user->id)
             ->with([
                 'tuVung' => function ($q): void {
-                    $q->select('id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url');
-                },
-                'baiHoc' => function ($q): void {
-                    $q->select('id', 'tieu_de', 'cap_do');
+                    $q->select('id', 'bai_hoc_id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url')
+                        ->with([
+                            'baiHoc' => function ($qq): void {
+                                $qq->select('id', 'tieu_de', 'cap_do');
+                            },
+                        ]);
                 },
             ]);
 
@@ -112,19 +119,22 @@ class ErrorHistoryController extends Controller
         $errors = $query->orderByDesc('lan_mac_loi_gan_nhat')->paginate(20);
 
         $data = $errors->map(function ($error) {
+            $tuVung = $error->tuVung;
+            $baiHoc = $tuVung?->baiHoc;
+
             return [
                 'id' => $error->id,
                 'tu_vung' => [
-                    'id' => $error->tuVung->id,
-                    'tu_chuan' => $error->tuVung->tu_chuan,
-                    'phien_am' => $error->tuVung->phien_am,
-                    'hinh_anh_url' => $this->resolveMediaUrl($error->tuVung->hinh_anh_url),
-                    'am_thanh_mau_url' => $this->resolveMediaUrl($error->tuVung->am_thanh_mau_url),
+                    'id' => $tuVung?->id,
+                    'tu_chuan' => $tuVung?->tu_chuan,
+                    'phien_am' => $tuVung?->phien_am,
+                    'hinh_anh_url' => $this->resolveMediaUrl($tuVung?->hinh_anh_url),
+                    'am_thanh_mau_url' => $this->resolveMediaUrl($tuVung?->am_thanh_mau_url),
                 ],
                 'bai_hoc' => [
-                    'id' => $error->baiHoc->id,
-                    'tieu_de' => $error->baiHoc->tieu_de,
-                    'cap_do' => $error->baiHoc->cap_do,
+                    'id' => $baiHoc?->id,
+                    'tieu_de' => $baiHoc?->tieu_de,
+                    'cap_do' => $baiHoc?->cap_do,
                 ],
                 'loai_loi' => $error->loai_loi,
                 'so_lan_mac_loi' => $error->so_lan_mac_loi,

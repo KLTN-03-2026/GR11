@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('nguoi_dung_id')->constrained('nguoi_dungs')->onDelete('cascade');
             $table->foreignId('tu_vung_id')->constrained('tu_vungs')->onDelete('cascade');
-            $table->foreignId('bai_hoc_id')->constrained('bai_hocs')->onDelete('cascade');
             $table->foreignId('phien_id')->nullable()->constrained('phien_luyen_taps')->onDelete('set null');
             $table->string('loai_loi', 50); // 'am_dau', 'van', 'thanh_dieu'
             $table->integer('so_lan_mac_loi')->default(1); // Số lần trẻ em mắc lỗi này
@@ -28,7 +27,6 @@ return new class extends Migration
             // Indexes để tối ưu query
             $table->index('nguoi_dung_id');
             $table->index('tu_vung_id');
-            $table->index('bai_hoc_id');
             $table->index('trang_thai');
             $table->unique(['nguoi_dung_id', 'tu_vung_id', 'loai_loi']); // Mỗi người chỉ có một bản ghi cho mỗi từ + loại lỗi
         });

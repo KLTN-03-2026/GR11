@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('trang_thai')->default('dang_theo_doi');
             $table->timestamp('ngay_ket_noi')->useCurrent();
             $table->timestamps();
+            $table->unique(['giao_vien_id', 'hoc_vien_id']);
         });
     }
 

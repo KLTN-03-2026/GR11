@@ -8,38 +8,81 @@ use Illuminate\Support\Facades\DB;
 
 class ThongTinHocVienSeeder extends Seeder
 {
-    private const HOC_VIEN = [
-        'giabao.student@gmail.com' => ['ngay_sinh' => '2019-05-20', 'diem_tich_luy' => 420, 'streak' => 12],
-        'minhan.hv@gmail.com' => ['ngay_sinh' => '2018-11-03', 'diem_tich_luy' => 280, 'streak' => 5],
-        'thaovy.kid@outlook.com' => ['ngay_sinh' => '2020-01-15', 'diem_tich_luy' => 150, 'streak' => 3],
-        'hoanglong.phuong@gmail.com' => ['ngay_sinh' => '2019-08-22', 'diem_tich_luy' => 310, 'streak' => 8],
-        'khanhlinh.hv@gmail.com' => ['ngay_sinh' => '2018-04-10', 'diem_tich_luy' => 390, 'streak' => 15],
-        'haanh.hv@gmail.com' => ['ngay_sinh' => '2019-12-03', 'diem_tich_luy' => 220, 'streak' => 6],
-        'tunglam.kid@gmail.com' => ['ngay_sinh' => '2020-03-18', 'diem_tich_luy' => 180, 'streak' => 4],
-        'hientrang.hv@gmail.com' => ['ngay_sinh' => '2018-07-25', 'diem_tich_luy' => 350, 'streak' => 10],
-    ];
-
-    /**
-     * Điểm tích lũy — streak — ngày học gần nhất: phản ánh học đều / mới tập.
-     */
     public function run(): void
     {
-        foreach (self::HOC_VIEN as $email => $meta) {
-            $hv = DB::table('nguoi_dungs')->where('email', $email)->first(['id']);
-            if (! $hv) {
-                continue;
-            }
-            DB::table('thong_tin_hoc_viens')->updateOrInsert(
-                ['nguoi_dung_id' => $hv->id],
-                [
-                    'ngay_sinh' => $meta['ngay_sinh'],
-                    'diem_tich_luy' => $meta['diem_tich_luy'],
-                    'streak_hien_tai' => $meta['streak'],
-                    'ngay_hoc_cuoi_cung' => Carbon::now()->subDays(random_int(0, 4))->toDateString(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-        }
+        $now = Carbon::now();
+
+        // Dựa trên NguoiDungSeeder: các nguoi_dung_id học viên mẫu là 4..10
+        $thongTinHocViens = [
+            [
+                'id' => 1,
+                'nguoi_dung_id' => 4, // Phạm Thị Học
+                'diem_tich_luy' => 120,
+                'streak_hien_tai' => 5,
+                'ngay_hoc_cuoi_cung' => $now->copy()->subDays(1)->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 2,
+                'nguoi_dung_id' => 5, // Ngô Văn Học (chưa kích hoạt)
+                'diem_tich_luy' => 0,
+                'streak_hien_tai' => 0,
+                'ngay_hoc_cuoi_cung' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 3,
+                'nguoi_dung_id' => 6, // Vũ Thị Khóa (bị block)
+                'diem_tich_luy' => 30,
+                'streak_hien_tai' => 0,
+                'ngay_hoc_cuoi_cung' => $now->copy()->subDays(30)->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 4,
+                'nguoi_dung_id' => 7, // Đặng Minh Học
+                'diem_tich_luy' => 75,
+                'streak_hien_tai' => 3,
+                'ngay_hoc_cuoi_cung' => $now->copy()->subDays(2)->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 5,
+                'nguoi_dung_id' => 8, // Hoàng Thị Thảo
+                'diem_tich_luy' => 200,
+                'streak_hien_tai' => 12,
+                'ngay_hoc_cuoi_cung' => $now->copy()->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 6,
+                'nguoi_dung_id' => 9, // Bùi Văn Tài
+                'diem_tich_luy' => 45,
+                'streak_hien_tai' => 1,
+                'ngay_hoc_cuoi_cung' => $now->copy()->subDays(7)->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 7,
+                'nguoi_dung_id' => 10, // Trịnh Thị Yêu (yêu cầu reset mật khẩu)
+                'diem_tich_luy' => 10,
+                'streak_hien_tai' => 0,
+                'ngay_hoc_cuoi_cung' => $now->copy()->subDays(15)->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ];
+
+        DB::table('thong_tin_hoc_viens')->upsert(
+            $thongTinHocViens,
+            ['id'],
+            ['nguoi_dung_id', 'diem_tich_luy', 'streak_hien_tai', 'ngay_hoc_cuoi_cung', 'updated_at']
+        );
     }
 }

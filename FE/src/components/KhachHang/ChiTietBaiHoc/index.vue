@@ -212,6 +212,7 @@ export default {
             lessonFetchDone: false,
             tuVungList: [],
             baiHocDetail: null,
+            phien_id: null,
 
             selectedLetter: {
                 key: "a-A",
@@ -310,6 +311,9 @@ export default {
 
     watch: {
         "$route.params.id"() {
+            // Kết thúc phiên cũ nếu có
+            try { this.endSession(); } catch (e) {}
+
             this.lessonFetchDone = false;
             this.tuVungList = [];
             this.baiHocDetail = null;
@@ -319,6 +323,7 @@ export default {
 
     beforeUnmount() {
         this.stopTtsSample();
+        try { this.endSession(); } catch (e) {}
     },
 
     methods: {
@@ -358,6 +363,9 @@ export default {
                             this.selectedLetter = { ...first };
                         }
                     });
+
+                    // Tạo phiên luyện tập khi load bài xong
+                    this.startSession();
                 });
         },
 
@@ -371,6 +379,48 @@ export default {
                 URL.revokeObjectURL(this._ttsBlobUrl);
                 this._ttsBlobUrl = null;
             }
+        },
+
+        startSession() {
+            const id = this.$route.params.id;
+            if (!id) return;
+            if (this.phien_id) return; // đã có phiên
+            const token = localStorage.getItem("token_nguoi_dung");
+            if (!token) return; // chưa đăng nhập
+
+            axios.post('http://127.0.0.1:8000/api/phien-luyen-taps/start', { bai_hoc_id: id }, {
+                headers: {
+                    Authorization: 'Bearer ' + token
+                }
+            })
+            .then((res) => {
+                if (res.data.status) {
+                    this.phien_id = res.data.data.phien_id;
+                    localStorage.setItem('last_phien_id', String(this.phien_id));
+                }
+            })
+            .catch((e) => {
+                console.error('startSession error', e);
+            });
+        },
+
+        endSession() {
+            if (!this.phien_id) return;
+            const token = localStorage.getItem("token_nguoi_dung");
+            if (!token) { this.phien_id = null; return; }
+
+            axios.post('http://127.0.0.1:8000/api/phien-luyen-taps/end', { phien_id: this.phien_id }, {
+                headers: {
+                    Authorization: 'Bearer ' + token
+                }
+            })
+            .then(() => {
+                this.phien_id = null;
+            })
+            .catch((e) => {
+                console.error('endSession error', e);
+                this.phien_id = null;
+            });
         },
 
         playSampleTts() {

@@ -8,60 +8,114 @@ use Illuminate\Support\Facades\DB;
 
 class DiemDanhLoiSeeder extends Seeder
 {
-    private const HOC_VIEN_EMAILS = [
-        'giabao.student@gmail.com',
-        'minhan.hv@gmail.com',
-        'thaovy.kid@outlook.com',
-        'hoanglong.phuong@gmail.com',
-        'khanhlinh.hv@gmail.com',
-    ];
-
-    private const MUC_DO = ['thap', 'binh_thuong', 'cao'];
-
     public function run(): void
     {
-        $hocVienIds = DB::table('nguoi_dungs')->whereIn('email', self::HOC_VIEN_EMAILS)->pluck('id');
-        if ($hocVienIds->isEmpty()) {
-            return;
-        }
+        $now = Carbon::now();
 
-        DB::table('diem_danh_lois')->whereIn('nguoi_dung_id', $hocVienIds)->delete();
-
-        $tuVungs = DB::table('tu_vungs')->get(['id', 'bai_hoc_id']);
-        if ($tuVungs->isEmpty()) {
-            return;
-        }
-
-        $ghiChuMau = [
-            'Ôn lại vào cuối tuần cùng mẹ.',
-            'Nghe file mẫu 3 lần trước khi ghi âm.',
-            'Bé thích từ này — thưởng sticker nếu đạt ≥90 điểm.',
-            'Giáo viên dặn luyện từng âm đầu chậm.',
-            'Ghép với tranh minh họa trong sổ tay.',
+        // Giả định: nguoi_dung_id 4..10 (học viên mẫu); tu_vung_id theo TuVungSeeder (1..79)
+        $diemDanhLois = [
+            [
+                'id' => 1,
+                'nguoi_dung_id' => 4, // Phạm Thị Học
+                'tu_vung_id' => 25, // tr
+                'muc_do_uu_tien' => 'cao',
+                'ghi_chu' => 'Khó phát âm âm đầu "tr", cần bài tập lưỡi và môi.',
+                'da_hoan_thanh' => false,
+                'ngay_danh_dau' => $now->copy()->subDays(10),
+                'ngay_hoan_thanh' => null,
+                'ngay_tao' => $now->copy()->subDays(10),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 2,
+                'nguoi_dung_id' => 4,
+                'tu_vung_id' => 26, // ch
+                'muc_do_uu_tien' => 'binh_thuong',
+                'ghi_chu' => 'Nhớ đặt lưỡi sát vòm miệng khi phát âm.',
+                'da_hoan_thanh' => true,
+                'ngay_danh_dau' => $now->copy()->subDays(20),
+                'ngay_hoan_thanh' => $now->copy()->subDays(5),
+                'ngay_tao' => $now->copy()->subDays(20),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 3,
+                'nguoi_dung_id' => 5, // Ngô Văn Học (chưa kích hoạt)
+                'tu_vung_id' => 19, // ai
+                'muc_do_uu_tien' => 'thap',
+                'ghi_chu' => 'Chưa bắt đầu luyện; ưu tiên thấp.',
+                'da_hoan_thanh' => false,
+                'ngay_danh_dau' => $now->copy()->subDays(2),
+                'ngay_hoan_thanh' => null,
+                'ngay_tao' => $now->copy()->subDays(2),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 4,
+                'nguoi_dung_id' => 6, // Vũ Thị Khóa (bị block)
+                'tu_vung_id' => 27, // r
+                'muc_do_uu_tien' => 'cao',
+                'ghi_chu' => 'Thường xuyên phát âm sai "r", cần lộ trình chuyên sâu.',
+                'da_hoan_thanh' => false,
+                'ngay_danh_dau' => $now->copy()->subDays(30),
+                'ngay_hoan_thanh' => null,
+                'ngay_tao' => $now->copy()->subDays(30),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 5,
+                'nguoi_dung_id' => 7, // Đặng Minh Học
+                'tu_vung_id' => 13, // mẹ
+                'muc_do_uu_tien' => 'binh_thuong',
+                'ghi_chu' => 'Cần lặp lại 3 lần/ngày.',
+                'da_hoan_thanh' => true,
+                'ngay_danh_dau' => $now->copy()->subDays(7),
+                'ngay_hoan_thanh' => $now->copy()->subDays(1),
+                'ngay_tao' => $now->copy()->subDays(7),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 6,
+                'nguoi_dung_id' => 8, // Hoàng Thị Thảo
+                'tu_vung_id' => 31, // ma (ngang)
+                'muc_do_uu_tien' => 'binh_thuong',
+                'ghi_chu' => 'Đã hoàn thành phần cơ bản, chuyển sang thanh huyền.',
+                'da_hoan_thanh' => true,
+                'ngay_danh_dau' => $now->copy()->subDays(15),
+                'ngay_hoan_thanh' => $now->copy()->subDays(3),
+                'ngay_tao' => $now->copy()->subDays(15),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 7,
+                'nguoi_dung_id' => 9, // Bùi Văn Tài
+                'tu_vung_id' => 43, // mèo
+                'muc_do_uu_tien' => 'thap',
+                'ghi_chu' => 'Ưu tiên thấp, mới bắt đầu.',
+                'da_hoan_thanh' => false,
+                'ngay_danh_dau' => $now->copy()->subDays(1),
+                'ngay_hoan_thanh' => null,
+                'ngay_tao' => $now->copy()->subDays(1),
+                'ngay_cap_nhat' => $now,
+            ],
+            [
+                'id' => 8,
+                'nguoi_dung_id' => 10, // Trịnh Thị Yêu
+                'tu_vung_id' => 55, // xin chào
+                'muc_do_uu_tien' => 'cao',
+                'ghi_chu' => 'Cần luyện ngữ điệu khi chào hỏi.',
+                'da_hoan_thanh' => false,
+                'ngay_danh_dau' => $now->copy()->subDays(4),
+                'ngay_hoan_thanh' => null,
+                'ngay_tao' => $now->copy()->subDays(4),
+                'ngay_cap_nhat' => $now,
+            ],
         ];
 
-        mt_srand(7);
-
-        foreach ($hocVienIds as $hvId) {
-            $bookmarkTu = $tuVungs->shuffle()->take(random_int(4, 9));
-
-            foreach ($bookmarkTu as $tu) {
-                $hoanThanh = (bool) random_int(0, 1);
-                $ngayDanhDau = Carbon::now()->subDays(random_int(2, 25));
-
-                DB::table('diem_danh_lois')->insert([
-                    'nguoi_dung_id' => $hvId,
-                    'tu_vung_id' => $tu->id,
-                    'bai_hoc_id' => $tu->bai_hoc_id,
-                    'muc_do_uu_tien' => self::MUC_DO[array_rand(self::MUC_DO)],
-                    'ghi_chu' => $ghiChuMau[array_rand($ghiChuMau)],
-                    'da_hoan_thanh' => $hoanThanh,
-                    'ngay_danh_dau' => $ngayDanhDau,
-                    'ngay_hoan_thanh' => $hoanThanh ? (clone $ngayDanhDau)->addDays(random_int(0, 5)) : null,
-                    'ngay_tao' => $ngayDanhDau,
-                    'ngay_cap_nhat' => now(),
-                ]);
-            }
-        }
+        DB::table('diem_danh_lois')->upsert(
+            $diemDanhLois,
+            ['id'],
+            ['nguoi_dung_id', 'tu_vung_id', 'muc_do_uu_tien', 'ghi_chu', 'da_hoan_thanh', 'ngay_danh_dau', 'ngay_hoan_thanh', 'ngay_cap_nhat']
+        );
     }
 }

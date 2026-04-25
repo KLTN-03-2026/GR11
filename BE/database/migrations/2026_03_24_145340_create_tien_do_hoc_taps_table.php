@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('so_lan_luyen_tap')->default(0);
             $table->integer('diem_cao_nhat')->default(0);
             $table->timestamp('ngay_cap_nhat_cuoi')->useCurrent()->useCurrentOnUpdate();
+            $table->unique(['nguoi_dung_id', 'tu_vung_id']);
         });
     }
 

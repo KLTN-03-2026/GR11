@@ -13,6 +13,8 @@ use App\Http\Controllers\QuanHeGvHvController;
 use App\Http\Controllers\TeacherQuanLyBaiHocController;
 use App\Http\Controllers\TeacherTuVungController;
 use App\Http\Controllers\TtsController;
+use App\Http\Controllers\PhienLuyenTapController;
+use App\Http\Controllers\ThongTinHocVienController;
 use App\Http\Controllers\VaiTroController;
 use App\Http\Controllers\VaiTroQuyenController;
 use Illuminate\Http\Request;
@@ -80,6 +82,7 @@ Route::prefix('/admin')->group(function () {
 });
 
 Route::get('/cau-hinh/footer/data', [CauHinhController::class, 'getFooterSettings']);
+Route::get('/leaderboard', [ThongTinHocVienController::class, 'leaderboard']);
 Route::get('/cau-hinh/thong-bao', [CauHinhController::class, 'getAlertSettings']);
 
 //---------------------------------------------Teacher--------------------------------------------------------------
@@ -132,6 +135,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/phien-luyen-taps/start', [PhienLuyenTapController::class, 'start']);
+    Route::post('/phien-luyen-taps/end', [PhienLuyenTapController::class, 'end']);
+    Route::post('/phien-luyen-taps/hoan-thanh', [PhienLuyenTapController::class, 'hoanThanh']);
+    Route::get('/thong-tin-hoc-vien/me', [ThongTinHocVienController::class, 'me']);
     Route::post('/dang-xuat', [NguoiDungController::class, 'logOut']);
     Route::get('/profile', [NguoiDungController::class, 'profile']);
     Route::post('/profile/update', [NguoiDungController::class, 'updateProfile']);

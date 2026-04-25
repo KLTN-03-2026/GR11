@@ -14,7 +14,6 @@ class LichSuLoiPhatAm extends Model
     protected $fillable = [
         'nguoi_dung_id',
         'tu_vung_id',
-        'bai_hoc_id',
         'phien_id',
         'loai_loi',
         'so_lan_mac_loi',
@@ -45,14 +44,6 @@ class LichSuLoiPhatAm extends Model
     public function tuVung(): BelongsTo
     {
         return $this->belongsTo(TuVung::class, 'tu_vung_id');
-    }
-
-    /**
-     * @return BelongsTo<BaiHoc, $this>
-     */
-    public function baiHoc(): BelongsTo
-    {
-        return $this->belongsTo(BaiHoc::class, 'bai_hoc_id');
     }
 
     /**

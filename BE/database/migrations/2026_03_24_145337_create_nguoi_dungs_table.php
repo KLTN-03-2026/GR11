@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('anh_dai_dien', 255)->nullable();
             $table->timestamp('ngay_tao')->useCurrent();
             $table->integer('trang_thai')->default(0);
-            $table->integer('is_block')->default(0);
             $table->integer('type_account')->default(0);
             $table->string('content_block')->nullable();
             $table->string('hash_active')->nullable();
