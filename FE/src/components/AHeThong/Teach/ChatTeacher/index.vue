@@ -3,8 +3,17 @@
     <!-- Sidebar: Danh sách các cuộc trò chuyện -->
     <div class="sidebar">
       <h3>Danh sách trò chuyện</h3>
+      <div class="chat-search-wrap">
+        <i class="fa fa-search"></i>
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="chat-search-input"
+          placeholder="Tìm theo tên hoặc tin nhắn..."
+        >
+      </div>
       <div
-        v-for="session in sessions"
+        v-for="session in filteredSessions"
         :key="session.id"
         @click="selectSession(session)"
         @mouseenter="hoveredSessionId = session.id"
@@ -26,6 +35,9 @@
             <p class="lesson">{{ session.lesson }}</p>
             <p class="last-message">{{ session.lastMessage }}</p>
           </div>
+          <span v-if="Number(session.unreadCount || 0) > 0" class="unread-badge">
+            {{ Number(session.unreadCount) > 99 ? '99+' : Number(session.unreadCount) }}
+          </span>
           <div class="session-actions">
             <button
               v-if="hoveredSessionId === session.id || openMenuSessionId === session.id"
@@ -146,6 +158,7 @@ export default {
       apiBase: 'http://127.0.0.1:8000',
       sessions: [],
       selectedSession: null,
+      searchQuery: '',
       newMessage: '',
       sending: false,
       hoveredSessionId: null,
@@ -155,6 +168,7 @@ export default {
         visible: false,
         session: null,
       },
+      subscribedSessionIds: new Set(),
       pollInterval: null,
       messagePollInterval: null,
     }
@@ -173,6 +187,11 @@ export default {
     if (this.messagePollInterval) {
       clearInterval(this.messagePollInterval);
     }
+    if (window.Echo) {
+      this.subscribedSessionIds.forEach((sessionId) => {
+        window.Echo.leave(`private-chat-session.${sessionId}`);
+      });
+    }
     document.removeEventListener('click', this.closeSessionMenuOnOutsideClick);
   },
   watch: {
@@ -187,6 +206,19 @@ export default {
         }, 10000);
       }
     }
+  },
+  computed: {
+    filteredSessions() {
+      const keyword = String(this.searchQuery || '').trim().toLowerCase();
+      if (!keyword) {
+        return this.sessions;
+      }
+      return this.sessions.filter((session) => {
+        const name = String(session?.studentName || '').toLowerCase();
+        const message = String(session?.lastMessage || '').toLowerCase();
+        return name.includes(keyword) || message.includes(keyword);
+      });
+    },
   },
   methods: {
     resolveAvatarUrl(path) {
@@ -209,6 +241,7 @@ export default {
         const rows = Array.isArray(response.data) ? response.data : [];
         this.sessions = rows.map((item) => ({
           ...item,
+          unreadCount: Number(item?.unreadCount || 0),
           studentAvatarUrl: this.resolveAvatarUrl(item.studentAvatar),
         }));
         // Subscribe to session channels for real-time updates
@@ -283,6 +316,12 @@ export default {
         this.selectedSession.studentName = response.data.session.studentName;
         this.selectedSession.studentAvatarUrl = this.resolveAvatarUrl(response.data.session.studentAvatar);
         this.selectedSession.lesson = response.data.session.lesson;
+        this.selectedSession.unreadCount = 0;
+
+        const sessionIndex = this.sessions.findIndex((s) => s.id === sessionId);
+        if (sessionIndex !== -1) {
+          this.sessions[sessionIndex].unreadCount = 0;
+        }
         // scroll after loading
         this.$nextTick(() => this.scrollToBottom());
       } catch (error) {
@@ -293,20 +332,41 @@ export default {
     subscribeToSession(sessionId) {
       try {
         if (!window.Echo) return;
+        if (this.subscribedSessionIds.has(sessionId)) return;
         const channelName = `chat-session.${sessionId}`;
         const existing = window.Echo.private(channelName);
         // Avoid multiple listeners: try listening and rely on server
         existing.stopListening && existing.stopListening('.StudentSentMessage');
         existing.stopListening && existing.stopListening('StudentSentMessage');
         window.Echo.private(channelName).listen('.StudentSentMessage', (e) => {
+          const incomingText = e?.message?.content || '';
+          const incomingTime = e?.message?.created_at
+            ? new Date(e.message.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+            : '';
+
           // If the message belongs to the currently opened session, reload messages
           if (this.selectedSession && this.selectedSession.id === sessionId) {
             this.loadMessages(sessionId);
           } else {
-            // Update sessions list to reflect unread/last message
-            this.loadSessions();
+            const idx = this.sessions.findIndex((s) => s.id === sessionId);
+            if (idx !== -1) {
+              const current = this.sessions[idx];
+              const nextUnread = Number(current.unreadCount || 0) + 1;
+              this.sessions[idx] = {
+                ...current,
+                unreadCount: nextUnread,
+                lastMessage: incomingText || current.lastMessage,
+                timestamp: incomingTime || current.timestamp,
+              };
+
+              const [updated] = this.sessions.splice(idx, 1);
+              this.sessions.unshift(updated);
+            } else {
+              this.loadSessions();
+            }
           }
         });
+        this.subscribedSessionIds.add(sessionId);
       } catch (err) {
         console.warn('Echo subscribe error', err);
       }
@@ -399,6 +459,36 @@ export default {
   margin-bottom: 20px;
 }
 
+.chat-search-wrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.chat-search-wrap i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.chat-search-input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  padding: 10px 12px 10px 34px;
+  font-size: 13px;
+  color: #111827;
+  outline: none;
+}
+
+.chat-search-input:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
 .session-item {
   padding: 10px 12px;
   border-bottom: 1px solid #eee;
@@ -427,6 +517,22 @@ export default {
 .session-actions {
   position: relative;
   margin-left: auto;
+}
+
+.unread-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 6px;
 }
 
 .session-menu-btn {

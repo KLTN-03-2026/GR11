@@ -12,6 +12,26 @@ use Illuminate\Support\Facades\Schema;
 
 class StudentChatController extends Controller
 {
+    public function unreadCount(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $count = ChatMessage::query()
+            ->join('chat_sessions as cs', 'cs.id', '=', 'chat_messages.session_id')
+            ->where('cs.user_id', $user->id)
+            ->whereNotNull('cs.lesson_id')
+            ->where('chat_messages.role', 'teacher')
+            ->where('chat_messages.is_read_by_student', false)
+            ->count();
+
+        return response()->json([
+            'unread_count' => (int) $count,
+        ]);
+    }
+
     public function getSessions(Request $request)
     {
         $user = $request->user();
@@ -35,6 +55,9 @@ class StudentChatController extends Controller
                 'lesson.nguoiTao' => fn($q) => $q->select('id', 'ho_ten', 'anh_dai_dien'),
                 'messages' => fn($q) => $q->orderByDesc('created_at'),
             ])
+            ->withCount(['messages as unread_count' => fn($q) => $q
+                ->where('role', 'teacher')
+                ->where('is_read_by_student', false)])
             ->where('user_id', $user->id)
             ->whereNotNull('lesson_id')
             ->orderByDesc('updated_at')
@@ -63,8 +86,11 @@ class StudentChatController extends Controller
                     'lesson_title' => (string) ($session->lesson?->tieu_de ?? ''),
                     'last_message' => (string) $latest->content,
                     'last_message_time' => optional($latest->created_at)->toIso8601String(),
+                    'unread_count' => (int) ($session->unread_count ?? 0),
                     '_ts' => $latest->created_at,
                 ];
+            } else {
+                $teacherChats[$teacherId]['unread_count'] += (int) ($session->unread_count ?? 0);
             }
         }
 

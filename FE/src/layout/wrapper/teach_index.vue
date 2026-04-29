@@ -4,7 +4,7 @@
     <TopNavbarTeach />
     <div class="content-page">
       <div class="container-fluid">
-        <router-view />
+        <router-view :key="$route.fullPath" />
       </div>
     </div>
     <FooterTeach />

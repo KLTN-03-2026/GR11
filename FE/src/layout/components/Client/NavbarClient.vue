@@ -291,7 +291,7 @@ export default {
             PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k));
             this.$toast.success(res.data.message);
             this.dongBoUserTuLocal();
-            this.$router.push("/dang-nhap");
+            this.$router.push("/");
           } else {
             this.$toast.error("Có lỗi xảy ra");
           }
@@ -300,7 +300,7 @@ export default {
           localStorage.removeItem("token_nguoi_dung");
           PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k));
           this.dongBoUserTuLocal();
-          this.$router.push("/dang-nhap");
+          this.$router.push("/");
         });
     },
     handleClickOutside(event) {

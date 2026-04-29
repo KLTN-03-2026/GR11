@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BaiHocController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
+use App\Http\Controllers\ChatBoxAIController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\ErrorHistoryController;
@@ -29,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Student chat endpoints
+    Route::get('/student/chat/unread-count', [\App\Http\Controllers\StudentChatController::class, 'unreadCount']);
     Route::get('/student/chat/sessions', [\App\Http\Controllers\StudentChatController::class, 'getSessions']);
     Route::post('/student/chat/session', [\App\Http\Controllers\StudentChatController::class, 'createSession']);
     Route::post('/student/chat/session/{sessionId}/send', [\App\Http\Controllers\StudentChatController::class, 'sendMessage']);
