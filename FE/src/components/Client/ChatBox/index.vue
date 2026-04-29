@@ -213,7 +213,7 @@
     </transition>
 
     <!-- FAB Button -->
-    <div class="d-flex justify-content-end">
+    <div class="d-flex justify-content-end fab-wrap">
       <button @click="toggleChat"
         class="btn shadow-lg rounded-circle d-flex align-items-center justify-content-center fab-button hover-scale"
         style="width: 60px; height: 60px; background: #fe5d37; border: none;">
@@ -231,6 +231,9 @@
         </svg>
 
       </button>
+      <span v-if="totalTeacherUnread > 0" class="fab-unread-badge">
+        {{ totalTeacherUnread > 99 ? '99+' : totalTeacherUnread }}
+      </span>
     </div>
 
   </div>
@@ -266,6 +269,8 @@ export default {
       startHeight: 0,
       teacherChats: [],
       teacherMessagePollInterval: null,
+      teacherChatsPollInterval: null,
+      subscribedSessionIds: new Set(),
       speechRecognition: null,
       speechSupported: false,
       activeLessonContext: null,
@@ -297,6 +302,7 @@ export default {
 
     this.syncActiveLessonContext();
     await this.loadTeacherChats();
+    this.startTeacherChatsPolling();
     this.loadBranding();
     this.initSpeechRecognition();
   },
@@ -307,6 +313,8 @@ export default {
     document.removeEventListener('mousemove', this.handleResizeList);
     window.removeEventListener('active-lesson-chat-updated', this.syncActiveLessonContext);
     this.stopTeacherMessagePolling();
+    this.stopTeacherChatsPolling();
+    this.unsubscribeAllSessionChannels();
     this.stopSpeechRecognition();
   },
   watch: {
@@ -336,6 +344,9 @@ export default {
     },
   },
   computed: {
+    totalTeacherUnread() {
+      return this.teacherChats.reduce((sum, chat) => sum + Number(chat?.unread || 0), 0);
+    },
     aiChatItem() {
       return {
         id: AI_CHAT_ID,
@@ -350,8 +361,13 @@ export default {
     },
     chatList() {
       const list = [this.aiChatItem];
-      if (this.activeLessonTeacherChat && !this.teacherChats.some((c) => c.id === this.activeLessonTeacherChat.id)) {
-        list.push(this.activeLessonTeacherChat);
+      if (this.activeLessonTeacherChat) {
+        const hasRealChatSameTeacher = this.teacherChats.some(
+          (c) => Number(c.teacherId) === Number(this.activeLessonTeacherChat.teacherId)
+        );
+        if (!hasRealChatSameTeacher) {
+          list.push(this.activeLessonTeacherChat);
+        }
       }
       return list.concat(this.teacherChats);
     },
@@ -455,12 +471,52 @@ export default {
           avatar: row.teacher_avatar ? this.resolveAvatarUrl(row.teacher_avatar) : null,
           lastMessage: row.last_message || '',
           lastMessageTime: row.last_message_time ? new Date(row.last_message_time) : null,
-          unread: 0,
+          unread: Number(row.unread_count || 0),
           status: 'Đã có lịch sử chat',
         }));
+        this.teacherChats.forEach((chat) => {
+          if (chat?.sessionId) {
+            this.subscribeToTeacherSession(chat.sessionId);
+          }
+        });
       } catch (e) {
         console.error('Không tải được danh sách chat giáo viên', e);
       }
+    },
+    subscribeToTeacherSession(sessionId) {
+      if (!window.Echo || !sessionId || this.subscribedSessionIds.has(sessionId)) {
+        return;
+      }
+      const channelName = `chat-session.${sessionId}`;
+      window.Echo.private(channelName).listen('.TeacherSentMessage', (e) => {
+        const incomingText = e?.message?.content || '';
+        const incomingTime = e?.message?.created_at ? new Date(e.message.created_at) : new Date();
+        const chat = this.teacherChats.find((c) => Number(c.sessionId) === Number(sessionId));
+        if (!chat) {
+          this.loadTeacherChats();
+          return;
+        }
+
+        chat.lastMessage = incomingText || chat.lastMessage;
+        chat.lastMessageTime = incomingTime;
+
+        if (this.selectedChat?.type === 'teacher' && Number(this.selectedChat.sessionId) === Number(sessionId)) {
+          this.loadTeacherChatHistory(this.selectedChat);
+        } else {
+          chat.unread = Number(chat.unread || 0) + 1;
+          this.teacherChats = [chat, ...this.teacherChats.filter((c) => c.id !== chat.id)];
+        }
+      });
+      this.subscribedSessionIds.add(sessionId);
+    },
+    unsubscribeAllSessionChannels() {
+      if (!window.Echo) {
+        return;
+      }
+      this.subscribedSessionIds.forEach((sessionId) => {
+        window.Echo.leave(`private-chat-session.${sessionId}`);
+      });
+      this.subscribedSessionIds.clear();
     },
     resolveAvatarUrl(path) {
       if (!path) return null;
@@ -476,6 +532,11 @@ export default {
       ) {
         merged.lessonId = Number(this.activeLessonContext.lesson_id || merged.lessonId || 0);
         merged.lessonTitle = this.activeLessonContext.lesson_title || merged.lessonTitle || '';
+      }
+      merged.unread = 0;
+      const target = this.teacherChats.find((c) => c.id === merged.id);
+      if (target) {
+        target.unread = 0;
       }
       this.selectedChat = merged;
     },
@@ -505,6 +566,9 @@ export default {
       );
       const sid = Number(res?.data?.session_id || 0);
       chat.sessionId = sid > 0 ? sid : null;
+      if (chat.sessionId) {
+        this.subscribeToTeacherSession(chat.sessionId);
+      }
       return chat.sessionId;
     },
     toggleChat() {
@@ -718,6 +782,13 @@ export default {
         if (!this.messages.length) {
           this.messages = [{ role: 'teacher', text: 'Bạn có thể bắt đầu nhắn tin với giáo viên của bài học này.' }];
         }
+        if (chat?.type === 'teacher') {
+          chat.unread = 0;
+          const target = this.teacherChats.find((c) => c.id === chat.id);
+          if (target) {
+            target.unread = 0;
+          }
+        }
       } catch (err) {
         console.error('Lỗi tải lịch sử chat giáo viên', err);
         this.messages = [{ role: 'teacher', text: 'Chưa tải được lịch sử chat giáo viên, bạn thử lại nhé.' }];
@@ -808,10 +879,22 @@ export default {
         }
       }, 5000);
     },
+    startTeacherChatsPolling() {
+      this.stopTeacherChatsPolling();
+      this.teacherChatsPollInterval = setInterval(() => {
+        this.loadTeacherChats();
+      }, 10000);
+    },
     stopTeacherMessagePolling() {
       if (this.teacherMessagePollInterval) {
         clearInterval(this.teacherMessagePollInterval);
         this.teacherMessagePollInterval = null;
+      }
+    },
+    stopTeacherChatsPolling() {
+      if (this.teacherChatsPollInterval) {
+        clearInterval(this.teacherChatsPollInterval);
+        this.teacherChatsPollInterval = null;
       }
     },
     getMessageStatusText(status) {
@@ -917,6 +1000,29 @@ body.is-resizing-global {
 
 .fab-button {
   animation: bounceIn 0.5s;
+}
+
+.fab-wrap {
+  position: relative;
+}
+
+.fab-unread-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  border: 2px solid #fff;
 }
 
 @keyframes bounceIn {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TeacherSentMessage;
 use App\Models\ChatSession;
 use App\Models\ChatMessage;
 use App\Models\QuanHeGvHv;
@@ -53,6 +54,10 @@ class ChatController extends Controller
         $sessions = ChatSession::with(['user', 'lesson', 'messages' => function($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }])
+        ->withCount(['messages as unread_count' => function ($q) {
+            $q->where('role', 'user')
+                ->where('is_read_by_teacher', false);
+        }])
         ->whereIn('user_id', $studentIds)
         ->whereNotNull('lesson_id')
         ->orderBy('updated_at', 'desc')
@@ -66,6 +71,7 @@ class ChatController extends Controller
                 'lesson' => $session->lesson->tieu_de ?? '',
                 'lastMessage' => $session->messages->first()?->content ?? '',
                 'timestamp' => $session->updated_at->format('H:i A'),
+                'unreadCount' => (int) ($session->unread_count ?? 0),
                 'status' => $session->status,
             ];
         });
@@ -171,6 +177,7 @@ class ChatController extends Controller
 
         // Cập nhật updated_at của session
         $session->touch();
+        event(new TeacherSentMessage($session, $message));
 
         return response()->json([
             'id' => $message->id,

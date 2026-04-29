@@ -169,7 +169,7 @@ export default {
             localStorage.removeItem('token_teacher')
             PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
             this.$toast.success(res.data.message)
-            this.$router.push('/dang-nhap')
+            this.$router.push('/')
           } else {
             this.$toast.error('Có lỗi xảy ra')
           }
@@ -177,7 +177,7 @@ export default {
         .catch(() => {
           localStorage.removeItem('token_teacher')
           PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
-          this.$router.push('/dang-nhap')
+          this.$router.push('/')
         })
     },
     goToTeacherChat() {
@@ -236,7 +236,7 @@ export default {
 .user-chip-compact {
   height: 22px;
   padding: 4px 14px !important;
-  max-width: 220px;
+  max-width: 240px;
   box-sizing: border-box;
   overflow: hidden;
 }
