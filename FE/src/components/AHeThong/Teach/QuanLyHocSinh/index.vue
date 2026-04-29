@@ -327,6 +327,7 @@ export default {
         uu_tien: 'cao',
         loi_nhan: '',
       },
+      autoRefreshTimer: null,
     };
   },
   computed: {
@@ -345,6 +346,15 @@ export default {
   mounted() {
     this.taiDanhSach();
     this.taiNhomBaiHoc();
+    this.autoRefreshTimer = setInterval(() => {
+      this.taiDanhSach();
+    }, 20000);
+  },
+  beforeUnmount() {
+    if (this.autoRefreshTimer) {
+      clearInterval(this.autoRefreshTimer);
+      this.autoRefreshTimer = null;
+    }
   },
   methods: {
     getAuthToken() {

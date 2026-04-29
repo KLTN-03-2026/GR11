@@ -36,8 +36,16 @@ export default function (to, from, next) {
         next("/dang-nhap");
       }
     })
-    .catch(() => {
-      toaster.error("Phiên đăng nhập hết hạn hoặc lỗi xác thực!");
+    .catch((error) => {
+      if (error?.response?.status === 403) {
+        toaster.error(
+          error?.response?.data?.message ||
+            "Tài khoản của bạn đã vi phạm chính sách bảo mật của chúng tôi"
+        );
+      } else {
+        toaster.error("Phiên đăng nhập hết hạn hoặc lỗi xác thực!");
+      }
+      localStorage.removeItem("token_admin");
       next("/dang-nhap");
     });
 }

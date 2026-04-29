@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class QuanHeGvHvController extends Controller
 {
@@ -450,7 +451,7 @@ class QuanHeGvHvController extends Controller
             return $path;
         }
 
-        return asset($path);
+        return url(Storage::url(ltrim($path, '/')));
     }
 
     private function demHocVienCanChuY(Collection $hocVienIds): int

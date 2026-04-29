@@ -92,6 +92,9 @@ class AdminController extends Controller
 
         $nguoiDung->is_block = (int) !$nguoiDung->is_block;
         $nguoiDung->save();
+        if ((int) $nguoiDung->is_block === 1) {
+            $nguoiDung->tokens()->delete();
+        }
 
         return response()->json([
             'status' => true,

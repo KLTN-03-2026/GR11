@@ -241,9 +241,17 @@ export default {
             return `${base}/storage/${String(raw).replace(/^\//, '')}`;
         },
         getAuthToken() {
-            return localStorage.getItem("token_admin")
+            const path = this.$route?.path || '';
+            if (path.startsWith('/admin')) {
+                return localStorage.getItem("token_admin") || "";
+            }
+            if (path.startsWith('/teacher')) {
+                return localStorage.getItem("token_teacher") || "";
+            }
+            return localStorage.getItem("token_nguoi_dung")
+                || localStorage.getItem("token_khach_hang")
                 || localStorage.getItem("token_teacher")
-                || localStorage.getItem("token_nguoi_dung")
+                || localStorage.getItem("token_admin")
                 || "";
         },
         getRedirectLoginPath() {

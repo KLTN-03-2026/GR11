@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import './echo'
 import AdminLayout from './layout/wrapper/admin_index.vue'
 import ClientLayout from './layout/wrapper/client_index.vue'
 import TeachLayout from './layout/wrapper/teach_index.vue'

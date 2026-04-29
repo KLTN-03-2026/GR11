@@ -319,6 +319,14 @@ export default {
 
     beforeUnmount() {
         this.stopTtsSample();
+        localStorage.removeItem("active_lesson_chat_context");
+        window.dispatchEvent(new CustomEvent("active-lesson-chat-updated"));
+    },
+
+    beforeRouteLeave(to, from, next) {
+        localStorage.removeItem("active_lesson_chat_context");
+        window.dispatchEvent(new CustomEvent("active-lesson-chat-updated"));
+        next();
     },
 
     methods: {
@@ -336,18 +344,33 @@ export default {
                     if (!d) {
                         this.tuVungList = [];
                         this.baiHocDetail = null;
+                        localStorage.removeItem("active_lesson_chat_context");
                     } else {
                         this.baiHocDetail = {
+                            id: d.id,
                             tieu_de: d.tieu_de,
                             mo_ta: d.mo_ta,
+                            nguoi_tao_id: d.nguoi_tao_id || d.giao_vien?.id || null,
+                            giao_vien: d.giao_vien || null,
                         };
                         this.tuVungList = Array.isArray(d.tu_vungs) ? d.tu_vungs : [];
+                        localStorage.setItem(
+                            "active_lesson_chat_context",
+                            JSON.stringify({
+                                lesson_id: d.id,
+                                lesson_title: d.tieu_de || "",
+                                teacher_id: d.nguoi_tao_id || d.giao_vien?.id || null,
+                                teacher_name: d.giao_vien?.ho_ten || "Giáo viên",
+                            })
+                        );
+                        window.dispatchEvent(new CustomEvent("active-lesson-chat-updated"));
                     }
                 })
                 .catch((e) => {
                     console.error(e);
                     this.tuVungList = [];
                     this.baiHocDetail = null;
+                    localStorage.removeItem("active_lesson_chat_context");
                 })
                 .finally(() => {
                     this.lessonFetchDone = true;

@@ -58,6 +58,9 @@ class BaiHocController extends Controller
             'danhMuc' => function ($q): void {
                 $q->select('id', 'ten_danh_muc', 'slug_danh_muc');
             },
+            'nguoiTao' => function ($q): void {
+                $q->select('id', 'ho_ten');
+            },
             'tuVungs',
         ]);
 
@@ -80,6 +83,11 @@ class BaiHocController extends Controller
                 'mo_ta' => $baiHoc->mo_ta,
                 'cap_do' => $baiHoc->cap_do,
                 'thu_tu' => $baiHoc->thu_tu,
+                'nguoi_tao_id' => $baiHoc->nguoi_tao_id,
+                'giao_vien' => $baiHoc->nguoiTao ? [
+                    'id' => $baiHoc->nguoiTao->id,
+                    'ho_ten' => $baiHoc->nguoiTao->ho_ten,
+                ] : null,
                 'danh_muc' => $baiHoc->danhMuc,
                 'tu_vungs' => $tuVungs,
             ],

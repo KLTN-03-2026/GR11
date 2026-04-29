@@ -67,19 +67,17 @@
               <div class="iq-card shadow-none m-0">
                 <div class="iq-card-body p-0">
 
-                  <a href="/thong-tin-ca-nhan" class="iq-sub-card iq-bg-danger-hover">
-                    <router-link to="/thong-tin-ca-nhan" class="nav-link">
-                      <div class="media align-items-center">
-                        <div class="rounded iq-card-icon iq-bg-danger">
-                          <i class="ri-file-user-line"></i>
-                        </div>
-                        <div class="media-body ml-3">
-                          <h6 class="mb-0">My Profile</h6>
-                          <p class="mb-0 font-size-12">Xem thông tin chi tiết hồ sơ cá nhân.</p>
-                        </div>
+                  <router-link to="/teacher/thong-tin-ca-nhan" class="iq-sub-card iq-bg-danger-hover nav-link">
+                    <div class="media align-items-center">
+                      <div class="rounded iq-card-icon iq-bg-danger">
+                        <i class="ri-file-user-line"></i>
                       </div>
-                    </router-link>
-                  </a>
+                      <div class="media-body ml-3">
+                        <h6 class="mb-0">My Profile</h6>
+                        <p class="mb-0 font-size-12">Xem thông tin chi tiết hồ sơ cá nhân.</p>
+                      </div>
+                    </div>
+                  </router-link>
 
                   <div class="w-100 text-center p-3">
                     <a class="btn btn-danger" href="#" role="button" @click.prevent="dangXuat"
@@ -107,14 +105,19 @@ export default {
   data() {
     return {
       user: {},
+      unreadCount: 0,
+      echoChannelName: null,
     }
   },
   mounted() {
     this.dongBoUserTuLocal()
+    this.fetchUnreadCount()
+    this.subscribeRealtimeUnread()
     window.addEventListener('storage', this.dongBoUserTuLocal)
     window.addEventListener('profile-updated', this.dongBoUserTuLocal)
   },
   beforeUnmount() {
+    this.unsubscribeRealtimeUnread()
     window.removeEventListener('storage', this.dongBoUserTuLocal)
     window.removeEventListener('profile-updated', this.dongBoUserTuLocal)
   },
@@ -162,6 +165,55 @@ export default {
           PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
           this.$router.push('/dang-nhap')
         })
+    },
+    goToTeacherChat() {
+      this.$router.push('/teacher/chat-box')
+    },
+    fetchUnreadCount() {
+      const token = localStorage.getItem('token_teacher')
+      if (!token) {
+        this.unreadCount = 0
+        return
+      }
+      axios
+        .get('http://127.0.0.1:8000/api/teacher/chat/unread-count', {
+          headers: { Authorization: 'Bearer ' + token },
+        })
+        .then((res) => {
+          this.unreadCount = Number(res?.data?.unread_count || 0)
+        })
+        .catch(() => {
+          this.unreadCount = 0
+        })
+    },
+    subscribeRealtimeUnread() {
+      const token = localStorage.getItem('token_teacher')
+      if (!token || !window.Echo) {
+        return
+      }
+
+      axios
+        .get('http://127.0.0.1:8000/api/user', {
+          headers: { Authorization: 'Bearer ' + token },
+        })
+        .then((res) => {
+          const teacherId = Number(res?.data?.id || 0)
+          if (!teacherId || !window.Echo) {
+            return
+          }
+          this.echoChannelName = `teacher.${teacherId}`
+          window.Echo.private(this.echoChannelName)
+            .listen('.StudentSentMessage', () => {
+              this.fetchUnreadCount()
+            })
+        })
+        .catch(() => {})
+    },
+    unsubscribeRealtimeUnread() {
+      if (window.Echo && this.echoChannelName) {
+        window.Echo.leave(`private-${this.echoChannelName}`)
+      }
+      this.echoChannelName = null
     },
   },
 }

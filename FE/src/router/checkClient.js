@@ -36,8 +36,16 @@ export default function (to, from, next) {
         next("/dang-nhap");
       }
     })
-    .catch(() => {
-      toaster.error("Vui lòng đăng nhập lại!");
+    .catch((error) => {
+      if (error?.response?.status === 403) {
+        toaster.error(
+          error?.response?.data?.message ||
+            "Tài khoản của bạn đã vi phạm chính sách bảo mật của chúng tôi"
+        );
+      } else {
+        toaster.error("Vui lòng đăng nhập lại!");
+      }
+      localStorage.removeItem("token_nguoi_dung");
       next("/dang-nhap");
     });
 }

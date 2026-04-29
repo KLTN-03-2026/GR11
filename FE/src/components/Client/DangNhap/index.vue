@@ -199,6 +199,9 @@ export default {
     this.teardownGoogleButtonScale();
   },
   methods: {
+    getBlockedAccountMessage() {
+      return 'Tài khoản của bạn đã vi phạm chính sách bảo mật của chúng tôi';
+    },
     initGoogleButtonScale() {
       this._onWindowResizeGoogle = () => this.syncGoogleButtonScale();
       window.addEventListener('resize', this._onWindowResizeGoogle);
@@ -323,6 +326,11 @@ export default {
             }
           })
           .catch((res) => {
+            if (res.response?.status === 403) {
+              this.$toast.error(res.response?.data?.message || this.getBlockedAccountMessage());
+              this.resetRecaptcha();
+              return;
+            }
             const list = Object.values(res.response?.data?.errors || {});
             if (list.length) {
               list.forEach((v) => {
@@ -381,7 +389,10 @@ export default {
           }
         })
         .catch((err) => {
-          if (err.response?.status === 401) {
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            if (err.response?.status === 403) {
+              this.$toast.error(err.response?.data?.message || this.getBlockedAccountMessage());
+            }
             localStorage.removeItem("token_admin");
             localStorage.removeItem("token_teacher");
             localStorage.removeItem("token_nguoi_dung");
@@ -415,6 +426,10 @@ export default {
           }
         })
         .catch((res) => {
+          if (res.response?.status === 403) {
+            this.$toast.error(res.response?.data?.message || this.getBlockedAccountMessage());
+            return;
+          }
           this.$toast.error(res.response?.data?.message || "Đăng nhập Google thất bại");
         })
     }

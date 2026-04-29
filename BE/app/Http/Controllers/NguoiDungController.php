@@ -24,6 +24,8 @@ use App\Mail\QuenMatKhauMail;
 
 class NguoiDungController extends Controller
 {
+    private const BLOCKED_ACCOUNT_MESSAGE = 'Tài khoản của bạn đã vi phạm chính sách bảo mật của chúng tôi';
+
     private function resolveAvatarUrl(?string $raw): ?string
     {
         $raw = trim((string) $raw);
@@ -320,6 +322,13 @@ class NguoiDungController extends Controller
             $user = NguoiDung::where('email', $email)->first();
 
             if ($user) {
+                if ((int) ($user->is_block ?? 0) === 1) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => self::BLOCKED_ACCOUNT_MESSAGE,
+                    ], 403);
+                }
+
                 $token = $user->createToken('token_nguoi_dung')->plainTextToken;
 
                 return response()->json([
@@ -416,6 +425,12 @@ class NguoiDungController extends Controller
         $user = NguoiDung::where('email', $request->email)->first();
 
         if ($user && Hash::check($request->password, $user->mat_khau)) {
+            if ((int) ($user->is_block ?? 0) === 1) {
+                return response()->json([
+                    'status'  => 0,
+                    'message' => self::BLOCKED_ACCOUNT_MESSAGE,
+                ], 403);
+            }
 
             // Xóa toàn bộ token cũ để mỗi lần đăng nhập chỉ dùng 1 thiết bị (Tùy chọn)
             // $user->tokens()->delete();
@@ -442,6 +457,13 @@ class NguoiDungController extends Controller
     {
         $userLogin = Auth::guard('sanctum')->user();
         if ($userLogin) {
+            if ((int) ($userLogin->is_block ?? 0) === 1) {
+                return response()->json([
+                    'status'    => false,
+                    'message'   => self::BLOCKED_ACCOUNT_MESSAGE,
+                ], 403);
+            }
+
             return response()->json([
                 'status'    => true,
                 'ho_ten'    => $userLogin->ho_ten,

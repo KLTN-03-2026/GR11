@@ -35,7 +35,13 @@ return [
         ],
     ],
     'gemini' => [
-        'key' => env('AIzaSyCRzAiwhwC3AkPU7db4TRCDNqY9hMQT-Xc'),
+        'api_key' => env('GEMINI_API_KEY'),
+        'api_keys' => env('GEMINI_API_KEYS', ''),
+        'model' => env('GEMINI_MODEL', 'gemini-2.0-flash'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 20),
+        'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
+        'prompt_profile' => env('GEMINI_PROMPT_PROFILE', 'default'),
+        'max_sentences' => (int) env('GEMINI_PROMPT_MAX_SENTENCES', 4),
     ],
 
     'fpt' => [

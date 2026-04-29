@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BaiHocController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\ErrorHistoryController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
@@ -15,11 +16,28 @@ use App\Http\Controllers\TtsController;
 use App\Http\Controllers\VaiTroController;
 use App\Http\Controllers\VaiTroQuyenController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
+    });
+
+    // Student chat endpoints
+    Route::get('/student/chat/sessions', [\App\Http\Controllers\StudentChatController::class, 'getSessions']);
+    Route::post('/student/chat/session', [\App\Http\Controllers\StudentChatController::class, 'createSession']);
+    Route::post('/student/chat/session/{sessionId}/send', [\App\Http\Controllers\StudentChatController::class, 'sendMessage']);
+    Route::get('/student/chat/session/{sessionId}/messages', [\App\Http\Controllers\StudentChatController::class, 'getMessages']);
+
+    // System AI chat endpoints
+    Route::post('/chat/system', [\App\Http\Controllers\ChatBoxAIController::class, 'chatSystem']);
+    Route::prefix('/chat/system')->group(function () {
+        Route::post('/session', [\App\Http\Controllers\ChatBoxAIController::class, 'session']);
+        Route::post('/chat', [\App\Http\Controllers\ChatBoxAIController::class, 'chatSystem']);
+        Route::get('/history', [\App\Http\Controllers\ChatBoxAIController::class, 'history']);
     });
 });
 
@@ -112,6 +130,14 @@ Route::prefix('/teacher')->middleware(['auth:sanctum', 'role:2'])->group(functio
         Route::get('/bai-hoc-goi-y', [QuanHeGvHvController::class, 'danhSachBaiHocGoiY']);
         Route::post('/goi-y', [QuanHeGvHvController::class, 'guiGoiY']);
     });
+    //Đang làm
+    Route::prefix('/chat')->group(function () {
+        Route::get('/unread-count', [ChatController::class, 'unreadCount']);
+        Route::get('/sessions', [ChatController::class, 'getSessionsForTeacher']);
+        Route::get('/session/{sessionId}/messages', [ChatController::class, 'getMessages']);
+        Route::post('/session/{sessionId}/send', [ChatController::class, 'sendMessage']);
+        Route::delete('/session/{sessionId}', [ChatController::class, 'deleteSession']);
+    });
 });
 
 
@@ -172,4 +198,3 @@ Route::prefix('/bookmarks')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [BookmarkController::class, 'getAllBookmarks']);
     Route::post('/', [BookmarkController::class, 'createBookmark']);
 });
-

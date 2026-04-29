@@ -68,7 +68,17 @@
               <tr v-for="user in danh_sach_nguoi_dung" :key="user.id">
                 <td class="ps-4 py-3">
                   <div class="d-flex align-items-center">
+                    <img
+                      v-if="user.avatar"
+                      :src="user.avatar"
+                      alt="avatar"
+                      class="rounded-circle me-3 shadow-sm border flex-shrink-0"
+                      width="40"
+                      height="40"
+                      style="object-fit: cover;"
+                    />
                     <div
+                      v-else
                       class="rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 text-white shadow-sm flex-shrink-0"
                       :style="`width: 40px; height: 40px; background-color: ${layMauDaiDien(user.role)};`"
                     >
@@ -308,6 +318,7 @@ export default {
         mat_khau: '',
       },
       nguoi_dung_can_doi_trang_thai: null,
+      autoRefreshTimer: null,
     }
   },
 
@@ -327,6 +338,15 @@ export default {
 
   mounted() {
     this.fetchDanhSach()
+    this.autoRefreshTimer = setInterval(() => {
+      this.fetchDanhSach()
+    }, 20000)
+  },
+  beforeUnmount() {
+    if (this.autoRefreshTimer) {
+      clearInterval(this.autoRefreshTimer)
+      this.autoRefreshTimer = null
+    }
   },
 
   watch: {
@@ -339,6 +359,12 @@ export default {
   },
 
   methods: {
+    resolveAvatarUrl(raw) {
+      if (!raw) return '';
+      if (String(raw).startsWith('http://') || String(raw).startsWith('https://')) return raw;
+      const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+      return `${base}/storage/${String(raw).replace(/^\/+/, '')}`;
+    },
     authHeaders() {
       return {
         Authorization: 'Bearer ' + (localStorage.getItem('token_admin') || ''),
@@ -357,6 +383,7 @@ export default {
         name: item.ho_ten ?? '',
         email: item.email ?? '',
         phone: item.sdt ?? '',
+        avatar: this.resolveAvatarUrl(item.anh_dai_dien),
         role: this.chuyenVaiTro(item.vai_tro_id),
         is_block: Number(item.is_block ?? 0),
         status: Number(item.is_block ?? 0) === 1 ? 'Tạm khóa' : 'Đang hoạt động',

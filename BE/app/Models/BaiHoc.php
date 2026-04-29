@@ -29,6 +29,14 @@ class BaiHoc extends Model
     }
 
     /**
+     * @return BelongsTo<NguoiDung, $this>
+     */
+    public function nguoiTao(): BelongsTo
+    {
+        return $this->belongsTo(NguoiDung::class, 'nguoi_tao_id');
+    }
+
+    /**
      * @return HasMany<TuVung, $this>
      */
     public function tuVungs(): HasMany

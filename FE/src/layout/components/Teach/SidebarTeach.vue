@@ -50,6 +50,12 @@
                 <span>Báo Cáo Thống Kê</span>
               </router-link>
             </li>
+            <li :class="{ active: $route.path === '/teacher/chat-box' }">
+              <router-link to="/teacher/chat-box" class="iq-waves-effect mt-1">
+                <i class="fa-solid fa-comments"></i>
+                <span>Tin nhắn</span>
+              </router-link>
+            </li>
 
           </ul>
         </nav>
