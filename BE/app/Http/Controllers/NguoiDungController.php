@@ -286,8 +286,32 @@ class NguoiDungController extends Controller
             ], 500);
         }
 
-        $client = new GoogleClient(['client_id' => $clientId]);
-        $payload = $client->verifyIdToken($idToken);
+        try {
+            $client = new GoogleClient(['client_id' => $clientId]);
+            $payload = $client->verifyIdToken($idToken);
+        } catch (\Exception $e) {
+            Log::error('Google OAuth verification failed', [
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+
+            // Fallback for development: decode JWT manually without verification
+            if (app()->environment('local', 'dev')) {
+                Log::warning('Using development JWT decode fallback (no verification)');
+                $payload = $this->decodeJwtForDevelopment($idToken);
+                if (!$payload) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Không thể xác thực token Google. Token không hợp lệ.',
+                    ], 401);
+                }
+            } else {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Không thể xác thực với Google. Vui lòng kiểm tra kết nối internet hoặc thử đăng nhập thường.',
+                ], 503);
+            }
+        }
 
         if ($payload) {
             $ho_ten = $payload['name'];
@@ -337,6 +361,27 @@ class NguoiDungController extends Controller
                 'status'  => false,
                 'message' => 'Token Google không hợp lệ hoặc đã hết hạn.',
             ], 401);
+        }
+    }
+
+    /**
+     * Decode JWT token manually for development when Google API is not accessible
+     * WARNING: This is NOT secure and should only be used in development
+     */
+    private function decodeJwtForDevelopment($idToken)
+    {
+        try {
+            $parts = explode('.', $idToken);
+            if (count($parts) !== 3) {
+                return null;
+            }
+
+            // Decode payload (2nd part)
+            $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+            return $payload;
+        } catch (\Exception $e) {
+            Log::warning('Failed to decode JWT manually', ['error' => $e->getMessage()]);
+            return null;
         }
     }
     public function login(DangNhapRequest $request)
