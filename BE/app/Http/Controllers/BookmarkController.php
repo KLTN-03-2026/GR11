@@ -27,29 +27,34 @@ class BookmarkController extends Controller
             ->where('nguoi_dung_id', $user->id)
             ->with([
                 'tuVung' => function ($q): void {
-                    $q->select('id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url');
-                },
-                'baiHoc' => function ($q): void {
-                    $q->select('id', 'tieu_de', 'cap_do');
+                    $q->select('id', 'bai_hoc_id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url')
+                        ->with([
+                            'baiHoc' => function ($qq): void {
+                                $qq->select('id', 'tieu_de', 'cap_do');
+                            },
+                        ]);
                 },
             ])
             ->orderByDesc('ngay_danh_dau')
             ->paginate(20);
 
         $data = $bookmarks->map(function ($bookmark) {
+            $tuVung = $bookmark->tuVung;
+            $baiHoc = $tuVung?->baiHoc;
+
             return [
                 'id' => $bookmark->id,
                 'tu_vung' => [
-                    'id' => $bookmark->tuVung->id,
-                    'tu_chuan' => $bookmark->tuVung->tu_chuan,
-                    'phien_am' => $bookmark->tuVung->phien_am,
-                    'hinh_anh_url' => $this->resolveMediaUrl($bookmark->tuVung->hinh_anh_url),
-                    'am_thanh_mau_url' => $this->resolveMediaUrl($bookmark->tuVung->am_thanh_mau_url),
+                    'id' => $tuVung?->id,
+                    'tu_chuan' => $tuVung?->tu_chuan,
+                    'phien_am' => $tuVung?->phien_am,
+                    'hinh_anh_url' => $this->resolveMediaUrl($tuVung?->hinh_anh_url),
+                    'am_thanh_mau_url' => $this->resolveMediaUrl($tuVung?->am_thanh_mau_url),
                 ],
                 'bai_hoc' => [
-                    'id' => $bookmark->baiHoc->id,
-                    'tieu_de' => $bookmark->baiHoc->tieu_de,
-                    'cap_do' => $bookmark->baiHoc->cap_do,
+                    'id' => $baiHoc?->id,
+                    'tieu_de' => $baiHoc?->tieu_de,
+                    'cap_do' => $baiHoc?->cap_do,
                 ],
                 'muc_do_uu_tien' => $bookmark->muc_do_uu_tien,
                 'ghi_chu' => $bookmark->ghi_chu,
@@ -88,7 +93,7 @@ class BookmarkController extends Controller
 
         $validated = $request->validate([
             'tu_vung_id' => ['required', 'integer', 'exists:tu_vungs,id'],
-            'bai_hoc_id' => ['required', 'integer', 'exists:bai_hocs,id'],
+            'bai_hoc_id' => ['nullable', 'integer', 'exists:bai_hocs,id'],
             'muc_do_uu_tien' => ['nullable', 'string', 'in:thap,binh_thuong,cao'],
             'ghi_chu' => ['nullable', 'string', 'max:500'],
         ]);
@@ -108,7 +113,6 @@ class BookmarkController extends Controller
         $bookmark = DiemDanhLoi::create([
             'nguoi_dung_id' => $user->id,
             'tu_vung_id' => $validated['tu_vung_id'],
-            'bai_hoc_id' => $validated['bai_hoc_id'],
             'muc_do_uu_tien' => $validated['muc_do_uu_tien'] ?? 'binh_thuong',
             'ghi_chu' => $validated['ghi_chu'] ?? null,
             'da_hoan_thanh' => false,
@@ -116,12 +120,17 @@ class BookmarkController extends Controller
 
         $bookmark->load([
             'tuVung' => function ($q): void {
-                $q->select('id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url');
-            },
-            'baiHoc' => function ($q): void {
-                $q->select('id', 'tieu_de', 'cap_do');
+                $q->select('id', 'bai_hoc_id', 'tu_chuan', 'phien_am', 'hinh_anh_url', 'am_thanh_mau_url')
+                    ->with([
+                        'baiHoc' => function ($qq): void {
+                            $qq->select('id', 'tieu_de', 'cap_do');
+                        },
+                    ]);
             },
         ]);
+
+        $tuVung = $bookmark->tuVung;
+        $baiHoc = $tuVung?->baiHoc;
 
         return response()->json([
             'status' => true,
@@ -129,16 +138,16 @@ class BookmarkController extends Controller
             'data' => [
                 'id' => $bookmark->id,
                 'tu_vung' => [
-                    'id' => $bookmark->tuVung->id,
-                    'tu_chuan' => $bookmark->tuVung->tu_chuan,
-                    'phien_am' => $bookmark->tuVung->phien_am,
-                    'hinh_anh_url' => $this->resolveMediaUrl($bookmark->tuVung->hinh_anh_url),
-                    'am_thanh_mau_url' => $this->resolveMediaUrl($bookmark->tuVung->am_thanh_mau_url),
+                    'id' => $tuVung?->id,
+                    'tu_chuan' => $tuVung?->tu_chuan,
+                    'phien_am' => $tuVung?->phien_am,
+                    'hinh_anh_url' => $this->resolveMediaUrl($tuVung?->hinh_anh_url),
+                    'am_thanh_mau_url' => $this->resolveMediaUrl($tuVung?->am_thanh_mau_url),
                 ],
                 'bai_hoc' => [
-                    'id' => $bookmark->baiHoc->id,
-                    'tieu_de' => $bookmark->baiHoc->tieu_de,
-                    'cap_do' => $bookmark->baiHoc->cap_do,
+                    'id' => $baiHoc?->id,
+                    'tieu_de' => $baiHoc?->tieu_de,
+                    'cap_do' => $baiHoc?->cap_do,
                 ],
                 'muc_do_uu_tien' => $bookmark->muc_do_uu_tien,
                 'ghi_chu' => $bookmark->ghi_chu,

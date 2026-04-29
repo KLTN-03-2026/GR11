@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('nguoi_dung_id')->constrained('nguoi_dungs')->onDelete('cascade');
             $table->foreignId('tu_vung_id')->constrained('tu_vungs')->onDelete('cascade');
-            $table->foreignId('bai_hoc_id')->constrained('bai_hocs')->onDelete('cascade');
             $table->string('muc_do_uu_tien', 50)->default('binh_thuong'); // 'thap', 'binh_thuong', 'cao'
             $table->text('ghi_chu')->nullable(); // Ghi chú của trẻ em
             $table->boolean('da_hoan_thanh')->default(false); // Đã hoàn thành ôn tập chưa
@@ -27,10 +26,8 @@ return new class extends Migration
             // Indexes để tối ưu query
             $table->index('nguoi_dung_id');
             $table->index('tu_vung_id');
-            $table->index('bai_hoc_id');
             $table->index('da_hoan_thanh');
             $table->index('muc_do_uu_tien');
-            $table->unique(['nguoi_dung_id', 'tu_vung_id']); // Mỗi người chỉ đánh dấu một từ một lần
         });
     }
 

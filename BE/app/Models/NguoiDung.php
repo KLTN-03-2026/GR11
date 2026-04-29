@@ -21,9 +21,8 @@ class NguoiDung extends Authenticatable
         'vai_tro_id',
         'ngay_sinh',
         'anh_dai_dien',
-        'trang_thai',
+        'trang_thai', // 0: hoạt động, 1: tạm khóa
         'ngay_tao',
-        'is_block',
         'type_account',
         'content_block',
         'hash_active',

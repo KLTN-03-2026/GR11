@@ -86,8 +86,7 @@ class TeacherQuanLyBaiHocController extends Controller
                     'mo_ta' => $baiHoc->mo_ta,
                     'cap_do' => $baiHoc->cap_do,
                     'so_luong_tu' => $baiHoc->tuVungs->count(),
-                    'trang_thai' => $this->mapTrangThaiBaiHocToTeacherUi($baiHoc->trang_thai),
-                    'trang_thai_so' => (int) $baiHoc->trang_thai,
+                    'trang_thai' => (int) $baiHoc->trang_thai,
                 ];
             });
 
@@ -119,8 +118,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $request->mo_ta,
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $thuTu,
-                // Giáo viên chỉ có thể gửi bài ở trạng thái chờ duyệt.
-                'trang_thai' => 0,
+                'trang_thai' => (int) $request->input('trang_thai', 0),
             ]);
         });
 
@@ -136,8 +134,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $baiHoc->mo_ta,
                 'cap_do' => $baiHoc->cap_do,
                 'so_luong_tu' => $baiHoc->tuVungs->count(),
-                'trang_thai' => $this->mapTrangThaiBaiHocToTeacherUi($baiHoc->trang_thai),
-                'trang_thai_so' => (int) $baiHoc->trang_thai,
+                'trang_thai' => (int) $baiHoc->trang_thai,
             ],
         ], 201);
     }
@@ -208,8 +205,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $baiHoc->mo_ta,
                 'cap_do' => $baiHoc->cap_do,
                 'so_luong_tu' => $baiHoc->tuVungs->count(),
-                'trang_thai' => $this->mapTrangThaiBaiHocToTeacherUi($baiHoc->trang_thai),
-                'trang_thai_so' => (int) $baiHoc->trang_thai,
+                'trang_thai' => (int) $baiHoc->trang_thai,
             ],
         ]);
     }
@@ -247,12 +243,8 @@ class TeacherQuanLyBaiHocController extends Controller
     }
 
     /**
-     * Giáo viên: 1 = hiển thị/đã duyệt (Hoạt động), 0 = nháp/chờ duyệt, 2 = từ chối (vẫn coi là nháp trên UI đơn giản).
+     * Giáo viên: 1 = Đã duyệt, 0 = Đợi duyệt (mặc định khi tạo mới).
      */
-    private function mapTrangThaiBaiHocToTeacherUi(?int $trangThai): string
-    {
-        return (int) $trangThai === 1 ? 'hoat_dong' : 'nhap';
-    }
 
     private function nextThuTuTrongDanhMuc(int $danhMucId): int
     {

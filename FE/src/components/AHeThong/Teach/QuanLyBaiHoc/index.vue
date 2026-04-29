@@ -175,9 +175,10 @@
 
                                                     <span
                                                         class="badge rounded-pill px-3 py-2 fw-medium d-flex align-items-center gap-1 border"
-                                                        :style="styleTrangThaiBaiHoc(bai)">
-                                                        <i class="fa-solid" :class="iconTrangThaiBaiHoc(bai)"></i>
-                                                        {{ nhanTrangThaiBaiHoc(bai) }}
+                                                        :style="bai.trang_thai == 1 ? 'background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;' : 'background-color: #f1f5f9; color: #475569; border-color: #e2e8f0 !important;'">
+                                                        <i class="fa-solid"
+                                                            :class="bai.trang_thai == 1 ? 'fa-circle-check' : 'fa-clock'"></i>
+                                                        {{ bai.trang_thai == 1 ? 'Đã duyệt' : 'Đợi duyệt' }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -227,7 +228,7 @@
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label fw-medium">Cấp độ</label>
                                 <select class="form-select" v-model="formBaiHoc.cap_do">
                                     <option value="de">Dễ (Mầm non)</option>
@@ -235,17 +236,12 @@
                                     <option value="kho">Khó (Nâng cao)</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">Trạng thái</label>
-                                <input type="text" class="form-control" value="Chờ duyệt"
-                                    disabled>
-                            </div>
                         </div>
                     </div>
                     <div class="modal-footer bg-light border-top-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
                         <button type="button" class="btn btn-primary" :disabled="savingBaiHoc" @click="luuBaiHoc">
-                            <span v-if="savingBaiHoc" class="spinner-border spinner-border-sm me-2"></span>Lưu dữ liệu
+                            <span v-if="savingBaiHoc" class="spinner-border spinner-border-sm me-2"></span>Xác Nhận
                         </button>
                     </div>
                 </div>
@@ -338,7 +334,6 @@ export default {
                 tieu_de: '',
                 mo_ta: '',
                 cap_do: 'de',
-                trang_thai: 'nhap',
             },
             isEditDanhMuc: false,
             formDanhMuc: { id: null, ten: '', icon: 'fa-solid fa-folder' },
@@ -486,29 +481,6 @@ export default {
             const map = { de: 'Dễ', trung_binh: 'TB', kho: 'Khó' };
             return map[capDo] || 'Dễ';
         },
-        nhanTrangThaiBaiHoc(bai) {
-            const trangThaiSo = Number(bai.trang_thai_so);
-            if (trangThaiSo === 2) return 'Từ chối';
-            return bai.trang_thai === 'hoat_dong' ? 'Đã duyệt' : 'Chờ duyệt';
-        },
-        iconTrangThaiBaiHoc(bai) {
-            const trangThaiSo = Number(bai.trang_thai_so);
-            if (trangThaiSo === 2) return 'fa-circle-xmark';
-            return bai.trang_thai === 'hoat_dong' ? 'fa-circle-check' : 'fa-hourglass-half';
-        },
-        styleTrangThaiBaiHoc(bai) {
-            const trangThaiSo = Number(bai.trang_thai_so);
-            if (trangThaiSo === 2) {
-                return 'background-color: #fee2e2; color: #991b1b; border-color: #fecaca !important;';
-            }
-            return bai.trang_thai === 'hoat_dong'
-                ? 'background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;'
-                : 'background-color: #fef3c7; color: #92400e; border-color: #fde68a !important;';
-        },
-        themDanhMuc() {
-            this.isEditDanhMuc = false;
-            this.formDanhMuc = { id: null, ten: '', icon: 'fa-solid fa-folder' };
-        },
         suaDanhMuc(dm) {
             this.isEditDanhMuc = true;
             this.formDanhMuc = { id: dm.id, ten: dm.ten || dm.ten_danh_muc || '', icon: dm.icon || 'fa-solid fa-folder' };
@@ -555,7 +527,6 @@ export default {
                 tieu_de: '',
                 mo_ta: '',
                 cap_do: 'de',
-                trang_thai: 'nhap',
             };
         },
         suaBaiHoc(bai) {
@@ -566,7 +537,6 @@ export default {
                 tieu_de: bai.tieu_de || '',
                 mo_ta: bai.mo_ta || '',
                 cap_do: bai.cap_do || 'de',
-                trang_thai: bai.trang_thai === 'hoat_dong' ? 'hoat_dong' : 'nhap',
             };
         },
         luuBaiHoc() {

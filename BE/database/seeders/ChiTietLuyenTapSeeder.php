@@ -3,111 +3,172 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ChiTietLuyenTapSeeder extends Seeder
 {
-    /**
-     * Chi tiết từng từ trong phiên — chỉ lấy từ vựng thuộc đúng bài học của phiên.
-     */
     public function run(): void
     {
-        $phiens = DB::table('phien_luyen_taps')->orderBy('id')->get();
+        $now = Carbon::now();
 
-        foreach ($phiens as $phien) {
-            $soTuCoTrongBai = DB::table('tu_vungs')->where('bai_hoc_id', $phien->bai_hoc_id)->count();
-            if ($soTuCoTrongBai === 0) {
-                continue;
-            }
+        // Giả định: phien_id 1..6 đã tồn tại theo PhienLuyenTapSeeder; tu_vung_id theo TuVungSeeder (1..79)
+        $chiTietLuyenTaps = [
+            // Phiên 1 (phien_id = 1) - Phạm Thị Học, bài 1
+            [
+                'id' => 1,
+                'phien_id' => 1,
+                'tu_vung_id' => 1, // 'a'
+                'file_ghi_am_url' => null,
+                'van_ban_ai_nhan_dien' => 'a',
+                'diem_tin_cay' => 0.98,
+                'diem_chinh_xac' => 95,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => null,
+                'ngay_tao' => $now->copy()->subMinutes(29),
+            ],
+            [
+                'id' => 2,
+                'phien_id' => 1,
+                'tu_vung_id' => 2, // 'ă'
+                'file_ghi_am_url' => null,
+                'van_ban_ai_nhan_dien' => 'ă',
+                'diem_tin_cay' => 0.92,
+                'diem_chinh_xac' => 88,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => null,
+                'ngay_tao' => $now->copy()->subMinutes(28),
+            ],
+            [
+                'id' => 3,
+                'phien_id' => 1,
+                'tu_vung_id' => 4, // 'ba'
+                'file_ghi_am_url' => 'uploads/recordings/phien1_ba_1.mp3',
+                'van_ban_ai_nhan_dien' => 'ba',
+                'diem_tin_cay' => 0.85,
+                'diem_chinh_xac' => 80,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => null,
+                'ngay_tao' => $now->copy()->subMinutes(27),
+            ],
 
-            // Lấy ngẫu nhiên từ 4-8 từ trong bài để luyện tập
-            $maxLay = max(1, min(random_int(4, 8), $soTuCoTrongBai));
-            $tuTrongBai = DB::table('tu_vungs')
-                ->where('bai_hoc_id', $phien->bai_hoc_id)
-                ->inRandomOrder()
-                ->limit($maxLay)
-                ->get();
+            // Phiên 2 (phien_id = 2) - Phạm Thị Học, bài 4
+            [
+                'id' => 4,
+                'phien_id' => 2,
+                'tu_vung_id' => 19, // 'ai'
+                'file_ghi_am_url' => 'uploads/recordings/phien2_ai_1.mp3',
+                'van_ban_ai_nhan_dien' => 'ai',
+                'diem_tin_cay' => 0.76,
+                'diem_chinh_xac' => 70,
+                'loi_am_dau' => false,
+                'loi_van' => true,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => 'Phát âm ngắn hơn mẫu; cần kéo dài âm đôi.',
+                'ngay_tao' => $now->copy()->subDays(1)->subMinutes(19),
+            ],
+            [
+                'id' => 5,
+                'phien_id' => 2,
+                'tu_vung_id' => 22, // 'mai'
+                'file_ghi_am_url' => 'uploads/recordings/phien2_mai_1.mp3',
+                'van_ban_ai_nhan_dien' => 'mai',
+                'diem_tin_cay' => 0.81,
+                'diem_chinh_xac' => 75,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => null,
+                'ngay_tao' => $now->copy()->subDays(1)->subMinutes(18),
+            ],
 
-            foreach ($tuTrongBai as $tv) {
-                // Tỷ lệ phát âm đúng là 70%
-                $isCorrect = random_int(1, 10) > 3;
+            // Phiên 3 (phien_id = 3) - Đặng Minh Học, bài 3
+            [
+                'id' => 6,
+                'phien_id' => 3,
+                'tu_vung_id' => 13, // 'mẹ'
+                'file_ghi_am_url' => 'uploads/recordings/phien3_me_1.mp3',
+                'van_ban_ai_nhan_dien' => 'mẹ',
+                'diem_tin_cay' => 0.95,
+                'diem_chinh_xac' => 92,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => true,
+                'chi_tiet_loi' => 'Thanh điệu đôi khi bị sai khi nói câu.',
+                'ngay_tao' => $now->copy()->subDays(2)->subMinutes(14),
+            ],
 
-                // Xác định loại lỗi nếu phát âm sai
-                $loiAmDau = ! $isCorrect && random_int(1, 3) === 1;
-                $loiVan = ! $isCorrect && ! $loiAmDau && random_int(1, 2) === 1;
-                $loiThanh = ! $isCorrect && ! $loiAmDau && ! $loiVan;
+            // Phiên 4 (phien_id = 4) - Hoàng Thị Thảo, bài 6
+            [
+                'id' => 7,
+                'phien_id' => 4,
+                'tu_vung_id' => 31, // 'ma' (ngang)
+                'file_ghi_am_url' => 'uploads/recordings/phien4_ma_1.mp3',
+                'van_ban_ai_nhan_dien' => 'ma',
+                'diem_tin_cay' => 0.99,
+                'diem_chinh_xac' => 99,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => null,
+                'ngay_tao' => $now->copy()->subDays(3)->subMinutes(39),
+            ],
 
-                // Giả lập văn bản AI nhận diện được
-                $vanBanAi = $isCorrect
-                    ? $tv->tu_chuan
-                    : $this->giaLapLoiPhatAm($tv->tu_chuan, $loiAmDau, $loiVan, $loiThanh);
+            // Phiên 5 (phien_id = 5) - Bùi Văn Tài, bài 8
+            [
+                'id' => 8,
+                'phien_id' => 5,
+                'tu_vung_id' => 43, // 'mèo'
+                'file_ghi_am_url' => 'uploads/recordings/phien5_meo_1.mp3',
+                'van_ban_ai_nhan_dien' => 'mèo',
+                'diem_tin_cay' => 0.60,
+                'diem_chinh_xac' => 55,
+                'loi_am_dau' => true,
+                'loi_van' => false,
+                'loi_thanh_dieu' => false,
+                'chi_tiet_loi' => 'Âm m chưa rõ, cần bài tập môi và hơi.',
+                'ngay_tao' => $now->copy()->subHours(5),
+            ],
 
-                DB::table('chi_tiet_luyen_taps')->insert([
-                    'phien_id' => $phien->id,
-                    'tu_vung_id' => $tv->id,
-                    'file_ghi_am_url' => "audio/recordings/phien_{$phien->id}_tv_{$tv->id}.wav",
-                    'van_ban_ai_nhan_dien' => $vanBanAi,
-                    'diem_tin_cay' => round(random_int(72, 99) / 100, 2),
-                    'diem_chinh_xac' => $isCorrect ? random_int(86, 100) : random_int(38, 74),
-                    'loi_am_dau' => $loiAmDau,
-                    'loi_van' => $loiVan,
-                    'loi_thanh_dieu' => $loiThanh,
-                    'chi_tiet_loi' => $isCorrect
-                        ? null
-                        : $this->taoGhiChuLoi($loiAmDau, $loiVan, $loiThanh),
-                    'ngay_tao' => $phien->ngay_tao,
-                ]);
-            }
-        }
-    }
-
-    private function giaLapLoiPhatAm($tuChuan, $loiAmDau, $loiVan, $loiThanh): string
-    {
-        $tu = mb_strtolower($tuChuan);
-
-        if ($loiAmDau) {
-            $map = ['l' => 'n', 'n' => 'l', 'tr' => 'ch', 'ch' => 'tr', 's' => 'x', 'x' => 's', 'r' => 'g'];
-            foreach ($map as $key => $val) {
-                if (str_starts_with($tu, $key)) {
-                    return preg_replace('/^' . $key . '/', $val, $tu);
-                }
-            }
-        }
-
-        if ($loiVan) {
-            if (str_ends_with($tu, 'ang')) return str_replace('ang', 'an', $tu);
-            if (str_ends_with($tu, 'an')) return str_replace('an', 'ang', $tu);
-            if (str_ends_with($tu, 'anh')) return str_replace('anh', 'an', $tu);
-        }
-
-        if ($loiThanh) {
-            return $tu . " (sai thanh điệu)";
-        }
-
-        return $tu;
-    }
-
-    private function taoGhiChuLoi($amDau, $van, $thanh): string
-    {
-        if ($amDau) return 'Lỗi âm đầu: Chú ý vị trí đặt lưỡi.';
-        if ($van) return 'Lỗi vần: Chú ý kết thúc âm bằng môi hoặc mũi.';
-        return 'Lỗi thanh điệu: Cần phân biệt rõ độ cao (hỏi/ngã/sắc).';
-    }
-
-    private function saiGanDung(string $tuChuan): string
-    {
-        $map = [
-            'l' => 'n',
-            'n' => 'l',
-            's' => 'x',
-            'x' => 's',
+            // Phiên 6 (phien_id = 6) - Trịnh Thị Yêu, bài 10
+            [
+                'id' => 9,
+                'phien_id' => 6,
+                'tu_vung_id' => 55, // 'xin chào'
+                'file_ghi_am_url' => 'uploads/recordings/phien6_xin_chao_1.mp3',
+                'van_ban_ai_nhan_dien' => 'xin chào',
+                'diem_tin_cay' => 0.82,
+                'diem_chinh_xac' => 82,
+                'loi_am_dau' => false,
+                'loi_van' => false,
+                'loi_thanh_dieu' => true,
+                'chi_tiet_loi' => 'Ngữ điệu chào hỏi chưa tự nhiên; cần luyện ngữ điệu câu.',
+                'ngay_tao' => $now->copy()->subDays(1)->subHours(2),
+            ],
         ];
-        $lower = mb_strtolower($tuChuan);
-        $first = mb_substr($lower, 0, 1);
-        if (isset($map[$first])) {
-            return $map[$first] . mb_substr($tuChuan, 1);
-        }
 
-        return 'Từ gần giống «' . $tuChuan . '»';
+        DB::table('chi_tiet_luyen_taps')->upsert(
+            $chiTietLuyenTaps,
+            ['id'],
+            [
+                'phien_id',
+                'tu_vung_id',
+                'file_ghi_am_url',
+                'van_ban_ai_nhan_dien',
+                'diem_tin_cay',
+                'diem_chinh_xac',
+                'loi_am_dau',
+                'loi_van',
+                'loi_thanh_dieu',
+                'chi_tiet_loi',
+                'ngay_tao'
+            ]
+        );
     }
 }

@@ -13,6 +13,8 @@ use App\Http\Controllers\QuanHeGvHvController;
 use App\Http\Controllers\TeacherQuanLyBaiHocController;
 use App\Http\Controllers\TeacherTuVungController;
 use App\Http\Controllers\TtsController;
+use App\Http\Controllers\PhienLuyenTapController;
+use App\Http\Controllers\ThongTinHocVienController;
 use App\Http\Controllers\VaiTroController;
 use App\Http\Controllers\VaiTroQuyenController;
 use Illuminate\Http\Request;
@@ -97,6 +99,7 @@ Route::prefix('/admin')->group(function () {
 });
 
 Route::get('/cau-hinh/footer/data', [CauHinhController::class, 'getFooterSettings']);
+Route::get('/leaderboard', [ThongTinHocVienController::class, 'leaderboard']);
 Route::get('/cau-hinh/thong-bao', [CauHinhController::class, 'getAlertSettings']);
 
 //---------------------------------------------Teacher--------------------------------------------------------------
@@ -104,7 +107,6 @@ Route::get('/cau-hinh/thong-bao', [CauHinhController::class, 'getAlertSettings']
 Route::prefix('/teacher')->middleware(['auth:sanctum', 'role:2'])->group(function () {
     Route::prefix('/danh-muc-bai-hoc')->group(function () {
         Route::get('/', [TeacherQuanLyBaiHocController::class, 'indexDanhMuc']);
-        Route::post('/', [TeacherQuanLyBaiHocController::class, 'storeDanhMuc']);
         Route::put('/{id}', [TeacherQuanLyBaiHocController::class, 'updateDanhMuc']);
         Route::delete('/{id}', [TeacherQuanLyBaiHocController::class, 'destroyDanhMuc']);
         Route::get('/{id}/bai-hoc', [TeacherQuanLyBaiHocController::class, 'indexBaiHocTheoDanhMuc']);
@@ -158,11 +160,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::post('/phien-luyen-taps/start', [PhienLuyenTapController::class, 'start']);
+    Route::post('/phien-luyen-taps/end', [PhienLuyenTapController::class, 'end']);
+    Route::post('/phien-luyen-taps/hoan-thanh', [PhienLuyenTapController::class, 'hoanThanh']);
+    Route::get('/thong-tin-hoc-vien/me', [ThongTinHocVienController::class, 'me']);
     Route::post('/dang-xuat', [NguoiDungController::class, 'logOut']);
     Route::get('/profile', [NguoiDungController::class, 'profile']);
     Route::post('/profile/update', [NguoiDungController::class, 'updateProfile']);
     Route::post('/profile/update-avatar', [NguoiDungController::class, 'updateProfileAvatar']);
     Route::post('/profile/change-password', [NguoiDungController::class, 'changeProfilePassword']);
+    Route::post('/chat/system/session', [ChatBoxAIController::class, 'session']);
+    Route::post('/chat/system', [ChatBoxAIController::class, 'chatSystem']);
+    Route::get('/chat/system/history', [ChatBoxAIController::class, 'history']);
 });
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {

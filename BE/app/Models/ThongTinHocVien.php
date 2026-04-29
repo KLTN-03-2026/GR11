@@ -10,7 +10,6 @@ class ThongTinHocVien extends Model
 
     protected $fillable = [
         'nguoi_dung_id',
-        'ngay_sinh',
         'diem_tich_luy',
         'streak_hien_tai',
         'ngay_hoc_cuoi_cung',

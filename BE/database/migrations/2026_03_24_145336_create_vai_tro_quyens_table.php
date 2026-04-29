@@ -15,7 +15,6 @@ return new class extends Migration
             $table->foreignId('vai_tro_id')->constrained('vai_tros')->onDelete('cascade');
             $table->foreignId('quyen_id')->constrained('quyens')->onDelete('cascade');
             $table->primary(['vai_tro_id', 'quyen_id']);
-            $table->index(['vai_tro_id', 'quyen_id']);
             $table->timestamps();
         });
     }

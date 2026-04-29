@@ -8,64 +8,44 @@ use Illuminate\Support\Facades\DB;
 
 class LoTrinhCaNhanSeeder extends Seeder
 {
-    /**
-     * Khởi tạo lộ trình cá nhân hóa cho từng học viên.
-     */
     public function run(): void
     {
-        $gv1 = DB::table('nguoi_dungs')->where('email', 'maiphuong.gv@gmail.com')->first();
-        $gv2 = DB::table('nguoi_dungs')->where('email', 'thuylinh.gv@gmail.com')->first();
+        $now = Carbon::now();
 
-        if (! $gv1) {
-            return;
-        }
-
-        $cacLoTrinh = [
+        $loTrinhCaNhans = [
             [
-                'hv_email' => 'giabao.student@gmail.com',
-                'giao_vien_id' => $gv1->id,
-                'ten' => 'Lộ trình: Khắc phục lỗi L/N và chuẩn hóa dấu thanh',
-                'ngay' => Carbon::parse('2026-04-01'),
+                'id' => 1,
+                'hoc_vien_id' => 4, // Phạm Thị Học (học viên)
+                'giao_vien_id' => 2, // Trần Thị Giáo Viên (giáo viên)
+                'ten_lo_trinh' => 'Lộ trình Tiếng Anh cơ bản',
+                'ngay_tao' => $now->toDateString(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
-                'hv_email' => 'minhan.hv@gmail.com',
-                'giao_vien_id' => ($gv2 ?? $gv1)->id,
-                'ten' => 'Luyện phát âm chuẩn phụ âm quặt lưỡi S/X và TR/CH',
-                'ngay' => Carbon::parse('2026-03-15'),
+                'id' => 2,
+                'hoc_vien_id' => 5, // Ngô Văn Học (học viên)
+                'giao_vien_id' => 3, // Lê Văn Dạy (giáo viên)
+                'ten_lo_trinh' => 'Lộ trình Phát âm nâng cao',
+                'ngay_tao' => $now->copy()->subDays(7)->toDateString(),
+                'created_at' => $now->copy()->subDays(7),
+                'updated_at' => $now->copy()->subDays(7),
             ],
             [
-                'hv_email' => 'thaovy.kid@outlook.com',
-                'giao_vien_id' => $gv1->id,
-                'ten' => 'Giao tiếp tự tin: Từ vựng đời sống và câu đơn lịch sự',
-                'ngay' => Carbon::parse('2026-04-05'),
-            ],
-            [
-                'hv_email' => 'hoanglong.phuong@gmail.com',
-                'giao_vien_id' => ($gv2 ?? $gv1)->id,
-                'ten' => 'Khởi động hơi và luyện phát âm nguyên âm mở miệng',
-                'ngay' => Carbon::parse('2026-04-10'),
+                'id' => 3,
+                'hoc_vien_id' => 7, // Đặng Minh Học (học viên)
+                'giao_vien_id' => 2, // Trần Thị Giáo Viên (giáo viên)
+                'ten_lo_trinh' => 'Lộ trình Từ vựng cho trẻ em',
+                'ngay_tao' => $now->copy()->subDays(30)->toDateString(),
+                'created_at' => $now->copy()->subDays(30),
+                'updated_at' => $now->copy()->subDays(30),
             ],
         ];
 
-        foreach ($cacLoTrinh as $lt) {
-            $hv = DB::table('nguoi_dungs')->where('email', $lt['hv_email'])->first();
-
-            if (! $hv) {
-                continue;
-            }
-
-            DB::table('lo_trinh_ca_nhans')->updateOrInsert(
-                [
-                    'giao_vien_id' => $lt['giao_vien_id'],
-                    'hoc_vien_id' => $hv->id,
-                    'ten_lo_trinh' => $lt['ten'],
-                ],
-                [
-                    'ngay_tao' => $lt['ngay']->toDateString(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-        }
+        DB::table('lo_trinh_ca_nhans')->upsert(
+            $loTrinhCaNhans,
+            ['id'],
+            ['hoc_vien_id', 'giao_vien_id', 'ten_lo_trinh', 'ngay_tao', 'updated_at']
+        );
     }
 }

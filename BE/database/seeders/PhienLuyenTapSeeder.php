@@ -8,52 +8,72 @@ use Illuminate\Support\Facades\DB;
 
 class PhienLuyenTapSeeder extends Seeder
 {
-    private const HOC_VIEN_EMAILS = [
-        'giabao.student@gmail.com',
-        'minhan.hv@gmail.com',
-        'thaovy.kid@outlook.com',
-        'hoanglong.phuong@gmail.com',
-        'khanhlinh.hv@gmail.com',
-    ];
-
-    /**
-     * Phiên luyện tập theo từng bài — nhiều ngày liên tiếp, điểm có xu hướng tăng.
-     */
     public function run(): void
     {
-        $hocVienIds = DB::table('nguoi_dungs')->whereIn('email', self::HOC_VIEN_EMAILS)->pluck('id');
-        $baiHocIds = DB::table('bai_hocs')->orderBy('thu_tu')->pluck('id');
+        $now = Carbon::now();
 
-        if ($hocVienIds->isEmpty() || $baiHocIds->isEmpty()) {
-            return;
-        }
+        // Giả định: nguoi_dung_id 4..10 (học viên mẫu); bai_hoc_id 1..18 theo BaiHocSeeder trước đó
+        $phienLuyenTaps = [
+            [
+                'id' => 1,
+                'nguoi_dung_id' => 4, // Phạm Thị Học
+                'bai_hoc_id' => 1, // Nguyên âm đơn: a, ă, â
+                'thoi_gian_bat_dau' => $now->copy()->subMinutes(30),
+                'thoi_gian_ket_thuc' => $now->copy()->subMinutes(25),
+                'tong_diem' => 85,
+                'ngay_tao' => $now->copy()->subMinutes(30),
+            ],
+            [
+                'id' => 2,
+                'nguoi_dung_id' => 4,
+                'bai_hoc_id' => 4, // Nguyên âm đôi: ai, ao, au
+                'thoi_gian_bat_dau' => $now->copy()->subDays(1)->subMinutes(20),
+                'thoi_gian_ket_thuc' => $now->copy()->subDays(1)->subMinutes(10),
+                'tong_diem' => 72,
+                'ngay_tao' => $now->copy()->subDays(1)->subMinutes(20),
+            ],
+            [
+                'id' => 3,
+                'nguoi_dung_id' => 7, // Đặng Minh Học
+                'bai_hoc_id' => 3, // Từ hàng ngày
+                'thoi_gian_bat_dau' => $now->copy()->subDays(2)->subMinutes(15),
+                'thoi_gian_ket_thuc' => $now->copy()->subDays(2)->subMinutes(5),
+                'tong_diem' => 90,
+                'ngay_tao' => $now->copy()->subDays(2)->subMinutes(15),
+            ],
+            [
+                'id' => 4,
+                'nguoi_dung_id' => 8, // Hoàng Thị Thảo
+                'bai_hoc_id' => 6, // Thanh ngang và huyền
+                'thoi_gian_bat_dau' => $now->copy()->subDays(3)->subMinutes(40),
+                'thoi_gian_ket_thuc' => $now->copy()->subDays(3)->subMinutes(20),
+                'tong_diem' => 98,
+                'ngay_tao' => $now->copy()->subDays(3)->subMinutes(40),
+            ],
+            [
+                'id' => 5,
+                'nguoi_dung_id' => 9, // Bùi Văn Tài
+                'bai_hoc_id' => 8, // Chủ đề: Động vật
+                'thoi_gian_bat_dau' => $now->copy()->subHours(5),
+                'thoi_gian_ket_thuc' => $now->copy()->subHours(4)->subMinutes(50),
+                'tong_diem' => 55,
+                'ngay_tao' => $now->copy()->subHours(5),
+            ],
+            [
+                'id' => 6,
+                'nguoi_dung_id' => 10, // Trịnh Thị Yêu
+                'bai_hoc_id' => 10, // Câu ngắn: chào hỏi
+                'thoi_gian_bat_dau' => $now->copy()->subDays(1)->subHours(2),
+                'thoi_gian_ket_thuc' => $now->copy()->subDays(1)->subHours(1)->subMinutes(50),
+                'tong_diem' => 82,
+                'ngay_tao' => $now->copy()->subDays(1)->subHours(2),
+            ],
+        ];
 
-        $phienIds = DB::table('phien_luyen_taps')->whereIn('nguoi_dung_id', $hocVienIds)->pluck('id');
-        if ($phienIds->isNotEmpty()) {
-            DB::table('chi_tiet_luyen_taps')->whereIn('phien_id', $phienIds)->delete();
-        }
-        DB::table('phien_luyen_taps')->whereIn('nguoi_dung_id', $hocVienIds)->delete();
-
-        mt_srand(100);
-
-        foreach ($hocVienIds as $hvId) {
-            $soPhien = random_int(9, 14);
-            $baseScore = 62;
-
-            for ($p = 0; $p < $soPhien; $p++) {
-                $ngay = Carbon::now()->subDays($soPhien - $p);
-                $baiId = $baiHocIds[$p % $baiHocIds->count()];
-                $baseScore = min(98, $baseScore + random_int(-2, 6));
-
-                DB::table('phien_luyen_taps')->insert([
-                    'nguoi_dung_id' => $hvId,
-                    'bai_hoc_id' => $baiId,
-                    'tong_diem' => $baseScore,
-                    'thoi_gian_bat_dau' => $ngay->copy()->setTime(8, random_int(0, 25)),
-                    'thoi_gian_ket_thuc' => $ngay->copy()->setTime(8, random_int(30, 55)),
-                    'ngay_tao' => $ngay,
-                ]);
-            }
-        }
+        DB::table('phien_luyen_taps')->upsert(
+            $phienLuyenTaps,
+            ['id'],
+            ['nguoi_dung_id', 'bai_hoc_id', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'tong_diem', 'ngay_tao']
+        );
     }
 }
