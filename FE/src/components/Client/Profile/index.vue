@@ -23,7 +23,13 @@
                                         <div class="card-body text-center p-4">
                                             <div class="avatar-wrapper mb-4">
                                                 <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center">
-                                                    <img v-if="avatarDisplayUrl" :src="avatarDisplayUrl" class="avatar-image" alt="avatar">
+                                                    <img
+                                                        v-if="avatarDisplayUrl && !avatarLoadError"
+                                                        :src="avatarDisplayUrl"
+                                                        class="avatar-image"
+                                                        alt=""
+                                                        @error="onAvatarLoadError"
+                                                    >
                                                     <i v-else class="fa-solid fa-user fa-3x"></i>
                                                 </div>
                                             </div>
@@ -204,6 +210,10 @@ export default {
             if (this.thong_tin.anh_dai_dien_url) {
                 return this.thong_tin.anh_dai_dien_url;
             }
+            const savedLocalAvatar = localStorage.getItem('anh_dai_dien_local') || '';
+            if (savedLocalAvatar) {
+                return savedLocalAvatar;
+            }
             return this.duongDanAnh(this.thong_tin.anh_dai_dien || '');
         }
     },
@@ -225,7 +235,9 @@ export default {
             isUpdatingProfile: false,
             isChangingPassword: false,
             isUpdatingAvatar: false,
-            localAvatarPreviewUrl: ''
+            localAvatarPreviewUrl: '',
+            avatarLoadError: false,
+            pendingAvatarDataUrl: ''
         }
     },
     mounted() {
@@ -234,11 +246,19 @@ export default {
     methods: {
         duongDanAnh(raw) {
             if (!raw) return '';
-            if (String(raw).startsWith('http://') || String(raw).startsWith('https://')) {
-                return raw;
+            const source = String(raw).trim().replace(/\\/g, '/');
+            if (!source) return '';
+            if (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('blob:')) {
+                return source;
             }
             const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
-            return `${base}/storage/${String(raw).replace(/^\//, '')}`;
+            if (source.startsWith('/storage/')) {
+                return `${base}${source}`;
+            }
+            if (source.startsWith('storage/')) {
+                return `${base}/${source}`;
+            }
+            return `${base}/storage/${source.replace(/^\//, '')}`;
         },
         getAuthToken() {
             const path = this.$route?.path || '';
@@ -274,14 +294,32 @@ export default {
             } else {
                 localStorage.removeItem("anh_dai_dien");
             }
+            if (thongTin.anh_dai_dien_url) {
+                localStorage.setItem("anh_dai_dien_url", thongTin.anh_dai_dien_url);
+            } else {
+                localStorage.removeItem("anh_dai_dien_url");
+            }
 
             window.dispatchEvent(new CustomEvent('profile-updated', {
                 detail: {
                     ho_ten: hoTen,
                     anh_dai_dien: thongTin.anh_dai_dien || null,
-                    anh_dai_dien_url: thongTin.anh_dai_dien_url || null
+                    anh_dai_dien_url: thongTin.anh_dai_dien_url || null,
+                    anh_dai_dien_local: localStorage.getItem('anh_dai_dien_local') || null
                 }
             }));
+        },
+        fileToDataUrl(file) {
+            return new Promise((resolve) => {
+                try {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+                    reader.onerror = () => resolve('');
+                    reader.readAsDataURL(file);
+                } catch (_) {
+                    resolve('');
+                }
+            });
         },
         loadProfile() {
             axios
@@ -369,7 +407,7 @@ export default {
                 this.$refs.avatarInput.click();
             }
         },
-        handleAvatarChange(event) {
+        async handleAvatarChange(event) {
             const file = event.target.files?.[0];
             if (!file) {
                 return;
@@ -387,6 +425,7 @@ export default {
             }
 
             this.setAvatarPreview(file);
+            this.pendingAvatarDataUrl = await this.fileToDataUrl(file);
             this.uploadAvatar(file);
         },
         setAvatarPreview(file) {
@@ -394,12 +433,16 @@ export default {
                 URL.revokeObjectURL(this.localAvatarPreviewUrl);
             }
             this.localAvatarPreviewUrl = URL.createObjectURL(file);
+            this.avatarLoadError = false;
         },
         clearAvatarPreview() {
             if (this.localAvatarPreviewUrl) {
                 URL.revokeObjectURL(this.localAvatarPreviewUrl);
             }
             this.localAvatarPreviewUrl = '';
+        },
+        onAvatarLoadError() {
+            this.avatarLoadError = true;
         },
         uploadAvatar(file) {
             this.isUpdatingAvatar = true;
@@ -416,6 +459,9 @@ export default {
                 .then((res) => {
                     if (res.data.status) {
                         this.$toast.success(res.data.message || 'Cập nhật ảnh đại diện thành công.');
+                        if (this.pendingAvatarDataUrl) {
+                            localStorage.setItem('anh_dai_dien_local', this.pendingAvatarDataUrl);
+                        }
                         if (res.data.thong_tin) {
                             this.thong_tin = res.data.thong_tin;
                             this.capNhatProfileLocal(res.data.thong_tin);
@@ -445,6 +491,7 @@ export default {
                 })
                 .finally(() => {
                     this.isUpdatingAvatar = false;
+                    this.pendingAvatarDataUrl = '';
                     if (this.$refs.avatarInput) {
                         this.$refs.avatarInput.value = '';
                     }
@@ -495,6 +542,11 @@ export default {
             this.showOldPassword = false;
             this.showNewPassword = false;
             this.showConfirmPassword = false;
+        }
+    },
+    watch: {
+        avatarDisplayUrl() {
+            this.avatarLoadError = false;
         }
     },
     beforeUnmount() {

@@ -55,7 +55,7 @@
         </div>
         <ul class="navbar-list">
           <li>
-            <a href="#" class="search-toggle iq-waves-effect d-flex align-items-center bg-danger rounded">
+            <a href="#" class="search-toggle iq-waves-effect d-flex align-items-center bg-danger rounded user-chip-compact">
               <img :src="user.avatarUrl" class="img-fluid rounded mr-3" alt="user" style="width:40px;height:40px;object-fit:cover;">
               <div class="caption">
                 <h6 class="mb-0 line-height text-white">{{ user.name }}</h6>
@@ -99,7 +99,7 @@
 import axios from 'axios'
 
 const ANH_MAC_DINH = '/Admin/images/user/1.jpg'
-const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien']
+const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien', 'anh_dai_dien_url', 'anh_dai_dien_local']
 
 export default {
   data() {
@@ -126,16 +126,30 @@ export default {
       if (!raw) {
         return macDinh
       }
-      if (raw.startsWith('http://') || raw.startsWith('https://')) {
-        return raw
+      const source = String(raw).trim().replace(/\\/g, '/')
+      if (!source) {
+        return macDinh
+      }
+      if (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('blob:')) {
+        return source
       }
       const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
-      return `${base}/storage/${String(raw).replace(/^\//, '')}`
+      if (source.startsWith('/storage/')) {
+        return `${base}${source}`
+      }
+      if (source.startsWith('storage/')) {
+        return `${base}/${source}`
+      }
+      return `${base}/storage/${source.replace(/^\//, '')}`
     },
     dongBoUserTuLocal() {
+      const avatarUrl =
+        localStorage.getItem('anh_dai_dien_url')
+        || localStorage.getItem('anh_dai_dien_local')
+        || localStorage.getItem('anh_dai_dien')
       this.user = {
         name: localStorage.getItem('ho_ten') || 'Giáo viên',
-        avatarUrl: this.duongDanAnh(localStorage.getItem('anh_dai_dien'), ANH_MAC_DINH),
+        avatarUrl: this.duongDanAnh(avatarUrl, ANH_MAC_DINH),
       }
     },
     dangXuat() {
@@ -218,4 +232,20 @@ export default {
   },
 }
 </script>
-<style></style>
+<style scoped>
+.user-chip-compact {
+  height: 22px;
+  padding: 4px 14px !important;
+  max-width: 220px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.user-chip-compact .caption h6 {
+  margin: 0;
+  max-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+</style>

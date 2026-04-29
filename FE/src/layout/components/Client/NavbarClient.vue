@@ -180,7 +180,7 @@
 <script>
 import axios from "axios";
 
-const PROFILE_LS_KEYS = ["ho_ten", "email", "check_token", "ten_vai_tro", "anh_dai_dien"];
+const PROFILE_LS_KEYS = ["ho_ten", "email", "check_token", "ten_vai_tro", "anh_dai_dien", "anh_dai_dien_url", "anh_dai_dien_local"];
 
 export default {
 
@@ -241,22 +241,35 @@ export default {
       if (!raw) {
         return macDinh;
       }
-      if (raw.startsWith("http://") || raw.startsWith("https://")) {
-        return raw;
+      const source = String(raw).trim().replace(/\\/g, "/");
+      if (!source) {
+        return macDinh;
+      }
+      if (source.startsWith("http://") || source.startsWith("https://") || source.startsWith("blob:")) {
+        return source;
       }
       const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
-      return `${base}/storage/${String(raw).replace(/^\//, "")}`;
+      if (source.startsWith("/storage/")) {
+        return `${base}${source}`;
+      }
+      if (source.startsWith("storage/")) {
+        return `${base}/${source}`;
+      }
+      return `${base}/storage/${source.replace(/^\//, "")}`;
     },
     dongBoUserTuLocal() {
       const token = localStorage.getItem("token_nguoi_dung");
+      const rawAnhUrl = localStorage.getItem("anh_dai_dien_url");
+      const rawAnhLocal = localStorage.getItem("anh_dai_dien_local");
       const rawAnh = localStorage.getItem("anh_dai_dien");
       const daDangNhap = !!token;
-      const coAnhThat = !!(rawAnh && String(rawAnh).trim());
+      const avatarRaw = rawAnhUrl || rawAnhLocal || rawAnh;
+      const coAnhThat = !!(avatarRaw && String(avatarRaw).trim());
       this.daDangNhap = daDangNhap;
       this.user = {
         name: localStorage.getItem("ho_ten") || (daDangNhap ? "Bạn học" : "Khách"),
         avatarDisplayUrl:
-          daDangNhap && coAnhThat ? this.duongDanAnh(rawAnh) : null,
+          daDangNhap && coAnhThat ? this.duongDanAnh(avatarRaw) : null,
       };
     },
     dangXuat() {

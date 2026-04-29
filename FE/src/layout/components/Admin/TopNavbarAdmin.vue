@@ -101,7 +101,7 @@
 import axios from 'axios'
 
 const ANH_MAC_DINH = '/Admin/images/user/1.jpg'
-const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien']
+const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien', 'anh_dai_dien_url', 'anh_dai_dien_local']
 
 export default {
   data() {
@@ -123,16 +123,30 @@ export default {
       if (!raw) {
         return macDinh
       }
-      if (raw.startsWith('http://') || raw.startsWith('https://')) {
-        return raw
+      const source = String(raw).trim().replace(/\\/g, '/')
+      if (!source) {
+        return macDinh
+      }
+      if (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('blob:')) {
+        return source
       }
       const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
-      return `${base}/storage/${String(raw).replace(/^\//, '')}`
+      if (source.startsWith('/storage/')) {
+        return `${base}${source}`
+      }
+      if (source.startsWith('storage/')) {
+        return `${base}/${source}`
+      }
+      return `${base}/storage/${source.replace(/^\//, '')}`
     },
     dongBoUserTuLocal() {
+      const avatarUrl =
+        localStorage.getItem('anh_dai_dien_url')
+        || localStorage.getItem('anh_dai_dien_local')
+        || localStorage.getItem('anh_dai_dien')
       this.user = {
         name: localStorage.getItem('ho_ten') || 'Admin',
-        avatarUrl: this.duongDanAnh(localStorage.getItem('anh_dai_dien'), ANH_MAC_DINH),
+        avatarUrl: this.duongDanAnh(avatarUrl, ANH_MAC_DINH),
       }
     },
     dangXuat() {
