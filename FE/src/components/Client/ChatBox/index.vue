@@ -183,7 +183,7 @@
         <div class="card-footer p-3 bg-white border-top">
           <div class="input-group align-items-center">
 
-            <input ref="messageInputField" type="text" v-model="userInput" @keyup.enter="sendMessage" :disabled="isTyping"
+            <input ref="messageInputField" type="text" v-model="userInput" @keyup.enter="sendMessage()" :disabled="isTyping"
               class="form-control rounded-pill me-2 shadow-sm" placeholder="Hỏi..."
               style="border-color: #e0e0e0; padding: 10px 15px;" />
 
@@ -193,7 +193,7 @@
               <i class="fa-solid fa-microphone fa-lg ml-2"></i>
             </button>
 
-            <button @click="sendMessage" :disabled="!userInput.trim() || isTyping"
+            <button @click="sendMessage()" :disabled="!userInput.trim() || isTyping"
               class="btn rounded-circle d-flex align-items-center justify-content-center shadow-sm ms-2"
               style="width: 48px; height: 48px; background: #fe5d37; border: none; opacity: 1;">
               <i class="fa-solid fa-paper-plane text-white"></i>
