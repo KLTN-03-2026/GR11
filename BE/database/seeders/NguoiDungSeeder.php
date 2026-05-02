@@ -75,15 +75,113 @@ class NguoiDungSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
+            // Giáo viên 3
+            [
+                'id' => 11,
+                'ho_ten' => 'Nguyễn Văn Giảng',
+                'email' => 'teacher3@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000011',
+                'vai_tro_id' => 2,
+                'ngay_sinh' => '1987-04-10',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
 
-            // Sinh viên 1 (đã kích hoạt)
+            // Giáo viên 4
+            [
+                'id' => 12,
+                'ho_ten' => 'Phan Thị Dạy',
+                'email' => 'teacher4@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000012',
+                'vai_tro_id' => 2,
+                'ngay_sinh' => '1986-06-22',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Giáo viên 5
+            [
+                'id' => 13,
+                'ho_ten' => 'Đỗ Văn Thầy',
+                'email' => 'teacher5@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000013',
+                'vai_tro_id' => 2,
+                'ngay_sinh' => '1984-11-05',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Giáo viên 6
+            [
+                'id' => 14,
+                'ho_ten' => 'Võ Thị Giáo',
+                'email' => 'teacher6@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000014',
+                'vai_tro_id' => 2,
+                'ngay_sinh' => '1989-02-18',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Giáo viên 7
+            [
+                'id' => 15,
+                'ho_ten' => 'Lý Văn Sư',
+                'email' => 'teacher7@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000015',
+                'vai_tro_id' => 2,
+                'ngay_sinh' => '1983-09-30',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            // Người dùng 1 (đã kích hoạt)
             [
                 'id' => 4,
                 'ho_ten' => 'Phạm Thị Học',
                 'email' => 'student1@example.com',
                 'mat_khau' => Hash::make('123456'),
                 'sdt' => '0900000004',
-                'vai_tro_id' => 3, // Sinh viên
+                'vai_tro_id' => 3, // Người dùng
                 'ngay_sinh' => '2000-03-15',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
@@ -96,7 +194,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => $now,
             ],
 
-            // Sinh viên 2 (chưa kích hoạt)
+            // Người dùng 2 (chưa kích hoạt)
             [
                 'id' => 5,
                 'ho_ten' => 'Ngô Văn Học',
@@ -116,7 +214,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => $now,
             ],
 
-            // Sinh viên 3 (bị block)
+            // Người dùng 3 (bị block)
             [
                 'id' => 6,
                 'ho_ten' => 'Vũ Thị Khóa',
@@ -136,7 +234,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => $now,
             ],
 
-            // Sinh viên 4
+            // Người dùng 4
             [
                 'id' => 7,
                 'ho_ten' => 'Đặng Minh Học',
@@ -156,7 +254,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => $now,
             ],
 
-            // Sinh viên 5
+            // Người dùng 5
             [
                 'id' => 8,
                 'ho_ten' => 'Hoàng Thị Thảo',
@@ -176,7 +274,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => $now,
             ],
 
-            // Sinh viên 6
+            // Người dùng 6
             [
                 'id' => 9,
                 'ho_ten' => 'Bùi Văn Tài',
@@ -196,7 +294,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => $now,
             ],
 
-            // Sinh viên 7 (yêu cầu reset mật khẩu)
+            // Người dùng 7 (yêu cầu reset mật khẩu)
             [
                 'id' => 10,
                 'ho_ten' => 'Trịnh Thị Yêu',
@@ -212,6 +310,224 @@ class NguoiDungSeeder extends Seeder
                 'content_block' => null,
                 'hash_active' => null,
                 'hash_reset' => Str::random(40), // token reset mật khẩu
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            // Người dùng 8
+            [
+                'id' => 16,
+                'ho_ten' => 'Nguyễn Văn A',
+                'email' => 'user8@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000016',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2001-01-01',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            // Người dùng 11
+            [
+                'id' => 19,
+                'ho_ten' => 'Phạm Văn D',
+                'email' => 'user11@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000019',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2001-05-10',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 12 (chưa kích hoạt)
+            [
+                'id' => 20,
+                'ho_ten' => 'Nguyễn Thị E',
+                'email' => 'user12@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000020',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2000-07-15',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 0,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => Str::random(40),
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 13
+            [
+                'id' => 21,
+                'ho_ten' => 'Lê Văn F',
+                'email' => 'user13@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000021',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2002-03-20',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 14 (block)
+            [
+                'id' => 22,
+                'ho_ten' => 'Trần Thị G',
+                'email' => 'user14@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000022',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '1999-12-01',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 2,
+                'type_account' => 0,
+                'content_block' => 'Vi phạm chính sách',
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 15
+            [
+                'id' => 23,
+                'ho_ten' => 'Hoàng Văn H',
+                'email' => 'user15@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000023',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2001-09-09',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 16 (reset mật khẩu)
+            [
+                'id' => 24,
+                'ho_ten' => 'Võ Thị I',
+                'email' => 'user16@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000024',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2002-11-11',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => Str::random(40),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 17
+            [
+                'id' => 25,
+                'ho_ten' => 'Đặng Văn K',
+                'email' => 'user17@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000025',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2000-04-14',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 18 (chưa kích hoạt)
+            [
+                'id' => 26,
+                'ho_ten' => 'Bùi Thị L',
+                'email' => 'user18@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000026',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2001-06-06',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 0,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => Str::random(40),
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 19
+            [
+                'id' => 27,
+                'ho_ten' => 'Phan Văn M',
+                'email' => 'user19@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000027',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '1998-08-18',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Người dùng 20
+            [
+                'id' => 28,
+                'ho_ten' => 'Ngô Thị N',
+                'email' => 'user20@example.com',
+                'mat_khau' => Hash::make('123456'),
+                'sdt' => '0900000028',
+                'vai_tro_id' => 3,
+                'ngay_sinh' => '2002-10-25',
+                'anh_dai_dien' => null,
+                'ngay_tao' => $now,
+                'trang_thai' => 1,
+                'type_account' => 0,
+                'content_block' => null,
+                'hash_active' => null,
+                'hash_reset' => null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
