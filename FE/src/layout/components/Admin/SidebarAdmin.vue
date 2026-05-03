@@ -27,7 +27,7 @@
         <nav class="iq-sidebar-menu">
           <ul class="iq-menu">
 
-            <li :class="{ active: $route.path === '/admin/dashboard' }">
+            <li :class="{ active: $route.path === '/admin/dashboard' && (!$route.query.tab || $route.query.tab === 'monitoring') }">
               <router-link to="/admin/dashboard" class="iq-waves-effect mt-1">
                 <i class="ri-dashboard-line"></i>
                 <span>Tổng quan</span>
@@ -48,8 +48,8 @@
               </router-link>
             </li>
 
-            <li :class="{ active: $route.path === '/admin/thong-ke' }">
-              <router-link to="/admin/thong-ke" class="iq-waves-effect mt-1">
+            <li :class="{ active: ($route.path === '/admin/dashboard' && $route.query.tab === 'reports') || $route.path === '/admin/thong-ke' }">
+              <router-link :to="{ path: '/admin/dashboard', query: { tab: 'reports' } }" class="iq-waves-effect mt-1">
                 <i class="ri-bar-chart-box-line"></i>
                 <span>Báo cáo Thống kê</span>
               </router-link>

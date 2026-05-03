@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\BaiHocController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
@@ -48,6 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
 //---------------------------------------------ADMIN--------------------------------------------------------------
 
 Route::prefix('/admin')->group(function () {
+    Route::prefix('/dashboard')->middleware(['auth:sanctum'])->group(function () {
+        Route::get('/realtime', [AdminDashboardController::class, 'realtime']);
+        Route::get('/performance', [AdminDashboardController::class, 'performance']);
+        Route::get('/reports', [AdminDashboardController::class, 'reports']);
+        Route::get('/export', [AdminDashboardController::class, 'export']);
+    });
+
     Route::prefix('/quan-ly-tai-khoan')->group(function () {
         Route::post('/create', [AdminController::class, 'store']);
         Route::get('/data', [AdminController::class, 'getdata']);
@@ -83,7 +91,7 @@ Route::prefix('/admin')->group(function () {
         Route::post('/dong-bo', [VaiTroQuyenController::class, 'sync']);
     });
 
-    Route::prefix('/cau-hinh')->group(function () {
+    Route::prefix('/cau-hinh')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/chung/data', [CauHinhController::class, 'getGeneralSettings']);
         Route::post('/chung/update', [CauHinhController::class, 'updateGeneralSettings']);
 
