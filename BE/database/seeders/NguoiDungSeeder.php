@@ -27,7 +27,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '1990-01-01',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -47,7 +47,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '1985-05-12',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -67,7 +67,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '1988-09-20',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -87,7 +87,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '2000-03-15',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -107,7 +107,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '2001-07-22',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 0, // chưa active
+                'trang_thai' => 1, // tạm khóa/chưa active
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => Str::random(40), // dùng để kích hoạt
@@ -127,7 +127,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '1999-11-02',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 2, // block
+                'trang_thai' => 1, // tạm khóa
                 'type_account' => 0,
                 'content_block' => 'Vi phạm nội quy',
                 'hash_active' => null,
@@ -147,7 +147,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '2002-02-10',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -167,7 +167,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '2000-12-01',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -187,7 +187,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '2001-06-30',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -207,7 +207,7 @@ class NguoiDungSeeder extends Seeder
                 'ngay_sinh' => '2002-08-08',
                 'anh_dai_dien' => null,
                 'ngay_tao' => $now,
-                'trang_thai' => 1,
+                'trang_thai' => 0,
                 'type_account' => 0,
                 'content_block' => null,
                 'hash_active' => null,
@@ -234,7 +234,7 @@ class NguoiDungSeeder extends Seeder
                 'content_block',
                 'hash_active',
                 'hash_reset',
-                'updated_at'
+                'updated_at',
             ]
         );
     }

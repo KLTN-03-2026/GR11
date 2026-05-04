@@ -71,7 +71,7 @@
                 <h6 class="mb-0 fw-bold messenger-row-name" style="max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                   {{ chat.name }}
                 </h6>
-                <small class="text-muted">{{ formatTime(chat.lastMessageTime) }}</small>
+                <small v-if="chat.type === 'teacher'" class="text-muted flex-shrink-0 ms-2">{{ formatTime(chat.lastMessageTime) }}</small>
               </div>
               <p class="mb-0 text-muted small" style="max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 {{ chat.lastMessage }}
@@ -104,7 +104,7 @@
           </button>
           <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
             <img v-if="selectedChat.avatar" :src="selectedChat.avatar" class="rounded-circle me-2"
-              style="width: 40px; height: 40px; object-fit: cover;" />
+              style="width: 40px; height: 40px; object-fit: cover;" alt="" />
             <div
               v-else
               class="rounded-circle me-2 d-flex align-items-center justify-content-center"
@@ -1102,16 +1102,21 @@ body.is-resizing-global {
   border: 2px solid #fff3ef;
   background: linear-gradient(135deg, #ff6b35, #ff8c42) !important;
   box-shadow: 0 6px 14px rgba(255, 107, 53, 0.24);
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .brand-avatar-glyph {
   color: #fff;
   font-size: 1rem;
   line-height: 1;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 15px;
+  margin: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .chat-header-icon {

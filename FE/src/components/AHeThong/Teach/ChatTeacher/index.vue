@@ -341,7 +341,12 @@ export default {
         window.Echo.private(channelName).listen('.StudentSentMessage', (e) => {
           const incomingText = e?.message?.content || '';
           const incomingTime = e?.message?.created_at
-            ? new Date(e.message.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+            ? new Date(e.message.created_at).toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Ho_Chi_Minh',
+              })
             : '';
 
           // If the message belongs to the currently opened session, reload messages

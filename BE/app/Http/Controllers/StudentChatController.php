@@ -7,6 +7,7 @@ use App\Models\BaiHoc;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\QuanHeGvHv;
+use App\Support\ChatDisplayTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -15,7 +16,7 @@ class StudentChatController extends Controller
     public function unreadCount(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -35,7 +36,7 @@ class StudentChatController extends Controller
     public function getSessions(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -51,11 +52,11 @@ class StudentChatController extends Controller
 
         $sessions = ChatSession::query()
             ->with([
-                'lesson' => fn($q) => $q->select('id', 'tieu_de', 'nguoi_tao_id'),
-                'lesson.nguoiTao' => fn($q) => $q->select('id', 'ho_ten', 'anh_dai_dien'),
-                'messages' => fn($q) => $q->orderByDesc('created_at'),
+                'lesson' => fn ($q) => $q->select('id', 'tieu_de', 'nguoi_tao_id'),
+                'lesson.nguoiTao' => fn ($q) => $q->select('id', 'ho_ten', 'anh_dai_dien'),
+                'messages' => fn ($q) => $q->orderByDesc('created_at'),
             ])
-            ->withCount(['messages as unread_count' => fn($q) => $q
+            ->withCount(['messages as unread_count' => fn ($q) => $q
                 ->where('role', 'teacher')
                 ->where('is_read_by_student', false)])
             ->where('user_id', $user->id)
@@ -66,17 +67,17 @@ class StudentChatController extends Controller
         $teacherChats = [];
         foreach ($sessions as $session) {
             $teacher = $session->lesson?->nguoiTao;
-            if (!$teacher) {
+            if (! $teacher) {
                 continue;
             }
             $chatMessages = $session->messages
-                ->filter(static fn(ChatMessage $msg): bool => in_array($msg->role, ['user', 'teacher'], true));
+                ->filter(static fn (ChatMessage $msg): bool => in_array($msg->role, ['user', 'teacher'], true));
             if ($chatMessages->isEmpty()) {
                 continue;
             }
             $latest = $chatMessages->first();
             $teacherId = (int) $teacher->id;
-            if (!isset($teacherChats[$teacherId]) || $latest->created_at > $teacherChats[$teacherId]['_ts']) {
+            if (! isset($teacherChats[$teacherId]) || $latest->created_at > $teacherChats[$teacherId]['_ts']) {
                 $teacherChats[$teacherId] = [
                     'teacher_id' => $teacherId,
                     'teacher_name' => (string) $teacher->ho_ten,
@@ -98,6 +99,7 @@ class StudentChatController extends Controller
             ->sortByDesc('_ts')
             ->map(static function (array $row): array {
                 unset($row['_ts']);
+
                 return $row;
             })
             ->values()
@@ -109,7 +111,7 @@ class StudentChatController extends Controller
     public function createSession(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -119,7 +121,7 @@ class StudentChatController extends Controller
         ]);
 
         $lesson = BaiHoc::query()->find($data['lesson_id']);
-        if (!$lesson) {
+        if (! $lesson) {
             return response()->json(['error' => 'Lesson not found'], 404);
         }
 
@@ -158,7 +160,7 @@ class StudentChatController extends Controller
     public function sendMessage(Request $request, $sessionId)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -167,7 +169,7 @@ class StudentChatController extends Controller
         ]);
 
         $session = ChatSession::find($sessionId);
-        if (!$session || $session->user_id !== $user->id) {
+        if (! $session || $session->user_id !== $user->id) {
             return response()->json(['error' => 'Session not found or access denied'], 404);
         }
 
@@ -194,7 +196,7 @@ class StudentChatController extends Controller
             'id' => $message->id,
             'sender' => 'Học viên',
             'text' => $message->content,
-            'time' => $message->created_at->format('H:i A'),
+            'time' => ChatDisplayTime::format($message->created_at),
             'status' => 'sent',
         ]);
     }
@@ -202,12 +204,12 @@ class StudentChatController extends Controller
     public function getMessages(Request $request, $sessionId)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         $session = ChatSession::with('lesson')->find($sessionId);
-        if (!$session || $session->user_id !== $user->id) {
+        if (! $session || $session->user_id !== $user->id) {
             return response()->json(['error' => 'Session not found or access denied'], 404);
         }
 
@@ -218,7 +220,7 @@ class StudentChatController extends Controller
         if (Schema::hasColumn('chat_messages', 'is_read_by_student')) {
             $updatePayload['is_read_by_student'] = true;
         }
-        if (!empty($updatePayload)) {
+        if (! empty($updatePayload)) {
             $teacherMessageQuery = ChatMessage::where('session_id', $session->id)
                 ->where('role', 'teacher');
 
@@ -239,12 +241,12 @@ class StudentChatController extends Controller
         $messages = ChatMessage::where('session_id', $session->id)
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(function ($msg) use ($session) {
+            ->map(function ($msg) {
                 return [
                     'id' => $msg->id,
                     'sender' => $msg->role === 'teacher' ? 'Giáo viên' : 'Học viên',
                     'text' => $msg->content,
-                    'time' => $msg->created_at->format('H:i A'),
+                    'time' => ChatDisplayTime::format($msg->created_at),
                     'status' => $msg->role === 'user'
                         ? ($msg->is_read_by_teacher ? 'seen' : (($msg->is_delivered_to_teacher ?? false) ? 'delivered' : 'sent'))
                         : (($msg->is_read_by_student ?? false) ? 'seen' : (($msg->is_delivered_to_student ?? false) ? 'delivered' : 'sent')),

@@ -11,8 +11,8 @@ use App\Models\PhienLuyenTap;
 use App\Models\QuanHeGvHv;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,10 +25,12 @@ class QuanHeGvHvController extends Controller
             ->where('giao_vien_id', $giaoVien->id)
             ->pluck('hoc_vien_id');
 
+        [$tuNgay, $denNgay, $tuNgayKyTruoc, $denNgayKyTruoc] = $this->xacDinhKhoangLocDashboard($request);
         $tongHocVien = (int) $hocVienIds->count();
 
         $queryPhien = PhienLuyenTap::query()->whereIn('nguoi_dung_id', $hocVienIds);
-        $tongPhien = (int) $queryPhien->count();
+        $tongPhien = $this->demPhienTrongKhoang($hocVienIds, $tuNgay, $denNgay);
+        $tongPhienKyTruoc = $this->demPhienTrongKhoang($hocVienIds, $tuNgayKyTruoc, $denNgayKyTruoc);
         $tongPhienTuan = (int) (clone $queryPhien)
             ->where(function ($q): void {
                 $q->where('thoi_gian_bat_dau', '>=', now()->subDays(7))
@@ -37,12 +39,24 @@ class QuanHeGvHvController extends Controller
             })
             ->count();
 
-        $tongBaiHocDangGiao = (int) BaiHoc::query()
+        $tongBaiHocDaTao = (int) BaiHoc::query()
             ->where('nguoi_tao_id', $giaoVien->id)
-            ->where('trang_thai', 1)
+            ->count();
+        $soBaiHocTaoKyNay = (int) BaiHoc::query()
+            ->where('nguoi_tao_id', $giaoVien->id)
+            ->when($tuNgay && $denNgay, function ($q) use ($tuNgay, $denNgay): void {
+                $q->whereBetween('created_at', [$tuNgay, $denNgay]);
+            })
+            ->count();
+        $soBaiHocTaoKyTruoc = (int) BaiHoc::query()
+            ->where('nguoi_tao_id', $giaoVien->id)
+            ->when($tuNgayKyTruoc && $denNgayKyTruoc, function ($q) use ($tuNgayKyTruoc, $denNgayKyTruoc): void {
+                $q->whereBetween('created_at', [$tuNgayKyTruoc, $denNgayKyTruoc]);
+            })
             ->count();
 
         $hocVienCanChuY = (int) $this->demHocVienCanChuY($hocVienIds);
+        $hocVienCanChuYKyTruoc = (int) $this->demHocVienCanChuY($hocVienIds, $tuNgayKyTruoc, $denNgayKyTruoc);
         $diemTrungBinh = (int) round((float) ((clone $queryPhien)->whereNotNull('tong_diem')->avg('tong_diem') ?? 0));
         $luotNopBai = $tongPhien;
 
@@ -77,17 +91,29 @@ class QuanHeGvHvController extends Controller
             ? (int) round((($tuanNay - $tuanTruoc) / $tuanTruoc) * 100)
             : ($tuanNay > 0 ? 100 : 0);
 
+        $xuHuongHocSinhThamGia = 0;
+        $xuHuongBaiHocDaTao = $this->tinhPhanTramThayDoi($soBaiHocTaoKyNay, $soBaiHocTaoKyTruoc);
+        $xuHuongLuotLuyenTap = $this->tinhPhanTramThayDoi($tongPhienTuan, $tongPhienKyTruoc);
+        $xuHuongHocSinhCanChuY = $this->tinhPhanTramThayDoi($hocVienCanChuY, $hocVienCanChuYKyTruoc);
+
         return response()->json([
             'status' => true,
             'data' => [
                 'the_tom_tat' => [
                     'hoc_sinh_tham_gia' => $tongHocVien,
-                    'bai_hoc_dang_giao' => $tongBaiHocDangGiao,
+                    'bai_hoc_da_tao' => $tongBaiHocDaTao,
+                    'bai_hoc_dang_giao' => $tongBaiHocDaTao,
                     'luot_luyen_tap_tuan' => $tongPhienTuan,
                     'hoc_sinh_can_chu_y' => $hocVienCanChuY,
                 ],
+                'xu_huong_tom_tat' => [
+                    'hoc_sinh_tham_gia' => $xuHuongHocSinhThamGia,
+                    'bai_hoc_da_tao' => $xuHuongBaiHocDaTao,
+                    'luot_luyen_tap_tuan' => $xuHuongLuotLuyenTap,
+                    'hoc_sinh_can_chu_y' => $xuHuongHocSinhCanChuY,
+                ],
                 'thong_ke_lop_hoc' => [
-                    'bai_dang_giao' => $tongBaiHocDangGiao,
+                    'bai_dang_giao' => $tongBaiHocDaTao,
                     'luot_nop_bai' => $luotNopBai,
                     'diem_trung_binh' => $diemTrungBinh,
                     'loi_pho_thong' => $loiPhoBien,
@@ -105,6 +131,8 @@ class QuanHeGvHvController extends Controller
                     'year' => $this->duLieuPhienTheoNam($hocVienIds),
                 ],
                 'danh_sach_hoat_dong' => $this->layHoatDongGanDay($hocVienIds),
+                'top_hoc_sinh_noi_bat' => $this->layTopHocSinhNoiBat($hocVienIds, $tuNgay, $denNgay),
+                'danh_sach_lop_hoc' => [],
             ],
         ]);
     }
@@ -130,7 +158,7 @@ class QuanHeGvHvController extends Controller
             ->where('vai_tro_id', NguoiDung::ROLE_USER);
 
         if ($timKiem !== '') {
-            $like = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $timKiem) . '%';
+            $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $timKiem).'%';
             $query->where(function ($q) use ($like): void {
                 $q->where('ho_ten', 'like', $like)
                     ->orWhere('email', 'like', $like);
@@ -151,7 +179,7 @@ class QuanHeGvHvController extends Controller
     {
         $giaoVien = $request->user();
 
-        if (!$this->laHocVienThuocGiaoVien($giaoVien->id, $id)) {
+        if (! $this->laHocVienThuocGiaoVien($giaoVien->id, $id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Học viên không thuộc danh sách phụ trách của bạn.',
@@ -163,7 +191,7 @@ class QuanHeGvHvController extends Controller
             ->where('vai_tro_id', NguoiDung::ROLE_USER)
             ->first();
 
-        if (!$hv) {
+        if (! $hv) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy học viên.',
@@ -212,7 +240,7 @@ class QuanHeGvHvController extends Controller
     {
         $giaoVien = $request->user();
 
-        if (!$this->laHocVienThuocGiaoVien($giaoVien->id, (int) $request->hoc_vien_id)) {
+        if (! $this->laHocVienThuocGiaoVien($giaoVien->id, (int) $request->hoc_vien_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn không thể gửi gợi ý cho học viên này.',
@@ -220,7 +248,7 @@ class QuanHeGvHvController extends Controller
         }
 
         $baiHoc = BaiHoc::query()->find($request->bai_hoc_id);
-        if (!$baiHoc) {
+        if (! $baiHoc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy bài học.',
@@ -299,7 +327,7 @@ class QuanHeGvHvController extends Controller
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int, int> $phienIds
+     * @param  \Illuminate\Support\Collection<int, int>  $phienIds
      * @return list<array{text: string, class: string}>
      */
     private function taoBadgeLoiTuChiTiet($phienIds): array
@@ -371,7 +399,7 @@ class QuanHeGvHvController extends Controller
             $carbon = $ref ? Carbon::parse($ref) : null;
 
             return [
-                'title' => $p->baiHoc?->tieu_de ?? ('Bài học #' . $p->bai_hoc_id),
+                'title' => $p->baiHoc?->tieu_de ?? ('Bài học #'.$p->bai_hoc_id),
                 'time' => $carbon ? $carbon->format('d/m/Y H:i') : '—',
                 'score' => (int) ($p->tong_diem ?? 0),
             ];
@@ -407,12 +435,12 @@ class QuanHeGvHvController extends Controller
      */
     private function formatHoatDongGanNhat(?PhienLuyenTap $last): array
     {
-        if (!$last) {
+        if (! $last) {
             return ['Chưa luyện', '—', 'text-muted'];
         }
 
         $ref = $last->thoi_gian_ket_thuc ?? $last->thoi_gian_bat_dau ?? $last->ngay_tao;
-        if (!$ref) {
+        if (! $ref) {
             return ['Chưa rõ', '—', 'text-secondary'];
         }
 
@@ -433,7 +461,7 @@ class QuanHeGvHvController extends Controller
         }
         $days = (int) $c->diffInDays($now);
         if ($days < 7) {
-            return [$days . ' ngày trước', $c->format('d/m/Y H:i'), 'text-dark'];
+            return [$days.' ngày trước', $c->format('d/m/Y H:i'), 'text-dark'];
         }
         if ($days < 30) {
             return ['Vài tuần trước', $c->format('d/m/Y'), 'text-warning'];
@@ -454,7 +482,7 @@ class QuanHeGvHvController extends Controller
         return url(Storage::url(ltrim($path, '/')));
     }
 
-    private function demHocVienCanChuY(Collection $hocVienIds): int
+    private function demHocVienCanChuY(Collection $hocVienIds, ?Carbon $tuNgay = null, ?Carbon $denNgay = null): int
     {
         if ($hocVienIds->isEmpty()) {
             return 0;
@@ -464,6 +492,9 @@ class QuanHeGvHvController extends Controller
             ->select('nguoi_dung_id', DB::raw('AVG(tong_diem) as diem_tb'))
             ->whereIn('nguoi_dung_id', $hocVienIds)
             ->whereNotNull('tong_diem')
+            ->when($tuNgay && $denNgay, function ($q) use ($tuNgay, $denNgay): void {
+                $this->apDungLocThoiGianPhien($q, $tuNgay, $denNgay);
+            })
             ->groupBy('nguoi_dung_id')
             ->get();
 
@@ -508,7 +539,7 @@ class QuanHeGvHvController extends Controller
         $label = array_key_first($labels);
         $max = $labels[$label] ?? 0;
 
-        return $max > 0 ? 'Lỗi ' . $label : 'Chưa ghi nhận';
+        return $max > 0 ? 'Lỗi '.$label : 'Chưa ghi nhận';
     }
 
     /**
@@ -521,7 +552,7 @@ class QuanHeGvHvController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $start = now()->startOfDay()->subDays($i);
             $end = (clone $start)->endOfDay();
-            $labels[] = 'Thứ ' . $start->isoFormat('E');
+            $labels[] = 'Thứ '.$start->isoFormat('E');
             $data[] = (int) PhienLuyenTap::query()
                 ->whereIn('nguoi_dung_id', $hocVienIds)
                 ->where(function ($q) use ($start, $end): void {
@@ -545,7 +576,7 @@ class QuanHeGvHvController extends Controller
         for ($i = 3; $i >= 0; $i--) {
             $start = now()->startOfWeek()->subWeeks($i);
             $end = (clone $start)->endOfWeek();
-            $labels[] = 'Tuần ' . $start->weekOfYear;
+            $labels[] = 'Tuần '.$start->weekOfYear;
             $data[] = (int) PhienLuyenTap::query()
                 ->whereIn('nguoi_dung_id', $hocVienIds)
                 ->where(function ($q) use ($start, $end): void {
@@ -569,7 +600,7 @@ class QuanHeGvHvController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $start = now()->startOfMonth()->subMonths($i);
             $end = (clone $start)->endOfMonth();
-            $labels[] = 'Tháng ' . $start->month;
+            $labels[] = 'Tháng '.$start->month;
             $data[] = (int) PhienLuyenTap::query()
                 ->whereIn('nguoi_dung_id', $hocVienIds)
                 ->where(function ($q) use ($start, $end): void {
@@ -630,8 +661,8 @@ class QuanHeGvHvController extends Controller
 
         return $phienGanDay->map(function (PhienLuyenTap $phien, int $idx) use ($hocVienMap): array {
             $hocVien = $hocVienMap->get($phien->nguoi_dung_id);
-            $tenHocVien = $hocVien?->ho_ten ?? ('Học viên #' . $phien->nguoi_dung_id);
-            $tieuDeBai = $phien->baiHoc?->tieu_de ?? ('Bài #' . $phien->bai_hoc_id);
+            $tenHocVien = $hocVien?->ho_ten ?? ('Học viên #'.$phien->nguoi_dung_id);
+            $tieuDeBai = $phien->baiHoc?->tieu_de ?? ('Bài #'.$phien->bai_hoc_id);
             $diem = (int) ($phien->tong_diem ?? 0);
             $ref = $phien->thoi_gian_ket_thuc ?? $phien->thoi_gian_bat_dau ?? $phien->ngay_tao;
             $thoiGian = 'Vừa xong';
@@ -646,10 +677,142 @@ class QuanHeGvHvController extends Controller
             return [
                 'id' => $idx + 1,
                 'icon' => $diem >= 80 ? '🌟' : '🎤',
-                'tieu_de' => $tenHocVien . ' nộp bài',
-                'mo_ta' => 'Bài: ' . $tieuDeBai . '. Điểm: ' . $diem . '/100.',
+                'tieu_de' => $tenHocVien.' nộp bài',
+                'mo_ta' => 'Bài: '.$tieuDeBai.'. Điểm: '.$diem.'/100.',
                 'thoi_gian' => $thoiGian,
             ];
         })->all();
+    }
+
+    /**
+     * @return array{0:?Carbon,1:?Carbon,2:?Carbon,3:?Carbon}
+     */
+    private function xacDinhKhoangLocDashboard(Request $request): array
+    {
+        $chuKy = (string) $request->query('chu_ky', 'week');
+        $tuNgayInput = $request->query('tu_ngay');
+        $denNgayInput = $request->query('den_ngay');
+
+        if ($tuNgayInput && $denNgayInput) {
+            try {
+                $tuNgay = Carbon::parse((string) $tuNgayInput)->startOfDay();
+                $denNgay = Carbon::parse((string) $denNgayInput)->endOfDay();
+                if ($tuNgay->gt($denNgay)) {
+                    [$tuNgay, $denNgay] = [$denNgay->copy()->startOfDay(), $tuNgay->copy()->endOfDay()];
+                }
+                $soNgay = max(1, $tuNgay->diffInDays($denNgay) + 1);
+                $tuNgayKyTruoc = $tuNgay->copy()->subDays($soNgay);
+                $denNgayKyTruoc = $denNgay->copy()->subDays($soNgay);
+
+                return [$tuNgay, $denNgay, $tuNgayKyTruoc, $denNgayKyTruoc];
+            } catch (\Throwable) {
+                // fallback về chu kỳ mặc định bên dưới
+            }
+        }
+
+        $now = now();
+        if ($chuKy === 'month') {
+            $tuNgay = $now->copy()->startOfMonth();
+            $denNgay = $now->copy()->endOfMonth();
+            $tuNgayKyTruoc = $tuNgay->copy()->subMonth()->startOfMonth();
+            $denNgayKyTruoc = $tuNgay->copy()->subMonth()->endOfMonth();
+
+            return [$tuNgay, $denNgay, $tuNgayKyTruoc, $denNgayKyTruoc];
+        }
+        if ($chuKy === 'quarter') {
+            $tuNgay = $now->copy()->firstOfQuarter()->startOfDay();
+            $denNgay = $now->copy()->lastOfQuarter()->endOfDay();
+            $tuNgayKyTruoc = $tuNgay->copy()->subQuarter()->firstOfQuarter()->startOfDay();
+            $denNgayKyTruoc = $tuNgay->copy()->subQuarter()->lastOfQuarter()->endOfDay();
+
+            return [$tuNgay, $denNgay, $tuNgayKyTruoc, $denNgayKyTruoc];
+        }
+
+        $tuNgay = $now->copy()->startOfWeek();
+        $denNgay = $now->copy()->endOfWeek();
+        $tuNgayKyTruoc = $tuNgay->copy()->subWeek()->startOfWeek();
+        $denNgayKyTruoc = $tuNgay->copy()->subWeek()->endOfWeek();
+
+        return [$tuNgay, $denNgay, $tuNgayKyTruoc, $denNgayKyTruoc];
+    }
+
+    private function apDungLocThoiGianPhien($query, Carbon $tuNgay, Carbon $denNgay): void
+    {
+        $query->where(function ($subQuery) use ($tuNgay, $denNgay): void {
+            $subQuery->whereBetween('thoi_gian_bat_dau', [$tuNgay, $denNgay])
+                ->orWhereBetween('thoi_gian_ket_thuc', [$tuNgay, $denNgay])
+                ->orWhereBetween('ngay_tao', [$tuNgay, $denNgay]);
+        });
+    }
+
+    private function demPhienTrongKhoang(Collection $hocVienIds, ?Carbon $tuNgay, ?Carbon $denNgay): int
+    {
+        if ($hocVienIds->isEmpty()) {
+            return 0;
+        }
+
+        $query = PhienLuyenTap::query()->whereIn('nguoi_dung_id', $hocVienIds);
+        if ($tuNgay && $denNgay) {
+            $this->apDungLocThoiGianPhien($query, $tuNgay, $denNgay);
+        }
+
+        return (int) $query->count();
+    }
+
+    private function tinhPhanTramThayDoi(int $hienTai, int $kyTruoc): int
+    {
+        if ($kyTruoc <= 0) {
+            return $hienTai > 0 ? 100 : 0;
+        }
+
+        return (int) round((($hienTai - $kyTruoc) / $kyTruoc) * 100);
+    }
+
+    /**
+     * @return list<array{id:int,ho_ten:string,diem_trung_binh:string,so_bai_da_hoc:int}>
+     */
+    private function layTopHocSinhNoiBat(Collection $hocVienIds, ?Carbon $tuNgay, ?Carbon $denNgay): array
+    {
+        if ($hocVienIds->isEmpty()) {
+            return [];
+        }
+
+        $query = PhienLuyenTap::query()
+            ->select(
+                'nguoi_dung_id',
+                DB::raw('AVG(tong_diem) as diem_tb'),
+                DB::raw('COUNT(DISTINCT bai_hoc_id) as so_bai_da_hoc')
+            )
+            ->whereIn('nguoi_dung_id', $hocVienIds)
+            ->whereNotNull('tong_diem');
+
+        if ($tuNgay && $denNgay) {
+            $this->apDungLocThoiGianPhien($query, $tuNgay, $denNgay);
+        }
+
+        $topRows = $query
+            ->groupBy('nguoi_dung_id')
+            ->orderByDesc('diem_tb')
+            ->limit(5)
+            ->get();
+
+        if ($topRows->isEmpty()) {
+            return [];
+        }
+
+        $tenHocVienMap = NguoiDung::query()
+            ->whereIn('id', $topRows->pluck('nguoi_dung_id'))
+            ->pluck('ho_ten', 'id');
+
+        return $topRows->map(function ($row) use ($tenHocVienMap): array {
+            $diem = round((float) $row->diem_tb, 1);
+
+            return [
+                'id' => (int) $row->nguoi_dung_id,
+                'ho_ten' => (string) ($tenHocVienMap[$row->nguoi_dung_id] ?? ('Học viên #'.$row->nguoi_dung_id)),
+                'diem_trung_binh' => $diem.'/100',
+                'so_bai_da_hoc' => (int) $row->so_bai_da_hoc,
+            ];
+        })->values()->all();
     }
 }

@@ -3,23 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DestroyDanhMucBaiHocRequest;
+use App\Http\Requests\DestroyTeacherBaiHocRequest;
 use App\Http\Requests\GetBaiHocTheoDanhMucRequest;
 use App\Http\Requests\StoreDanhMucBaiHocRequest;
 use App\Http\Requests\StoreTeacherBaiHocRequest;
-use App\Http\Requests\DestroyTeacherBaiHocRequest;
 use App\Http\Requests\UpdateDanhMucBaiHocRequest;
 use App\Http\Requests\UpdateTeacherBaiHocRequest;
 use App\Models\BaiHoc;
 use App\Models\DanhMucBaiHoc;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TeacherQuanLyBaiHocController extends Controller
 {
-    public function indexDanhMuc(): JsonResponse
+    public function indexDanhMuc(Request $request): JsonResponse
     {
+        $user = $request->user();
+        $timKiem = trim((string) $request->query('tim_kiem', ''));
+        $chiCoBai = filter_var($request->query('chi_co_bai', false), FILTER_VALIDATE_BOOLEAN);
+
         $data = DanhMucBaiHoc::query()
-            ->withCount('baiHocs')
+            ->withCount([
+                'baiHocs' => function ($query) use ($user): void {
+                    $query->where('nguoi_tao_id', $user->id);
+                },
+            ])
             ->orderBy('thu_tu')
             ->orderByDesc('id')
             ->get()
@@ -32,6 +41,27 @@ class TeacherQuanLyBaiHocController extends Controller
                     'so_bai' => (int) $dm->bai_hocs_count,
                 ];
             });
+        if ($timKiem !== '') {
+            $keyword = mb_strtolower($timKiem);
+            $data = $data->filter(function (array $item) use ($keyword): bool {
+                return str_contains(mb_strtolower((string) $item['ten']), $keyword);
+            })->values();
+        }
+        if ($chiCoBai) {
+            $data = $data->filter(fn (array $item): bool => (int) $item['so_bai'] > 0)->values();
+        }
+        $data = $data->sort(function (array $a, array $b): int {
+            $aKhongCoBai = (int) $a['so_bai'] === 0;
+            $bKhongCoBai = (int) $b['so_bai'] === 0;
+            if ($aKhongCoBai !== $bKhongCoBai) {
+                return $aKhongCoBai <=> $bKhongCoBai;
+            }
+            if ((int) $a['so_bai'] !== (int) $b['so_bai']) {
+                return (int) $b['so_bai'] <=> (int) $a['so_bai'];
+            }
+
+            return strcmp(mb_strtolower((string) $a['ten']), mb_strtolower((string) $b['ten']));
+        })->values();
 
         return response()->json([
             'status' => true,
@@ -65,8 +95,9 @@ class TeacherQuanLyBaiHocController extends Controller
 
     public function indexBaiHocTheoDanhMuc(GetBaiHocTheoDanhMucRequest $request, int $id): JsonResponse
     {
+        $user = $request->user();
         $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
+        if (! $danhMuc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy danh mục',
@@ -75,6 +106,7 @@ class TeacherQuanLyBaiHocController extends Controller
 
         $data = BaiHoc::with('tuVungs:id,bai_hoc_id')
             ->where('danh_muc_id', $id)
+            ->where('nguoi_tao_id', $user->id)
             ->orderBy('thu_tu')
             ->orderByDesc('id')
             ->get()
@@ -142,7 +174,7 @@ class TeacherQuanLyBaiHocController extends Controller
     public function updateBaiHoc(UpdateTeacherBaiHocRequest $request, int $id): JsonResponse
     {
         $baiHoc = BaiHoc::find($id);
-        if (!$baiHoc) {
+        if (! $baiHoc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy bài học',
@@ -213,7 +245,7 @@ class TeacherQuanLyBaiHocController extends Controller
     public function destroyBaiHoc(DestroyTeacherBaiHocRequest $request, int $id): JsonResponse
     {
         $baiHoc = BaiHoc::find($id);
-        if (!$baiHoc) {
+        if (! $baiHoc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy bài học',
@@ -235,7 +267,7 @@ class TeacherQuanLyBaiHocController extends Controller
         }
 
         $decoded = json_decode($moTa, true);
-        if (is_array($decoded) && !empty($decoded['icon']) && is_string($decoded['icon'])) {
+        if (is_array($decoded) && ! empty($decoded['icon']) && is_string($decoded['icon'])) {
             return $decoded['icon'];
         }
 
@@ -245,7 +277,6 @@ class TeacherQuanLyBaiHocController extends Controller
     /**
      * Giáo viên: 1 = Đã duyệt, 0 = Đợi duyệt (mặc định khi tạo mới).
      */
-
     private function nextThuTuTrongDanhMuc(int $danhMucId): int
     {
         $max = BaiHoc::where('danh_muc_id', $danhMucId)->max('thu_tu');
