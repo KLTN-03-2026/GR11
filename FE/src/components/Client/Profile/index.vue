@@ -261,23 +261,37 @@ export default {
             return `${base}/storage/${source.replace(/^\//, '')}`;
         },
         getAuthToken() {
+            const layout = this.$route?.meta?.layout || '';
             const path = this.$route?.path || '';
-            if (path.startsWith('/admin')) {
+            if (layout === 'admin' || path.startsWith('/admin')) {
                 return localStorage.getItem("token_admin") || "";
             }
-            if (path.startsWith('/teacher')) {
+            if (layout === 'teach' || path.startsWith('/teacher')) {
                 return localStorage.getItem("token_teacher") || "";
             }
             return localStorage.getItem("token_nguoi_dung")
                 || localStorage.getItem("token_khach_hang")
-                || localStorage.getItem("token_teacher")
                 || localStorage.getItem("token_admin")
+                || localStorage.getItem("token_teacher")
                 || "";
         },
         getRedirectLoginPath() {
-            if (localStorage.getItem("token_admin")) return "/dang-nhap";
-            if (localStorage.getItem("token_teacher")) return "/dang-nhap";
+            const layout = this.$route?.meta?.layout || '';
+            if (layout === 'admin' || layout === 'teach') return "/dang-nhap";
             return "/dang-nhap";
+        },
+        clearAuthTokenByContext() {
+            const layout = this.$route?.meta?.layout || '';
+            if (layout === 'admin') {
+                localStorage.removeItem("token_admin");
+                return;
+            }
+            if (layout === 'teach') {
+                localStorage.removeItem("token_teacher");
+                return;
+            }
+            localStorage.removeItem("token_nguoi_dung");
+            localStorage.removeItem("token_khach_hang");
         },
         capNhatProfileLocal(thongTin) {
             if (!thongTin || typeof thongTin !== 'object') {
@@ -344,9 +358,7 @@ export default {
                 .catch((err) => {
                     if (err.response && err.response.status === 401) {
                         this.$toast.error("Vui lòng đăng nhập lại!");
-                        localStorage.removeItem("token_admin");
-                        localStorage.removeItem("token_teacher");
-                        localStorage.removeItem("token_nguoi_dung");
+                        this.clearAuthTokenByContext();
                         this.$router.push(this.getRedirectLoginPath());
                     } else {
                         this.$toast.error(err.response?.data?.message || 'Đã xảy ra lỗi khi tải thông tin');

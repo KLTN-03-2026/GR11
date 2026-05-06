@@ -276,6 +276,11 @@ export default {
     luuThongTinTuApi(data) {
       localStorage.setItem('ho_ten', data.ho_ten ?? '')
       localStorage.setItem('email', data.email ?? '')
+      if (data.id != null && data.id !== '') {
+        localStorage.setItem('nguoi_dung_id', String(data.id))
+      } else {
+        localStorage.removeItem('nguoi_dung_id')
+      }
       localStorage.setItem('check_token', String(data.status))
       if (data.ten_vai_tro != null && data.ten_vai_tro !== '') {
         localStorage.setItem('ten_vai_tro', String(data.ten_vai_tro))
@@ -289,7 +294,7 @@ export default {
       }
     },
     xoaProfileLocal() {
-      ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien'].forEach((k) =>
+      ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien', 'nguoi_dung_id'].forEach((k) =>
         localStorage.removeItem(k)
       )
     },

@@ -27,6 +27,11 @@ export default function (to, from, next) {
       if (response.data.status && response.data.vai_tro_id === 2) {
         const d = response.data;
         sessionStorage.setItem(TEACHER_AUTH_CACHE_KEY, String(Date.now()));
+        if (d.id != null && d.id !== "") {
+          localStorage.setItem("nguoi_dung_id", String(d.id));
+        } else {
+          localStorage.removeItem("nguoi_dung_id");
+        }
         localStorage.setItem("ho_ten", d.ho_ten ?? "");
         localStorage.setItem("email", d.email ?? "");
         localStorage.setItem("check_token", String(d.status));

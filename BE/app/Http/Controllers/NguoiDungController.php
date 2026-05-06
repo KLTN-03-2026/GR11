@@ -341,6 +341,7 @@ class NguoiDungController extends Controller
                 return response()->json([
                     'status'  => true,
                     'message' => 'Đăng nhập thành công',
+                    'id'      => $user->id,
                     'ho_ten'  => $user->ho_ten,
                     'email'   => $user->email,
                     'anh_dai_dien'  => $user->anh_dai_dien ?: ($payload['picture'] ?? null),
@@ -364,6 +365,7 @@ class NguoiDungController extends Controller
                 return response()->json([
                     'status'  => true,
                     'message' => 'Đăng ký và đăng nhập thành công!',
+                    'id'      => $newUser->id,
                     'ho_ten'  => $newUser->ho_ten,
                     'email'   => $newUser->email,
                     'anh_dai_dien'  => $payload['picture'] ?? null,
@@ -445,6 +447,7 @@ class NguoiDungController extends Controller
             return response()->json([
                 'status'  => 1,
                 'message' => 'Bạn đã đăng nhập thành công',
+                'id'      => $user->id,
                 'ho_ten'  => $user->ho_ten,
                 'email'   => $user->email,
                 'anh_dai_dien'  => $user->anh_dai_dien,
@@ -473,6 +476,7 @@ class NguoiDungController extends Controller
 
             return response()->json([
                 'status'    => true,
+                'id'        => $userLogin->id,
                 'ho_ten'    => $userLogin->ho_ten,
                 'anh_dai_dien'    => $userLogin->anh_dai_dien,
                 'email'      => $userLogin->email,

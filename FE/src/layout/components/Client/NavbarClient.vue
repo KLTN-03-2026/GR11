@@ -180,7 +180,7 @@
 <script>
 import axios from "axios";
 
-const PROFILE_LS_KEYS = ["ho_ten", "email", "check_token", "ten_vai_tro", "anh_dai_dien", "anh_dai_dien_url", "anh_dai_dien_local"];
+const PROFILE_LS_KEYS = ["ho_ten", "email", "check_token", "ten_vai_tro", "anh_dai_dien", "anh_dai_dien_url", "anh_dai_dien_local", "nguoi_dung_id"];
 
 export default {
 

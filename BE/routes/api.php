@@ -59,6 +59,7 @@ Route::prefix('/admin')->group(function () {
     Route::prefix('/quan-ly-tai-khoan')->group(function () {
         Route::post('/create', [AdminController::class, 'store']);
         Route::get('/data', [AdminController::class, 'getdata']);
+        Route::get('/export', [AdminController::class, 'export']);
         Route::post('/update', [AdminController::class, 'update']);
         Route::post('/change-status', [AdminController::class, 'changeStatus']);
         Route::post('/tim-kiem', [AdminController::class, 'search']);

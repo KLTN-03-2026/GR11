@@ -45,7 +45,8 @@
                             <table class="table table-hover align-middle mb-0 text-start">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="text-center py-3">Thứ tự</th>
+                                        <!-- Thêm align-middle và text-center để căn giữa dọc và ngang -->
+                                        <th class="text-center align-middle py-3">Thứ tự</th>
                                         <th class="ps-4 py-3">Tên danh mục</th>
                                         <th class="py-3">Slug danh mục</th>
                                         <th class="py-3">Trạng thái</th>
@@ -54,49 +55,56 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="dm in danh_sach_danh_muc" :key="dm.id">
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-light border rounded-pill px-3"
-                                                data-bs-toggle="modal" data-bs-target="#lessonsListModal"
-                                                @click="xemBaiHocTheoDanhMuc(dm)">
-                                                {{ dm.thu_tu || 0 }}
-                                            </button>
+                                        <!-- Căn giữa cột thứ tự dọc và ngang -->
+                                        <td class="text-center align-middle">
+                                            <span class="fw-bold">{{ dm.thu_tu || 0 }}</span>
                                         </td>
-                                        <td class="ps-4">
-                                            <div class="fw-bold text-primary" style="cursor: pointer; font-size: 1rem;"
-                                                data-bs-toggle="modal" data-bs-target="#lessonsListModal"
-                                                @click="xemBaiHocTheoDanhMuc(dm)"
-                                                title="Nhấn để xem các bài học trong danh mục này">
+                                        
+                                        <td class="ps-4 align-middle">
+                                            <div class="fw-bold text-dark" style="font-size: 1rem;">
                                                 {{ dm.ten_danh_muc }}
                                             </div>
-                                            <small class="text-muted">{{ dm.mo_ta || 'Không có mô tả' }}</small>
+                                            <!-- Đã xóa phần mô tả danh mục (dm.mo_ta) theo yêu cầu -->
                                         </td>
+                                        
                                         <td class="align-middle">
                                             <span class="badge bg-light text-dark border">{{ dm.slug_danh_muc || '-' }}</span>
                                         </td>
+                                        
+                                        <!-- Button trạng thái có thể thay đổi khi click -->
                                         <td class="align-middle">
-                                            <span style="font-size: 15px;" v-if="dm.trang_thai === 1"
-                                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">Hiển
+                                            <span style="font-size: 15px; cursor: pointer;" v-if="dm.trang_thai === 1"
+                                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2"
+                                                @click="daoTrangThaiDanhMuc(dm)" title="Nhấn để chuyển sang Tạm ẩn">Hiển
                                                 thị</span>
-                                            <span style="font-size: 15px;" v-else
-                                                class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">Tạm
+                                            <span style="font-size: 15px; cursor: pointer;" v-else
+                                                class="badge bg-danger-subtle text-warning border border-danger-subtle px-3 py-2"
+                                                @click="daoTrangThaiDanhMuc(dm)" title="Nhấn để chuyển sang Hiển thị">Tạm
                                                 ẩn</span>
                                         </td>
                                         
-                                        <td class="pe-4 text-center">
-                                            <button class="btn btn-sm btn-light border me-2"
-                                                @click="daoTrangThaiDanhMuc(dm)"
-                                                :title="dm.trang_thai === 1 ? 'Chuyển sang Tạm ẩn' : 'Chuyển sang Hiển thị'">
-                                                <i class="fa-solid"
-                                                    :class="dm.trang_thai === 1 ? 'fa-eye text-success' : 'fa-eye-slash text-muted'"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-light border me-2 text-primary"
-                                                data-bs-toggle="modal" data-bs-target="#categoryModal"
-                                                @click="chuanBiSuaDanhMuc(dm)" title="Sửa danh mục"><i
-                                                    class="fa-solid fa-pen"></i></button>
-                                            <button class="btn btn-sm btn-light border text-danger"
-                                                data-bs-toggle="modal" data-bs-target="#openDeleteModal"
-                                                @click="danh_muc_can_xoa = dm" title="Xóa danh mục"><i
-                                                    class="fa-solid fa-trash"></i></button>
+                                        <!-- Các hành động nằm song song 1 hàng -->
+                                        <td class="pe-4 text-center align-middle">
+                                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                                <!-- Icon con mắt xem chi tiết -->
+                                                <button class="btn btn-sm btn-light border text-info"
+                                                    data-bs-toggle="modal" data-bs-target="#lessonsListModal"
+                                                    @click="xemBaiHocTheoDanhMuc(dm)" title="Xem chi tiết danh mục">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                                
+                                                <button class="btn btn-sm btn-light border text-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#categoryModal"
+                                                    @click="chuanBiSuaDanhMuc(dm)" title="Sửa danh mục">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </button>
+                                                
+                                                <button class="btn btn-sm btn-light border text-danger"
+                                                    data-bs-toggle="modal" data-bs-target="#openDeleteModal"
+                                                    @click="danh_muc_can_xoa = dm" title="Xóa danh mục">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr v-if="danh_sach_danh_muc.length === 0">
@@ -140,45 +148,47 @@
 
                 <div class="card border-0 shadow-sm rounded-3">
                     <div class="table-responsive text-start">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0 review-table">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-4 py-3">Bài học / Cấp độ</th>
-                                    <th class="py-3">Giáo viên biên soạn</th>
-                                    <th class="py-3">Danh mục</th>
-                                    <th class="text-center py-3">Nội dung</th>
-                                    <th class="py-3">Trạng thái</th>
-                                    <th class="pe-4 text-end py-3">Hành động QA</th>
+                                    <th class="text-center align-middle py-3" style="width: 70px;">Thứ tự</th>
+                                    <th class="text-center align-middle py-3">Bài học / Cấp độ</th>
+                                    <th class="text-center align-middle py-3">Giáo viên biên soạn</th>
+                                    <th class="text-center align-middle py-3">Danh mục</th>
+                                    <th class="text-center align-middle py-3">Nội dung</th>
+                                    <th class="text-center align-middle py-3">Trạng thái</th>
+                                    <th class="text-center align-middle py-3">Hành động QA</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="bh in bai_hoc_da_loc" :key="bh.id">
-                                    <td class="ps-4">
+                                <tr v-for="(bh, index) in bai_hoc_da_loc" :key="bh.id">
+                                    <td class="text-center align-middle fw-bold">{{ index + 1 }}</td>
+                                    <td class="text-center align-middle">
                                         <div class="fw-bold text-dark mb-1">{{ bh.tieu_de }}</div>
                                         <span class="badge bg-light border text-dark fw-normal">{{ bh.cap_do
                                             }}</span>
                                     </td>
-                                    <td>
+                                    <td class="text-center align-middle">
                                         <div class="fw-semibold text-primary"><i
                                                 class="fa-solid fa-chalkboard-user me-1"></i>{{ bh.nguoi_tao_ten }}
                                         </div>
                                         <small class="text-muted">{{ bh.ngay_tao }}</small>
                                     </td>
-                                    <td>{{ layTenDanhMuc(bh.danh_muc_id) }}</td>
-                                    <td class="text-center">
+                                    <td class="text-center align-middle">{{ layTenDanhMuc(bh.danh_muc_id) }}</td>
+                                    <td class="text-center align-middle">
                                         <button class="btn btn-sm btn-outline-info rounded-pill px-3"
                                             data-bs-toggle="modal" data-bs-target="#previewModal"
                                             @click="chuanBiXemTruocNoiDung(bh)">
                                             <i class="fa-solid fa-eye me-1"></i> {{ bh.so_luong_tu }} từ
                                         </button>
                                     </td>
-                                    <td>
+                                    <td class="text-center align-middle">
                                         <span class="badge rounded-pill px-3 py-2 fw-normal"
                                             :class="layBadgeTrangThai(bh.trang_thai)">{{ bh.trang_thai }}</span>
                                     </td>
-                                    <td class="pe-4 text-end">
+                                    <td class="text-center align-middle">
                                         <div v-if="bh.trang_thai === 'Chờ duyệt'"
-                                            class="d-flex justify-content-end gap-2">
+                                            class="d-flex justify-content-center gap-2">
                                             <button class="btn btn-success btn-sm shadow-sm" data-bs-toggle="modal"
                                                 data-bs-target="#approvalConfirmModal"
                                                 @click="chuanBiDuyet(bh, 'Đã duyệt')" title="Duyệt bài">
@@ -200,7 +210,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="bai_hoc_da_loc.length === 0">
-                                    <td colspan="6" class="text-center py-5 text-muted">Không tìm thấy bài học nào phù
+                                    <td colspan="7" class="text-center py-5 text-muted">Không tìm thấy bài học nào phù
                                         hợp.</td>
                                 </tr>
                             </tbody>
@@ -256,8 +266,9 @@
                             <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                                 <button type="button" class="btn btn-light px-4 border shadow-none"
                                     data-bs-dismiss="modal">Hủy</button>
-                                <button @click="luuDanhMuc()" type="submit" class="btn btn-primary px-4 shadow-sm">
-                                    <i class="fa-solid fa-floppy-disk me-1"></i> Lưu thông tin
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm" :disabled="isSavingDanhMuc">
+                                    <span v-if="isSavingDanhMuc" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <i v-else class="fa-solid fa-floppy-disk me-1"></i> Lưu thông tin
                                 </button>
                             </div>
                         </form>
@@ -322,10 +333,10 @@
         <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow text-start">
-                    <div class="modal-header bg-primary text-white">
+                    <div class="modal-header bg-danger text-white">
                         <div>
                             <h5 class="modal-title text-white fw-bold mb-0">{{ bai_hoc_xem_truoc?.tieu_de }}</h5>
-                            <small class="text-white-50">Xem trước nội dung chi tiết (Read-only)</small>
+                            <small class="text-dark-50">Chi tiết từ vựng</small>
                         </div>
                         <button type="button" class="btn-close btn-close-white shadow-none"
                             data-bs-dismiss="modal"></button>
@@ -542,7 +553,7 @@ export default {
         },
 
         capNhatSlugTuTen() {
-            this.mau_danh_muc.slug_danh_muc = this.taoSlug(this.mau_danh_muc.ten_danh_muc);
+            return;
         },
 
         saveCategory() {
@@ -550,11 +561,12 @@ export default {
         },
 
         luuDanhMuc() {
+            if (this.isSavingDanhMuc) return;
             this.isSavingDanhMuc = true;
 
             const payload = {
                 ten_danh_muc: this.mau_danh_muc.ten_danh_muc,
-                slug_danh_muc: this.mau_danh_muc.slug_danh_muc || this.taoSlug(this.mau_danh_muc.ten_danh_muc),
+                slug_danh_muc: this.taoSlug(this.mau_danh_muc.slug_danh_muc || this.mau_danh_muc.ten_danh_muc),
                 mo_ta: this.mau_danh_muc.mo_ta,
                 thu_tu: Number(this.mau_danh_muc.thu_tu || 1),
                 trang_thai: Number(this.mau_danh_muc.trang_thai),
@@ -734,6 +746,79 @@ export default {
 </script>
 
 <style scoped>
+.admin-dashboard {
+  background-color: #f6f8fc;
+  min-height: 100vh;
+  padding: 1.5rem 1rem 2rem;
+  color: #0f172a;
+}
+
+.dashboard-header {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.dashboard-title {
+  color: #111827;
+  font-size: 1.6rem;
+}
+
+.dashboard-subtitle {
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-card .card-body {
+  padding: 1.4rem;
+}
+
+.input-rounded {
+  border-radius: 14px !important;
+}
+
+.form-control,
+.form-select {
+  border-color: #e5e7eb;
+  min-height: 46px;
+  border-radius: 14px;
+}
+
+.table thead th {
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.review-table {
+  border: 1px solid #dbe3ee;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.review-table thead th,
+.review-table tbody td {
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle !important;
+  text-align: center !important;
+}
+
+.review-table thead th:last-child,
+.review-table tbody td:last-child {
+  border-right: 0;
+}
+
 .custom-tabs .nav-link {
     color: #0b0a0a !important;
     border-bottom: 3px solid transparent !important;

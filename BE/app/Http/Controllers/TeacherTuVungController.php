@@ -109,8 +109,21 @@ class TeacherTuVungController extends Controller
             ], 422);
         }
 
+        $existingWords = TuVung::query()
+            ->where('bai_hoc_id', $id)
+            ->pluck('tu_chuan')
+            ->all();
+        $existingMap = [];
+        foreach ($existingWords as $word) {
+            $normalized = $this->normalizeTuChuanForCompare((string) $word);
+            if ($normalized !== '') {
+                $existingMap[$normalized] = true;
+            }
+        }
+
         $parsed = [];
         $rowErrors = [];
+        $skippedExisting = [];
 
         for ($i = 1, $n = count($rows); $i < $n; $i++) {
             $line = $i + 1;
@@ -167,6 +180,15 @@ class TeacherTuVungController extends Controller
                 }
             }
 
+            $normalizedTuChuan = $this->normalizeTuChuanForCompare($tuChuan);
+            if ($normalizedTuChuan !== '' && isset($existingMap[$normalizedTuChuan])) {
+                $skippedExisting[] = [
+                    'line' => $line,
+                    'tu_chuan' => $tuChuan,
+                ];
+                continue;
+            }
+
             $parsed[] = [
                 'line' => $line,
                 'tu_chuan' => $tuChuan,
@@ -179,6 +201,16 @@ class TeacherTuVungController extends Controller
         }
 
         if ($parsed === []) {
+            if ($skippedExisting !== [] && $rowErrors === []) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Không có từ mới để thêm. Tất cả từ trong file đã tồn tại.',
+                    'data' => [
+                        'imported' => 0,
+                        'skipped_existing' => $skippedExisting,
+                    ],
+                ]);
+            }
             return response()->json([
                 'status' => false,
                 'message' => $rowErrors === []
@@ -212,10 +244,18 @@ class TeacherTuVungController extends Controller
             }
         });
 
+        $message = "Đã nhập {$imported} từ vựng từ file.";
+        if ($skippedExisting !== []) {
+            $message .= ' Bỏ qua '.count($skippedExisting).' từ đã có sẵn.';
+        }
+
         return response()->json([
             'status' => true,
-            'message' => "Đã nhập {$imported} từ vựng từ file.",
-            'data' => ['imported' => $imported],
+            'message' => $message,
+            'data' => [
+                'imported' => $imported,
+                'skipped_existing' => $skippedExisting,
+            ],
         ], 201);
     }
 
@@ -438,5 +478,10 @@ class TeacherTuVungController extends Controller
         }
 
         return null;
+    }
+
+    private function normalizeTuChuanForCompare(string $word): string
+    {
+        return mb_strtolower(trim($word), 'UTF-8');
     }
 }

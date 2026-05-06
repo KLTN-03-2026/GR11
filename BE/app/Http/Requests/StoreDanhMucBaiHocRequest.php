@@ -14,8 +14,11 @@ class StoreDanhMucBaiHocRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $slugInput = trim((string) $this->input('slug_danh_muc', ''));
+        $tenInput = trim((string) $this->input('ten_danh_muc', ''));
+
         $this->merge([
-            'slug_danh_muc' => Str::slug((string) $this->input('ten_danh_muc')),
+            'slug_danh_muc' => $slugInput !== '' ? Str::slug($slugInput) : Str::slug($tenInput),
         ]);
     }
 
@@ -34,7 +37,8 @@ class StoreDanhMucBaiHocRequest extends FormRequest
     {
         return [
             'ten_danh_muc.required' => 'Vui lòng nhập tên danh mục.',
-            'slug_danh_muc.unique' => 'Tên danh mục đã tồn tại hoặc bị trùng đường dẫn (slug).',
+            'slug_danh_muc.required' => 'Vui lòng nhập slug danh mục.',
+            'slug_danh_muc.unique' => 'Slug danh mục đã tồn tại, vui lòng nhập slug khác.',
         ];
     }
 }

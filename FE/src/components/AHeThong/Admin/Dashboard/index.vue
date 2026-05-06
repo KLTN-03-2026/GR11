@@ -1,18 +1,25 @@
 <template>
-  <div class="container-fluid" style="background-color: #f8f9fa; min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
+  <div class="container-fluid admin-dashboard">
 
-    <div class="d-flex justify-content-between align-items-center mb-4 pt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 dashboard-header">
       <div>
-        <h4 class="fw-bold mb-1" style="color: #2b3445;">Admin Dashboard</h4>
-        <p class="text-muted mb-0" style="font-size: 0.9rem;">
-          Tập trung theo dõi hệ thống và báo cáo chi tiết trong một trang.
+        <h4 class="fw-bold mb-1 dashboard-title">Tổng quan Admin</h4>
+        <p class="dashboard-subtitle mb-0">
+          <template v-if="ho_ten_admin_hien_thi">
+            Chào mừng quản trị viên
+            <span class="fw-bold text-danger">{{ ho_ten_admin_hien_thi }}</span>
+            đã quay trở lại!
+          </template>
+          <template v-else>
+            Chào mừng bạn đã quay trở lại!
+          </template>
         </p>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm btn-outline-danger" @click="lamTuoiDuLieu">
+        <button class="btn btn-sm btn-outline-danger btn-dashboard-action" @click="lamTuoiDuLieu">
           <i class="fa-solid fa-arrows-rotate me-1"></i>Làm tươi
         </button>
-        <select class="form-select shadow-sm fw-semibold" v-model="bo_loc_thoi_gian" @change="capNhatToanBoDuLieu" style="cursor: pointer; border-radius: 8px; width: 180px;">
+        <select class="form-select shadow-sm fw-semibold input-rounded" v-model="bo_loc_thoi_gian" @change="capNhatToanBoDuLieu" style="cursor: pointer; width: 180px;">
           <option value="tuan">Theo Tuần</option>
           <option value="thang">Theo Tháng</option>
           <option value="nam">Theo Năm</option>
@@ -25,8 +32,8 @@
     <div v-show="activeTab === 'monitoring'">
       <div class="row g-3 mb-4">
         <div class="col-xl-3 col-md-6">
-          <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
-            <div class="card-body p-3">
+          <div class="card dashboard-card dashboard-card--success border-0 shadow-sm rounded-3 h-100" :style="{ borderLeft: '5px solid ' + (apiHealth.status === 'healthy' ? '#10b981' : '#ef4444') }">
+            <div class="card-body card-body-highlight p-3">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
                   <small class="text-muted fw-semibold">Trạng Thái API</small>
@@ -47,8 +54,8 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-          <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
-            <div class="card-body p-3">
+          <div class="card dashboard-card dashboard-card--info border-0 shadow-sm rounded-3 h-100" :style="{ borderLeft: '5px solid ' + (systemMetrics.errorCount > 5 ? '#ef4444' : '#3b82f6') }">
+            <div class="card-body card-body-highlight p-3">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
                   <small class="text-muted fw-semibold ">Lỗi Hệ Thống (24h)</small>
@@ -67,8 +74,8 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-          <div class="card border-0 shadow-sm rounded-3 h-100 bg-white">
-            <div class="card-body p-3">
+          <div class="card dashboard-card dashboard-card--blue border-0 shadow-sm rounded-3 h-100" :style="{ borderLeft: '5px solid ' + (systemMetrics.dbStatus === 'connected' ? '#3b82f6' : '#ef4444') }">
+            <div class="card-body card-body-highlight p-3">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
                   <small class="text-muted fw-semibold">Người dùng</small>
@@ -88,8 +95,8 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-          <div class="card border-0 shadow-sm rounded-3 h-100 bg-white" :style="{ borderBottom: apiUsagePercentage > 80 ? '3px solid #ef4444' : '3px solid #10b981' }">
-            <div class="card-body p-3">
+          <div class="card dashboard-card dashboard-card--warning border-0 shadow-sm rounded-3 h-100" :style="{ borderLeft: '5px solid ' + (apiUsagePercentage > 80 ? '#ef4444' : '#10b981') }">
+            <div class="card-body card-body-highlight p-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <small class="text-muted fw-semibold">Giới hạn sử dụng API</small>
                 <i class="fa-solid fa-microchip" :style="{ color: apiUsagePercentage > 80 ? '#ef4444' : '#10b981' }"></i>
@@ -369,6 +376,7 @@ export default {
   name: 'AdminDashboard',
   data() {
     return {
+      ho_ten_admin: '',
       apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
       activeTab: 'monitoring',
       bo_loc_thoi_gian: 'thang',
@@ -443,6 +451,7 @@ export default {
         { id: 5, code: '504', service: 'Cache', count: 5, lastOccurrence: '3 giờ trước' }
       ]
     };
+
   },
   computed: {
     apiUsagePercentage() {
@@ -453,7 +462,10 @@ export default {
         return this.serviceHealth;
       }
       return this.serviceHealth.filter(service => service.name.toLowerCase().includes(this.reportFilter.service.toLowerCase()));
-    }
+    },
+    ho_ten_admin_hien_thi() {
+      return (this.ho_ten_admin || '').trim();
+    },
   },
   watch: {
     '$route.query.tab': {
@@ -470,6 +482,7 @@ export default {
     };
   },
   mounted() {
+    this.ho_ten_admin = localStorage.getItem('ho_ten') || '';
     this.setReportDefaults();
     this.renderApiPerformanceChart();
     this.taiDuLieuTongQuan();
@@ -696,3 +709,189 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.admin-dashboard {
+  background-color: #f6f8fc;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  color: #111827;
+}
+
+.dashboard-header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.dashboard-title {
+  color: #111827;
+}
+
+.dashboard-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.btn-dashboard-action {
+  border-radius: 14px;
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+}
+
+.btn-dashboard-action.btn-outline-danger {
+  color: #b91c1c;
+  border-color: #fb7185;
+  background-color: #fff;
+}
+
+.btn-dashboard-action.btn-outline-danger:hover {
+  background-color: #fef2f2;
+  border-color: #f87171;
+}
+
+.input-rounded {
+  border-radius: 14px !important;
+}
+
+.admin-dashboard .card {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+}
+
+.admin-dashboard .card .card-body {
+  padding: 1.4rem;
+}
+
+.admin-dashboard .card.bg-white {
+  background-color: #ffffff;
+}
+
+.admin-dashboard .text-muted {
+  color: #6b7280 !important;
+}
+
+.admin-dashboard .table thead th {
+  border-bottom: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.admin-dashboard .table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.admin-dashboard .table td,
+.admin-dashboard .table th {
+  vertical-align: middle;
+}
+
+.admin-dashboard .status-badge,
+.admin-dashboard .badge-pill {
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.admin-dashboard .badge-pill {
+  background-color: #f8fafc;
+  color: #111827;
+}
+
+.admin-dashboard .progress {
+  height: 8px;
+  border-radius: 999px;
+  background-color: #e5e7eb;
+}
+
+.admin-dashboard .progress-bar {
+  border-radius: 999px;
+}
+
+.admin-dashboard .form-control,
+.admin-dashboard .form-select {
+  border-color: #e5e7eb;
+  box-shadow: none;
+  min-height: 42px;
+}
+
+.admin-dashboard .form-control:focus,
+.admin-dashboard .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.18);
+}
+
+.admin-dashboard .card-body h6,
+.admin-dashboard .card-body h5,
+.admin-dashboard .card-body h4,
+.admin-dashboard .card-body h3 {
+  color: #111827;
+}
+
+.dashboard-card--success .card-body {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
+}
+
+.dashboard-card--info .card-body {
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+}
+
+.dashboard-card--blue .card-body {
+  background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+}
+
+.dashboard-card--warning .card-body {
+  background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.dashboard-card--success .card-body,
+.dashboard-card--info .card-body,
+.dashboard-card--blue .card-body,
+.dashboard-card--warning .card-body {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.admin-dashboard .card-body .text-dark {
+  color: #111827 !important;
+}
+
+.admin-dashboard .card-body .text-primary {
+  color: #2563eb !important;
+}
+
+.admin-dashboard .card-body .text-danger {
+  color: #dc2626 !important;
+}
+
+.admin-dashboard .bg-success-subtle,
+.admin-dashboard .bg-warning-subtle,
+.admin-dashboard .bg-primary-subtle,
+.admin-dashboard .bg-light {
+  background-color: #f8fafc !important;
+}
+
+.admin-dashboard .shadow-sm {
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
+}
+
+.dashboard-card {
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.card-body-highlight {
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.98) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.9);
+}
+
+.dashboard-card + .dashboard-card {
+  margin-top: 0.75rem;
+}
+
+.admin-dashboard a.text-primary:hover {
+  color: #1d4ed8 !important;
+}
+</style>

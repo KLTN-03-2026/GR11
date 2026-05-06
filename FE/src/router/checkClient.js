@@ -17,6 +17,11 @@ export default function (to, from, next) {
     .then((response) => {
       if (response.data.status) {
         const d = response.data;
+        if (d.id != null && d.id !== "") {
+          localStorage.setItem("nguoi_dung_id", String(d.id));
+        } else {
+          localStorage.removeItem("nguoi_dung_id");
+        }
         localStorage.setItem("ho_ten", d.ho_ten ?? "");
         localStorage.setItem("email", d.email ?? "");
         localStorage.setItem("check_token", String(d.status));

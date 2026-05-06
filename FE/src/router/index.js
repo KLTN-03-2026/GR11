@@ -186,8 +186,8 @@ const routes = [
   },
   {
     path: "/teacher/chat-box",
-    component: () =>
-      import("../components/AHeThong/Teach/ChatTeacher/index.vue"),
+    component: () => import("../components/Client/ChatBox/index.vue"),
+    props: { mode: "teacher", floating: false },
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },

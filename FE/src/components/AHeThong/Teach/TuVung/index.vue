@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid py-4" style="background-color: #f8fafc; min-height: 100vh;">
+    <div class="container-fluid" style="background-color: #f8fafc; min-height: 100vh;">
 
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
@@ -40,7 +40,7 @@
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background-color: #ffffff;">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0 border-0">
+                    <table class="table tu-vung-table align-middle mb-0 border-0">
                         <thead style="background-color: #f1f5f9;">
                             <tr>
                                 <th class="ps-4 py-3 text-secondary fw-bold text-uppercase border-0 text-center"
@@ -92,7 +92,7 @@
                             <tr v-for="tu in danh_sach_tu_vung" :key="tu.id" style="transition: background-color 0.2s;"
                                 onmouseover="this.style.backgroundColor='#f8fafc'"
                                 onmouseout="this.style.backgroundColor='transparent'">
-                                <td class="ps-4 text-secondary fw-semibold text-center"
+                                <td class="text-secondary fw-semibold text-center"
                                     style="border-bottom: 1px solid #f1f5f9;">{{ tu.thu_tu }}</td>
 
                                 <td class="text-center" style="border-bottom: 1px solid #f1f5f9;">
@@ -105,7 +105,7 @@
                                 </td>
 
                                 <td style="border-bottom: 1px solid #f1f5f9;">
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center justify-content-center">
                                         <button type="button"
                                             class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center me-3 border-0"
                                             :style="tu.am_thanh_mau_url ? 'background-color: #e0e7ff; color: #4f46e5; width: 36px; height: 36px;' : 'background-color: #f1f5f9; color: #94a3b8; width: 36px; height: 36px; cursor: not-allowed;'"
@@ -117,7 +117,7 @@
                                     </div>
                                 </td>
 
-                                <td style="border-bottom: 1px solid #f1f5f9;">
+                                <td style="border-bottom: 1px solid #f1f5f9;" class="text-center">
                                     <span class="text-secondary d-inline-block text-truncate fw-medium"
                                         style="max-width: 250px;" :title="tu.phien_am">
                                         {{ tu.phien_am || '—' }}
@@ -301,6 +301,55 @@
             </div>
         </div>
 
+        <div class="modal fade" id="excelTrungModal" tabindex="-1" aria-labelledby="excelTrungModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+            
+            <!-- Header -->
+            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="excelTrungModalLabel">
+                    <i class="fa-solid fa-triangle-exclamation text-warning me-2 fs-5"></i> 
+                    Từ đã tồn tại trong bài học
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body px-4 py-3">
+                <p class="text-muted small mb-3">
+                    Các từ dưới đây đã tồn tại nên sẽ bị bỏ qua.
+                </p>
+
+                <!-- Trạng thái trống -->
+                <div v-if="tu_vung_trung_excel.length === 0" class="text-muted small fst-italic text-center py-3 bg-light rounded-3">
+                    Không có dữ liệu từ trùng.
+                </div>
+
+                <!-- Khung chứa danh sách (Tự động cuộn nếu > 10 từ) -->
+                <div v-else class="duplicate-word-list border rounded-3" :class="{ 'is-scrollable': tu_vung_trung_excel.length > 10 }">
+                    <ul class="list-group list-group-flush m-0">
+                        <li v-for="(item, idx) in tu_vung_trung_excel" :key="`${item.line}-${item.tu_chuan}-${idx}`"
+                            class="list-group-item px-3 py-2 d-flex justify-content-between align-items-center border-0 border-bottom">
+                            <span class="fw-semibold text-dark">{{ item.tu_chuan }}</span>
+                            <span class="badge bg-light text-secondary border px-3 py-2 fw-medium" style="border-radius: 6px;">
+                                Dòng {{ item.line }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-1 justify-content-center">
+                <button type="button" class="btn btn-warning px-5 py-2 fw-bold text-light rounded-3 shadow-sm w-100" data-bs-dismiss="modal">
+                    Đã hiểu
+                </button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
     </div>
 </template>
 
@@ -319,6 +368,7 @@ export default {
             saving: false,
             deleting: false,
             importingExcel: false,
+            tu_vung_trung_excel: [],
             isEdit: false,
             tuVungForm: {
                 id: null,
@@ -363,6 +413,12 @@ export default {
             if (!el || typeof window.bootstrap === 'undefined') return;
             const inst = window.bootstrap.Modal.getInstance(el) || new window.bootstrap.Modal(el);
             inst.hide();
+        },
+        moModalTheoId(modalId) {
+            const el = document.getElementById(modalId);
+            if (!el || typeof window.bootstrap === 'undefined') return;
+            const inst = window.bootstrap.Modal.getInstance(el) || new window.bootstrap.Modal(el);
+            inst.show();
         },
         toastLoiAxios(err) {
             if (err.response && err.response.data) {
@@ -460,6 +516,10 @@ export default {
                 .then((res) => {
                     if (res.data.status) {
                         this.$toast.success(res.data.message || 'Nhập Excel thành công.');
+                        this.tu_vung_trung_excel = res.data?.data?.skipped_existing || [];
+                        if (this.tu_vung_trung_excel.length > 0) {
+                            this.moModalTheoId('excelTrungModal');
+                        }
                         this.layDuLieuTuVung();
                     } else {
                         this.$toast.error(res.data.message || 'Không nhập được từ file.');
@@ -605,3 +665,53 @@ export default {
     },
 };
 </script>
+<style scoped>
+.tu-vung-table {
+    border: 1px solid #e2e8f0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.tu-vung-table thead th,
+.tu-vung-table tbody td {
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+}
+
+.tu-vung-table thead th:last-child,
+.tu-vung-table tbody td:last-child {
+    border-right: 0 !important;
+}
+
+/* Class kích hoạt thanh cuộn dọc khi vượt quá số lượng */
+.duplicate-word-list.is-scrollable {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+/* Loại bỏ viền bottom của item cuối cùng để tránh lỗi UI */
+.duplicate-word-list .list-group-item:last-child {
+    border-bottom: none !important;
+}
+
+/* --- Tuỳ chỉnh thanh cuộn (Scrollbar) cho đẹp và hiện đại --- */
+.duplicate-word-list::-webkit-scrollbar {
+    width: 6px; /* Thanh cuộn mỏng nhẹ */
+}
+
+.duplicate-word-list::-webkit-scrollbar-track {
+    background: #F9FAFB; /* Nền thanh cuộn trùng màu nền xám siêu nhạt */
+    border-radius: 0 8px 8px 0;
+}
+
+.duplicate-word-list::-webkit-scrollbar-thumb {
+    background: #D1D5DB; /* Màu tay cầm thanh cuộn (xám nhạt) */
+    border-radius: 4px;
+}
+
+.duplicate-word-list::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF; /* Đậm hơn khi hover */
+}
+</style>

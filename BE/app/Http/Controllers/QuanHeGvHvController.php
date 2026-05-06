@@ -25,19 +25,13 @@ class QuanHeGvHvController extends Controller
             ->where('giao_vien_id', $giaoVien->id)
             ->pluck('hoc_vien_id');
 
+        $chuKyLoc = (string) $request->query('chu_ky', 'week');
         [$tuNgay, $denNgay, $tuNgayKyTruoc, $denNgayKyTruoc] = $this->xacDinhKhoangLocDashboard($request);
         $tongHocVien = (int) $hocVienIds->count();
 
         $queryPhien = PhienLuyenTap::query()->whereIn('nguoi_dung_id', $hocVienIds);
         $tongPhien = $this->demPhienTrongKhoang($hocVienIds, $tuNgay, $denNgay);
         $tongPhienKyTruoc = $this->demPhienTrongKhoang($hocVienIds, $tuNgayKyTruoc, $denNgayKyTruoc);
-        $tongPhienTuan = (int) (clone $queryPhien)
-            ->where(function ($q): void {
-                $q->where('thoi_gian_bat_dau', '>=', now()->subDays(7))
-                    ->orWhere('thoi_gian_ket_thuc', '>=', now()->subDays(7))
-                    ->orWhere('ngay_tao', '>=', now()->subDays(7));
-            })
-            ->count();
 
         $tongBaiHocDaTao = (int) BaiHoc::query()
             ->where('nguoi_tao_id', $giaoVien->id)
@@ -93,17 +87,21 @@ class QuanHeGvHvController extends Controller
 
         $xuHuongHocSinhThamGia = 0;
         $xuHuongBaiHocDaTao = $this->tinhPhanTramThayDoi($soBaiHocTaoKyNay, $soBaiHocTaoKyTruoc);
-        $xuHuongLuotLuyenTap = $this->tinhPhanTramThayDoi($tongPhienTuan, $tongPhienKyTruoc);
+        $xuHuongLuotLuyenTap = $this->tinhPhanTramThayDoi($tongPhien, $tongPhienKyTruoc);
         $xuHuongHocSinhCanChuY = $this->tinhPhanTramThayDoi($hocVienCanChuY, $hocVienCanChuYKyTruoc);
 
         return response()->json([
             'status' => true,
             'data' => [
+                'meta' => [
+                    'chu_ky' => $chuKyLoc,
+                    'label_ky' => $this->moTaKhoangDashboard($tuNgay, $denNgay, $chuKyLoc),
+                ],
                 'the_tom_tat' => [
                     'hoc_sinh_tham_gia' => $tongHocVien,
                     'bai_hoc_da_tao' => $tongBaiHocDaTao,
                     'bai_hoc_dang_giao' => $tongBaiHocDaTao,
-                    'luot_luyen_tap_tuan' => $tongPhienTuan,
+                    'luot_luyen_tap_tuan' => $tongPhien,
                     'hoc_sinh_can_chu_y' => $hocVienCanChuY,
                 ],
                 'xu_huong_tom_tat' => [
@@ -684,6 +682,23 @@ class QuanHeGvHvController extends Controller
         })->all();
     }
 
+    private function moTaKhoangDashboard(?Carbon $tuNgay, ?Carbon $denNgay, string $chuKy): string
+    {
+        if ($chuKy === 'all' || ! $tuNgay || ! $denNgay) {
+            return 'Toàn thời gian';
+        }
+
+        if ($chuKy === 'month') {
+            return 'Tháng '.$tuNgay->format('m/Y');
+        }
+
+        if ($chuKy === 'quarter') {
+            return 'Quý '.$tuNgay->quarter.'/'.$tuNgay->year;
+        }
+
+        return $tuNgay->format('d/m').' – '.$denNgay->format('d/m/Y');
+    }
+
     /**
      * @return array{0:?Carbon,1:?Carbon,2:?Carbon,3:?Carbon}
      */
@@ -692,6 +707,10 @@ class QuanHeGvHvController extends Controller
         $chuKy = (string) $request->query('chu_ky', 'week');
         $tuNgayInput = $request->query('tu_ngay');
         $denNgayInput = $request->query('den_ngay');
+
+        if ($chuKy === 'all') {
+            return [null, null, null, null];
+        }
 
         if ($tuNgayInput && $denNgayInput) {
             try {
