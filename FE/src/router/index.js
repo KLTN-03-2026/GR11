@@ -47,6 +47,12 @@ const routes = [
     meta: { layout: "blank" },
     beforeEnter: checkClient,
   },
+  {
+    path: "/dang-ky-giao-vien",
+    component: () => import("../components/Client/DangKyGiaoVien/index.vue"),
+    meta: { layout: "client" },
+    beforeEnter: checkClient,
+  },
 
   //---------------------------------------------KHACH HANG--------------------------------------------------------------
   {
@@ -146,6 +152,12 @@ const routes = [
   {
     path: "/thong-tin-ca-nhan",
     component: () => import("../components/Client/Profile/index.vue"),
+    meta: { layout: "admin" },
+    beforeEnter: checkAdmin,
+  },
+  {
+    path: "/admin/quan-ly-ho-so-giao-vien",
+    component: () => import("../components/AHeThong/Admin/QuanLyHoSoGiaoVien/index.vue"),
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,
   },

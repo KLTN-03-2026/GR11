@@ -64,6 +64,12 @@
                 <span>Quản lý cấu hình</span>
               </router-link>
             </li>
+            <li :class="{ active: $route.path === '/admin/quan-ly-ho-so-giao-vien' }">
+              <router-link to="/admin/quan-ly-ho-so-giao-vien" class="iq-waves-effect mt-1">
+                <i class="ri-user-add-line"></i>
+                <span>Hồ sơ Giáo viên</span>
+              </router-link>
+            </li>
             <li class="logout-item">
               <a href="#" class="iq-waves-effect logout-link" @click.prevent="showLogoutModal = true">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>

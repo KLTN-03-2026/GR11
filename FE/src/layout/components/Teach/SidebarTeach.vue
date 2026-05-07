@@ -2,10 +2,19 @@
   <div>
     <div class="iq-sidebar">
       <div class="iq-sidebar-logo d-flex justify-content-between">
-        <router-link to="/teacher/dashboard" class="d-flex align-items-center text-danger text-nowrap"
-          style="font-size: 24px; text-decoration: none;">
-          <i class="fa fa-book-reader fa-xl me-2" style="position: relative; top: -2px;"></i>
-          <span class="m-0 fw-bold text-uppercase text-danger" style="font-size: 18px;">
+        <router-link
+          to="/teacher/dashboard"
+          class="d-flex align-items-center text-danger text-nowrap"
+          style="font-size: 24px; text-decoration: none"
+        >
+          <i
+            class="fa fa-book-reader fa-xl me-2"
+            style="position: relative; top: -2px"
+          ></i>
+          <span
+            class="m-0 fw-bold text-uppercase text-danger"
+            style="font-size: 18px"
+          >
             <b>TEACHER ECHOKIDS</b>
           </span>
         </router-link>
@@ -28,43 +37,75 @@
                 <span>Tổng quan</span>
               </router-link>
             </li>
-            <li :class="{ active: $route.path === '/teacher/quan-ly-hoc-sinh' }">
-              <router-link to="/teacher/quan-ly-hoc-sinh" class="iq-waves-effect mt-1">
+            <li
+              :class="{ active: $route.path === '/teacher/quan-ly-hoc-sinh' }"
+            >
+              <router-link
+                to="/teacher/quan-ly-hoc-sinh"
+                class="iq-waves-effect mt-1"
+              >
                 <i class="fa-solid fa-user-graduate"></i>
                 <span>Quản Lý Học Sinh</span>
               </router-link>
             </li>
             <li :class="{ active: $route.path === '/teacher/quan-ly-bai-hoc' }">
-              <router-link to="/teacher/quan-ly-bai-hoc" class="iq-waves-effect mt-1">
+              <router-link
+                to="/teacher/quan-ly-bai-hoc"
+                class="iq-waves-effect mt-1"
+              >
                 <i class="fa-solid fa-chalkboard-user"></i>
                 <span>Quản Lý Bài Học</span>
               </router-link>
             </li>
-            
-            <li :class="{ active: $route.path === '/teacher/bao-cao-thong-ke' }">
-              <router-link to="/teacher/bao-cao-thong-ke" class="iq-waves-effect mt-1">
+
+            <li
+              :class="{ active: $route.path === '/teacher/bao-cao-thong-ke' }"
+            >
+              <router-link
+                to="/teacher/bao-cao-thong-ke"
+                class="iq-waves-effect mt-1"
+              >
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Báo Cáo Thống Kê</span>
               </router-link>
             </li>
             <li class="logout-item">
-              <a href="#" class="iq-waves-effect logout-link" @click.prevent="showLogoutModal = true">
+              <a
+                href="#"
+                class="iq-waves-effect logout-link"
+                @click.prevent="showLogoutModal = true"
+              >
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span>Đăng xuất</span>
               </a>
             </li>
-           
           </ul>
         </nav>
       </div>
     </div>
-    <div v-if="showLogoutModal" class="logout-modal-overlay" @click.self="closeLogoutModal">
+    <div
+      v-if="showLogoutModal"
+      class="logout-modal-overlay"
+      @click.self="closeLogoutModal"
+    >
       <div class="logout-modal-card">
         <h5>Bạn có muốn đăng xuất không?</h5>
         <div class="logout-modal-actions">
-          <button type="button" class="btn-cancel" @click="closeLogoutModal" :disabled="isLoggingOut">Không</button>
-          <button type="button" class="btn-logout" @click="dangXuat" :disabled="isLoggingOut">
-            {{ isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất' }}
+          <button
+            type="button"
+            class="btn-cancel"
+            @click="closeLogoutModal"
+            :disabled="isLoggingOut"
+          >
+            Không
+          </button>
+          <button
+            type="button"
+            class="btn-logout"
+            @click="dangXuat"
+            :disabled="isLoggingOut"
+          >
+            {{ isLoggingOut ? "Đang đăng xuất..." : "Đăng xuất" }}
           </button>
         </div>
       </div>
@@ -73,57 +114,64 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
-const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien', 'anh_dai_dien_url', 'anh_dai_dien_local', 'nguoi_dung_id']
+const PROFILE_LS_KEYS = [
+  "ho_ten",
+  "email",
+  "check_token",
+  "ten_vai_tro",
+  "anh_dai_dien",
+  "anh_dai_dien_url",
+  "anh_dai_dien_local",
+  "nguoi_dung_id",
+];
 
 export default {
   data() {
     return {
       showLogoutModal: false,
       isLoggingOut: false,
-    }
+    };
   },
   methods: {
     closeLogoutModal() {
-      if (this.isLoggingOut) return
-      this.showLogoutModal = false
+      if (this.isLoggingOut) return;
+      this.showLogoutModal = false;
     },
     dangXuat() {
-      this.isLoggingOut = true
-      const token = localStorage.getItem('token_teacher')
+      this.isLoggingOut = true;
+      const token = localStorage.getItem("token_teacher");
+
+      console.log("1. Bắt đầu gọi API đăng xuất..."); // Kiểm tra xem đã bấm nút thành công chưa
+
       axios
         .post(
-          'http://127.0.0.1:8000/api/dang-xuat',
+          "http://127.0.0.1:8000/api/dang-xuat",
           {},
           {
             headers: {
-              Authorization: 'Bearer ' + token,
+              Authorization: "Bearer " + token,
             },
-          }
+          },
         )
         .then((res) => {
-          if (res.data.status) {
-            localStorage.removeItem('token_teacher')
-            PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
-            this.$toast.success(res.data.message)
-            this.$router.push('/')
-          } else {
-            this.$toast.error('Có lỗi xảy ra')
-          }
+          localStorage.removeItem("token_teacher");
+          PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k));
+          this.$router.push("/dang-nhap");
         })
-        .catch(() => {
-          localStorage.removeItem('token_teacher')
-          PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k))
-          this.$router.push('/')
+        .catch((error) => {
+          localStorage.removeItem("token_teacher");
+          PROFILE_LS_KEYS.forEach((k) => localStorage.removeItem(k));
+          this.$router.push("/dang-nhap");
         })
         .finally(() => {
-          this.isLoggingOut = false
-          this.showLogoutModal = false
-        })
+          this.isLoggingOut = false;
+          this.showLogoutModal = false;
+        });
     },
   },
-}
+};
 </script>
 
 <style scoped>

@@ -8,7 +8,7 @@ export default function (to, from, next) {
   const token = localStorage.getItem("token_teacher");
 
   if (!token) {
-    toaster.error("Vui lòng đăng nhập với tài khoản Giáo viên!");
+    toaster.error("Bạn đã được xét duyệt là Giáo viên. Vui lòng đăng nhập lại!");
     return next("/dang-nhap");
   }
 
