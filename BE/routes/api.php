@@ -9,6 +9,7 @@ use App\Http\Controllers\ChatBoxAIController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\ErrorHistoryController;
+use App\Http\Controllers\HoSoGiaoVienController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
 use App\Http\Controllers\NguoiDungController;
 use App\Http\Controllers\PhienLuyenTapController;
@@ -91,6 +92,13 @@ Route::prefix('/admin')->group(function () {
     Route::prefix('/phan-quyen')->middleware('auth:sanctum')->group(function () {
         Route::get('/data', [VaiTroQuyenController::class, 'getData']);
         Route::post('/dong-bo', [VaiTroQuyenController::class, 'sync']);
+    });
+
+    // Quản lý hồ sơ giáo viên (Admin)
+    Route::prefix('/ho-so-giao-vien')->middleware(['auth:sanctum'])->group(function () {
+        Route::get('/', [HoSoGiaoVienController::class, 'index']);
+        Route::patch('/{id}/approve', [HoSoGiaoVienController::class, 'approve']);
+        Route::patch('/{id}/reject', [HoSoGiaoVienController::class, 'reject']);
     });
 
     Route::prefix('/cau-hinh')->middleware(['auth:sanctum'])->group(function () {
@@ -182,6 +190,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/system/session', [ChatBoxAIController::class, 'session']);
     Route::post('/chat/system', [ChatBoxAIController::class, 'chatSystem']);
     Route::get('/chat/system/history', [ChatBoxAIController::class, 'history']);
+
+    // Hồ sơ đăng ký giáo viên (Client)
+    Route::post('/ho-so-giao-vien', [HoSoGiaoVienController::class, 'store']);
+    Route::get('/ho-so-giao-vien/my-status', [HoSoGiaoVienController::class, 'myStatus']);
 });
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {

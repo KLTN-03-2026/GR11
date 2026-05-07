@@ -70,7 +70,7 @@
                         class="card-header bg-white border-bottom-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
                         <h6 class="fw-bold mb-0">
                             <i class="fa-solid fa-book-open text-success me-2"></i>
-                            Bài học
+                            Danh Mục
                             <span v-if="tenDanhMucDangChon" class="text-muted fw-normal" style="font-size: 0.9rem;">
                                 - {{ tenDanhMucDangChon }}
                             </span>
