@@ -16,6 +16,16 @@ const routes = [
     meta: { layout: "client" },
   },
   {
+    path: "/chinh-sach",
+    component: () => import("../components/Client/ChinhSach/index.vue"),
+    meta: { layout: "client" },
+  },
+  {
+    path: "/faq",
+    component: () => import("../components/Client/FAQ/index.vue"),
+    meta: { layout: "client" },
+  },
+  {
     path: "/dang-nhap",
     component: () => import("../components/Client/DangNhap/index.vue"),
     meta: { layout: "blank" },
@@ -214,6 +224,9 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 };
+  },
 });
 
 export default router;

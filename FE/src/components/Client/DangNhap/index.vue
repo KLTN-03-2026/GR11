@@ -52,11 +52,11 @@
               style="width: 100px; height: 100px; background: rgba(255,107,53,0.05); top: -20px; right: -20px;"></div>
 
             <div class="text-center position-relative">
-              <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle"
-                style="width: 80px; height: 80px; background: linear-gradient(135deg, #ffb18f, #ffd6c7); color: white; font-size: 32px; box-shadow: 0 10px 20px rgba(255,107,53,0.2);">
-                <i class="fa fa-book-reader"></i>
+              <div class="mx-auto mb-3 text-center">
+                <img v-if="branding.logo_url" :src="branding.logo_url" alt="Logo" class="rounded-circle shadow" style="width: 80px; height: 80px; object-fit: cover;" />
+                <i v-else class="fa fa-book-reader" style="font-size: 64px; color: #FF7B39;"></i>
               </div>
-              <h2 class="fw-bold" style="color: #0d3b66">Đăng Nhập</h2>
+              <h2 class="fw-bold" style="color: #0d3b66">Đăng Nhập {{ branding.site_name ? 'vào ' + branding.site_name : '' }}</h2>
               <p class="">Bé hãy đăng nhập để tiếp tục học nhé</p>
             </div>
 
@@ -187,10 +187,21 @@ export default {
         'email': "",
         'password': "",
         'remember': false,
+      },
+      branding: {
+        logo_icon: "fa fa-book-reader",
+        logo_url: null,
+        site_name: "",
       }
     }
   },
   mounted() {
+    this.taiCauHinhChung();
+    if (localStorage.getItem('remember') === 'true') {
+      this.tai_Khoan.email = localStorage.getItem('remember_email') || '';
+      this.tai_Khoan.password = localStorage.getItem('remember_password') || '';
+      this.tai_Khoan.remember = true;
+    }
     this.kiemTraDangNhap();
     this.loadRecaptcha();
     this.$nextTick(() => this.initGoogleButtonScale());
@@ -201,6 +212,18 @@ export default {
   methods: {
     getBlockedAccountMessage() {
       return 'Tài khoản của bạn đã vi phạm chính sách bảo mật của chúng tôi';
+    },
+    taiCauHinhChung() {
+      axios
+        .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
+        .then((res) => {
+          if (res.data?.status && res.data?.data) {
+            this.branding.logo_icon = res.data.data.logo_icon || this.branding.logo_icon;
+            this.branding.site_name = res.data.data.site_name || this.branding.site_name;
+            this.branding.logo_url = res.data.data.logo_url || null;
+          }
+        })
+        .catch(() => {});
     },
     initGoogleButtonScale() {
       this._onWindowResizeGoogle = () => this.syncGoogleButtonScale();
@@ -316,6 +339,15 @@ export default {
           .then((res) => {
             if (res.data.status == 1) {
               this.$toast.success(res.data.message);
+              if (this.tai_Khoan.remember) {
+                localStorage.setItem('remember_email', this.tai_Khoan.email);
+                localStorage.setItem('remember_password', this.tai_Khoan.password);
+                localStorage.setItem('remember', 'true');
+              } else {
+                localStorage.removeItem('remember_email');
+                localStorage.removeItem('remember_password');
+                localStorage.removeItem('remember');
+              }
               this.tai_Khoan = {
                 'email': "",
                 'password': "",

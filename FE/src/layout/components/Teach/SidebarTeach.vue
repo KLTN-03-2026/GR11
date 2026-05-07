@@ -7,10 +7,8 @@
           class="d-flex align-items-center text-danger text-nowrap"
           style="font-size: 24px; text-decoration: none"
         >
-          <i
-            class="fa fa-book-reader fa-xl me-2"
-            style="position: relative; top: -2px"
-          ></i>
+          <img v-if="branding.logo_url" :src="branding.logo_url" alt="Logo" class="me-2" style="height: 32px; width: 32px; object-fit: cover; border-radius: 50%;">
+          <i v-else class="fa fa-book-reader fa-xl me-2" style="position: relative; top: -2px"></i>
           <span
             class="m-0 fw-bold text-uppercase text-danger"
             style="font-size: 18px"
@@ -132,9 +130,33 @@ export default {
     return {
       showLogoutModal: false,
       isLoggingOut: false,
+      branding: {
+        logo_icon: "fa fa-book-reader",
+        logo_url: null,
+        site_name: "TEACHER ECHOKIDS",
+      },
     };
   },
+  mounted() {
+    this.taiCauHinhChung();
+  },
   methods: {
+    taiCauHinhChung() {
+      axios
+        .get("http://127.0.0.1:8000/api/admin/cau-hinh/chung/data", {
+          headers: {
+            Authorization: "Bearer " + (localStorage.getItem("token_teacher") || "")
+          }
+        })
+        .then((res) => {
+          if (res.data?.status && res.data?.data) {
+            this.branding.logo_icon = res.data.data.logo_icon || this.branding.logo_icon;
+            this.branding.site_name = res.data.data.site_name || this.branding.site_name;
+            this.branding.logo_url = res.data.data.logo_url || null;
+          }
+        })
+        .catch(() => {});
+    },
     closeLogoutModal() {
       if (this.isLoggingOut) return;
       this.showLogoutModal = false;
@@ -286,7 +308,13 @@ body.sidebar-main .iq-sidebar-logo > a {
   z-index: 5 !important;
 }
 
-body.sidebar-main .iq-sidebar-logo > a i.fa-book-reader {
+body.sidebar-main .iq-sidebar-logo > a i {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body.sidebar-main .iq-sidebar-logo > a img {
   display: inline-flex !important;
   opacity: 1 !important;
   visibility: visible !important;

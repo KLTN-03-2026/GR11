@@ -1,9 +1,10 @@
 <template>
   <div ref="navbarRoot" class="container-fluid d-flex flex-wrap align-items-center py-lg-0">
-  <!-- Logo -->
   <router-link to="/" class="navbar-brand d-flex align-items-center">
-    <h1 class="m-0 text-primary">
-      <i :class="branding.logo_icon"></i>{{ branding.site_name }}
+    <h1 class="m-0 text-primary d-flex align-items-center">
+      <img v-if="branding.logo_url" :src="branding.logo_url" alt="Logo" class="me-2" style="height: 48px; width: 48px; object-fit: cover; border-radius: 50%;">
+      <i v-else class="fa fa-book-reader me-3"></i>
+      {{ branding.site_name }}
     </h1>
   </router-link>
 
@@ -191,6 +192,7 @@ export default {
       daDangNhap: false,
       branding: {
         logo_icon: "fa fa-book-reader me-3",
+        logo_url: null,
         site_name: "EchoKids",
       },
     };
@@ -226,13 +228,18 @@ export default {
   methods: {
     taiCauHinhChung() {
       axios
-        .get("http://127.0.0.1:8000/api/admin/cau-hinh/chung/data")
+        .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
         .then((res) => {
           if (res.data?.status && res.data?.data) {
             this.branding.logo_icon =
               res.data.data.logo_icon || this.branding.logo_icon;
             this.branding.site_name =
               res.data.data.site_name || this.branding.site_name;
+            if (res.data.data.logo_url) {
+              this.branding.logo_url = res.data.data.logo_url;
+            } else {
+              this.branding.logo_url = null;
+            }
           }
         })
         .catch(() => {});
@@ -337,22 +344,7 @@ export default {
   transform: scale(1.05);
 }
 
-.navbar-brand i {
-  background: linear-gradient(135deg, #ff6b35, #ff8c42);
-  color: #fff;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 25px rgba(255, 107, 53, 0.25);
-  transition: all 0.3s ease;
-}
 
-.navbar-brand:hover i {
-  transform: rotate(-8deg) scale(1.08);
-}
 
 .navbar-nav {
   gap: 8px;

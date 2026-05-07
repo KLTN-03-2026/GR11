@@ -50,12 +50,8 @@
                                             </div>
                                             <div>
                                                 <h6 class="fw-bold mb-1">Logo Hệ Thống</h6>
-                                                <!-- <input type="text" class="form-control form-control-sm shadow-none"
-                                                    v-model="general.logo_icon" placeholder="VD: fa fa-book-reader me-3"> -->
                                                 <input type="file" class="form-control form-control-sm shadow-none mt-2"
                                                     accept="image/png,image/jpeg,image/webp" @change="chonLogoTuMay">
-                                                <input type="text" class="form-control form-control-sm shadow-none mt-2"
-                                                    v-model="general.logo_url" placeholder="Hoặc URL logo ảnh (nếu có)">
                                             </div>
                                         </div>
 
@@ -367,6 +363,9 @@ export default {
                     if (res.data.status) {
                         this.general = { ...this.general, ...(res.data.data || {}) };
                         this.$toast.success(res.data.message || "Đã lưu cấu hình chung");
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
                     } else {
                         this.$toast.error(res.data.message || "Không thể lưu cấu hình chung");
                     }
