@@ -103,4 +103,47 @@ export default {
 /* ===== ICON ===== */
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css");
+
+.content-page {
+  margin-left: 260px !important;
+  padding: 59px 18px 0 !important;
+  transition: all 0.35s ease !important;
+}
+
+.iq-top-navbar {
+  border-bottom: 1px solid #e5e7eb !important;
+  transition: all 0.35s ease !important;
+}
+
+.iq-sidebar {
+  width: 260px !important;
+  transition: all 0.35s ease !important;
+}
+
+body.sidebar-main .iq-sidebar {
+  width: 80px !important;
+}
+
+body.sidebar-main .content-page {
+  margin-left: 80px !important;
+}
+
+body.sidebar-main .iq-top-navbar {
+  left: 95px !important;
+}
+
+body.sidebar-main .iq-sidebar .iq-sidebar-logo span,
+body.sidebar-main .iq-sidebar .iq-menu li a span {
+  display: none !important;
+}
+
+body.sidebar-main .iq-sidebar .iq-sidebar-logo a {
+  justify-content: center !important;
+}
+
+body.sidebar-main .iq-sidebar .iq-menu li a {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 </style>

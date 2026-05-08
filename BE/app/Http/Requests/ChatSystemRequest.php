@@ -16,7 +16,7 @@ class ChatSystemRequest extends FormRequest
         return [
             'session_id' => 'nullable|integer|min:1',
             'message' => 'required|string|min:1|max:1000',
-            'input_type' => 'nullable|string|in:text,voice_text',
+            'input_type' => 'nullable|string|in:text,voice_text,suggestion',
         ];
     }
 

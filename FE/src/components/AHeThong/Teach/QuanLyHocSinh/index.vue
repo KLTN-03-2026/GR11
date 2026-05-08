@@ -249,7 +249,7 @@
               <div class="alert bg-primary-subtle border-0 text-primary d-flex align-items-start p-3 mb-4 rounded-3">
                 <i class="fa-solid fa-circle-info fs-5 me-2 mt-1"></i>
                 <div class="small fw-medium">
-                  Bài học được gợi ý sẽ xuất hiện nổi bật trên trang chủ của học viên, giúp bé tập trung khắc phục lỗi nhanh hơn.
+                  Bài học được gợi ý sẽ được gửi qua Chat Box và thông báo đến học viên ngay sau khi bạn bấm gửi.
                 </div>
               </div>
   
@@ -497,7 +497,7 @@ export default {
         )
         .then((res) => {
           if (res.data.status) {
-            this.$toast.success(res.data.message || 'Đã gửi gợi ý.');
+            this.$toast.success(res.data.message || 'Đã gửi gợi ý qua chat và thông báo cho học sinh.');
             this.dongModalTheoId('goiYModal');
           } else {
             this.$toast.error(res.data.message || 'Không gửi được.');

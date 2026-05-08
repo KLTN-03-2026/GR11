@@ -6,13 +6,13 @@
         <div class="col-lg-3 col-md-6">
           <h3 class="text-white mb-4">Liên Hệ</h3>
           <p class="mb-2">
-            <i class="fa fa-map-marker-alt me-3"></i>TP. Hồ Chí Minh, Việt Nam
+            <i class="fa fa-map-marker-alt me-3"></i>TP. Đà Nẵng, Việt Nam
           </p>
           <p class="mb-2">
             <i class="fa fa-phone-alt me-3"></i>{{ footer.hotline || '0123 456 789' }}
           </p>
           <p class="mb-2">
-            <i class="fa fa-envelope me-3"></i>{{ footer.support_email || 'support@echokids.vn' }}
+            <i class="fa fa-envelope me-3"></i>{{ footer.support_email || 'supportechokids@gmail.com' }}
           </p>
 
           <div class="d-flex pt-2">
@@ -108,10 +108,10 @@
 
           <div class="col-md-6 text-center text-md-end">
             <div class="footer-menu">
-              <a href="">Trang Chủ</a>
-              <a href="">Chính Sách</a>
+              <router-link to="/">Trang Chủ</router-link>
+              <router-link to="/chinh-sach">Chính Sách</router-link>
               <a href="">Hỗ Trợ</a>
-              <a href="">FAQ</a>
+              <router-link to="/faq">FAQ</router-link>
             </div>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default {
       footer: {
         site_name: "EchoKids",
         hotline: "0123 456 789",
-        support_email: "support@echokids.vn",
+        support_email: "supportechokids@gmail.com",
         facebook_url: "",
       },
     };

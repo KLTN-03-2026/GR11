@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\TeacherSentMessage;
-use App\Models\ChatSession;
 use App\Models\ChatMessage;
+use App\Models\ChatSession;
 use App\Models\QuanHeGvHv;
+use App\Support\ChatDisplayTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -51,30 +52,30 @@ class ChatController extends Controller
         }
 
         // Lấy sessions với học viên đó, có lesson
-        $sessions = ChatSession::with(['user', 'lesson', 'messages' => function($q) {
+        $sessions = ChatSession::with(['user', 'lesson', 'messages' => function ($q) {
             $q->orderBy('created_at', 'desc')->limit(1);
         }])
-        ->withCount(['messages as unread_count' => function ($q) {
-            $q->where('role', 'user')
-                ->where('is_read_by_teacher', false);
-        }])
-        ->whereIn('user_id', $studentIds)
-        ->whereNotNull('lesson_id')
-        ->orderBy('updated_at', 'desc')
-        ->get()
-        ->map(function($session) {
-            return [
-                'id' => $session->id,
-                'studentName' => $session->user->ho_ten,
-                'studentAvatar' => $session->user->anh_dai_dien,
-                // BaiHoc model uses `tieu_de` for the title
-                'lesson' => $session->lesson->tieu_de ?? '',
-                'lastMessage' => $session->messages->first()?->content ?? '',
-                'timestamp' => $session->updated_at->format('H:i A'),
-                'unreadCount' => (int) ($session->unread_count ?? 0),
-                'status' => $session->status,
-            ];
-        });
+            ->withCount(['messages as unread_count' => function ($q) {
+                $q->where('role', 'user')
+                    ->where('is_read_by_teacher', false);
+            }])
+            ->whereIn('user_id', $studentIds)
+            ->whereNotNull('lesson_id')
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->map(function ($session) {
+                return [
+                    'id' => $session->id,
+                    'studentName' => $session->user->ho_ten,
+                    'studentAvatar' => $session->user->anh_dai_dien,
+                    // BaiHoc model uses `tieu_de` for the title
+                    'lesson' => $session->lesson->tieu_de ?? '',
+                    'lastMessage' => $session->messages->first()?->content ?? '',
+                    'timestamp' => ChatDisplayTime::format($session->updated_at),
+                    'unreadCount' => (int) ($session->unread_count ?? 0),
+                    'status' => $session->status,
+                ];
+            });
 
         return response()->json($sessions);
     }
@@ -86,7 +87,7 @@ class ChatController extends Controller
         $session = ChatSession::with(['lesson', 'user'])
             ->find($sessionId);
 
-        if (!$session) {
+        if (! $session) {
             return response()->json(['error' => 'Session not found'], 404);
         }
 
@@ -95,7 +96,7 @@ class ChatController extends Controller
             ->where('hoc_vien_id', $session->user_id)
             ->exists();
 
-        if (!$isTeacherOfStudent) {
+        if (! $isTeacherOfStudent) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -113,12 +114,15 @@ class ChatController extends Controller
         $messages = ChatMessage::where('session_id', $sessionId)
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(function($msg) use ($studentName) {
+            ->map(function ($msg) use ($studentName, $session) {
+                $parsed = $this->parseSuggestionMessage((string) $msg->content, (int) ($session->lesson_id ?? 0));
                 return [
                     'id' => $msg->id,
                     'sender' => $msg->role === 'teacher' ? 'Giáo viên' : $studentName,
-                    'text' => $msg->content,
-                    'time' => $msg->created_at->format('H:i A'),
+                    'text' => $parsed['text'],
+                    'action_url' => $parsed['url'],
+                    'action_label' => $parsed['label'],
+                    'time' => ChatDisplayTime::format($msg->created_at),
                     'status' => $msg->role === 'user'
                         ? ($msg->is_read_by_teacher ? 'seen' : (($msg->is_delivered_to_teacher ?? false) ? 'delivered' : 'sent'))
                         : (($msg->is_read_by_student ?? false) ? 'seen' : (($msg->is_delivered_to_student ?? false) ? 'delivered' : 'sent')),
@@ -136,6 +140,29 @@ class ChatController extends Controller
         ]);
     }
 
+    /**
+     * @return array{text:string,url:?string,label:?string}
+     */
+    private function parseSuggestionMessage(string $content, int $fallbackLessonId): array
+    {
+        $cleanText = trim($content);
+        $lessonId = $fallbackLessonId;
+        if (preg_match('/\[\[lesson_id:(\d+)\]\]/', $content, $matches) === 1) {
+            $lessonId = (int) $matches[1];
+            $cleanText = trim(str_replace($matches[0], '', $content));
+        }
+
+        if ($lessonId <= 0 || ! str_starts_with($cleanText, 'Giáo viên gợi ý bài:')) {
+            return ['text' => $cleanText, 'url' => null, 'label' => null];
+        }
+
+        return [
+            'text' => $cleanText,
+            'url' => '/chi-tiet-bai-hoc/'.$lessonId,
+            'label' => null,
+        ];
+    }
+
     public function sendMessage(Request $request, $sessionId)
     {
         $request->validate([
@@ -146,7 +173,7 @@ class ChatController extends Controller
 
         $session = ChatSession::find($sessionId);
 
-        if (!$session) {
+        if (! $session) {
             return response()->json(['error' => 'Session not found'], 404);
         }
 
@@ -155,7 +182,7 @@ class ChatController extends Controller
             ->where('hoc_vien_id', $session->user_id)
             ->exists();
 
-        if (!$isTeacherOfStudent) {
+        if (! $isTeacherOfStudent) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -183,7 +210,7 @@ class ChatController extends Controller
             'id' => $message->id,
             'sender' => 'Giáo viên',
             'text' => $message->content,
-            'time' => $message->created_at->format('H:i A'),
+            'time' => ChatDisplayTime::format($message->created_at),
             'status' => 'sent',
         ]);
     }
@@ -193,14 +220,14 @@ class ChatController extends Controller
         $teacherId = Auth::id();
 
         $session = ChatSession::with('user')->find($sessionId);
-        if (!$session) {
+        if (! $session) {
             return response()->json(['error' => 'Session not found'], 404);
         }
 
         $isTeacherOfStudent = QuanHeGvHv::where('giao_vien_id', $teacherId)
             ->where('hoc_vien_id', $session->user_id)
             ->exists();
-        if (!$isTeacherOfStudent) {
+        if (! $isTeacherOfStudent) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

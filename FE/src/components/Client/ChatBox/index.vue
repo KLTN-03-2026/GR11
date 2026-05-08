@@ -1,10 +1,10 @@
 <template>
-  <div class="position-fixed bottom-0 end-0 m-4" style="z-index: 9999;">
+  <div :class="floating ? 'position-fixed bottom-0 end-0 m-4' : 'chatbox-page-shell'" :style="floating ? 'z-index: 9999;' : ''">
 
     <!-- CHAT LIST VIEW (Hình 1) -->
     <transition name="chat-window">
-      <div v-if="isOpen && !selectedChat" class="card shadow-lg border-0 mb-3 chat-container chat-list"
-        :style="{ width: listWidth + 'px', height: listHeight + 'px', borderRadius: '1.25rem', overflow: 'hidden', backgroundColor: '#fff', transformOrigin: 'bottom right', cursor: isResizingList ? 'nwse-resize' : 'default' }"
+      <div v-if="isOpen && !selectedChat" :class="['card shadow-lg border-0 mb-3', floating ? 'chat-container chat-list' : 'chat-page-window chat-list']"
+        :style="{ width: floating ? (listWidth + 'px') : '100%', height: floating ? (listHeight + 'px') : 'calc(100vh - 150px)', borderRadius: '1.25rem', overflow: 'hidden', backgroundColor: '#fff', transformOrigin: 'bottom right', cursor: floating && isResizingList ? 'nwse-resize' : 'default' }"
         @mouseup="stopResizeList" @mousemove="handleResizeList">
 
         <div class="card-header d-flex justify-content-between align-items-center py-3 border-0 chat-list-header">
@@ -15,7 +15,16 @@
           >
             <i class="fa-solid fa-ellipsis"></i>
           </button>
-          <button @click="toggleChat"
+          <button
+            v-if="isTeacherMode && floating"
+            @click="goToFullChatPage"
+            class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center chat-header-icon"
+            style="width: 32px; height: 32px; flex-shrink: 0;"
+            title="Mở trang chat giáo viên"
+          >
+            <i class="fa-solid fa-up-right-from-square"></i>
+          </button>
+          <button v-if="floating" @click="toggleChat"
             class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center chat-header-icon"
             style="width: 32px; height: 32px; flex-shrink: 0;">
             <i class="fa-solid fa-xmark"></i>
@@ -54,11 +63,11 @@
           <div v-for="chat in filteredChats" :key="chat.id" @click="selectChat(chat)"
             class="d-flex align-items-center p-3 border-bottom cursor-pointer chat-item-hover messenger-row"
             style="cursor: pointer; transition: background-color 0.2s;">
-            <img v-if="chat.avatar" :src="chat.avatar" class="rounded-circle me-3"
+            <img v-if="chat.avatar" :src="chat.avatar" class="rounded-circle me-3 messenger-list-avatar"
               style="width: 50px; height: 50px; object-fit: cover;" />
             <div
               v-else
-              class="rounded-circle me-3 d-flex align-items-center justify-content-center"
+              class="rounded-circle me-3 d-flex align-items-center justify-content-center messenger-list-avatar"
               :class="{ 'brand-avatar-wrap': chat.type === 'ai' }"
               style="width: 50px; height: 50px; background-color: #f0f0f0;"
             >
@@ -71,10 +80,10 @@
                 <h6 class="mb-0 fw-bold messenger-row-name" style="max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                   {{ chat.name }}
                 </h6>
-                <small class="text-muted">{{ formatTime(chat.lastMessageTime) }}</small>
+                <small v-if="chat.type === 'teacher'" class="text-muted flex-shrink-0 ms-2">{{ formatTime(chat.lastMessageTime) }}</small>
               </div>
               <p class="mb-0 text-muted small" style="max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                {{ chat.lastMessage }}
+                {{ truncateText(chat.lastMessage, 56) }}
               </p>
             </div>
 
@@ -85,14 +94,14 @@
         </div>
 
         <!-- Resize Handle for List -->
-        <div class="resize-handle" @mousedown="startResizeList" title="Kéo để phóng to/thu nhỏ"></div>
+        <div v-if="floating" class="resize-handle" @mousedown="startResizeList" title="Kéo để phóng to/thu nhỏ"></div>
       </div>
     </transition>
 
     <!-- CHAT DETAIL VIEW (Hình 2) -->
     <transition name="chat-window">
-      <div v-if="isOpen && selectedChat" class="card shadow-lg border-0 mb-3 chat-container chat-detail"
-        :style="{ width: chatWidth + 'px', height: chatHeight + 'px', borderRadius: '1.25rem', overflow: 'hidden', backgroundColor: '#fff', transformOrigin: 'bottom right', cursor: isResizing ? 'nwse-resize' : 'default' }"
+      <div v-if="isOpen && selectedChat" :class="['card shadow-lg border-0 mb-3', floating ? 'chat-container chat-detail' : 'chat-page-window chat-detail']"
+        :style="{ width: floating ? (chatWidth + 'px') : '100%', height: floating ? (chatHeight + 'px') : 'calc(100vh - 150px)', borderRadius: '1.25rem', overflow: 'hidden', backgroundColor: '#fff', transformOrigin: 'bottom right', cursor: floating && isResizing ? 'nwse-resize' : 'default' }"
         @mouseup="stopResize" @mousemove="handleResize">
 
         <div class="card-header d-flex justify-content-between align-items-center py-3 border-0 chat-detail-header"
@@ -104,7 +113,7 @@
           </button>
           <div class="d-flex align-items-center flex-grow-1" style="min-width: 0;">
             <img v-if="selectedChat.avatar" :src="selectedChat.avatar" class="rounded-circle me-2"
-              style="width: 40px; height: 40px; object-fit: cover;" />
+              style="width: 40px; height: 40px; object-fit: cover;" alt="" />
             <div
               v-else
               class="rounded-circle me-2 d-flex align-items-center justify-content-center"
@@ -136,37 +145,58 @@
           <div v-for="(msg, index) in messages" :key="index" class="d-flex message-pop"
             :class="msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'">
 
-            <div v-if="msg.role === 'teacher'" class="d-flex align-items-end gap-2">
+            <div v-if="msg.role === 'teacher'" class="d-flex flex-column align-items-start">
+              <div class="d-flex align-items-end gap-2">
               <img v-if="selectedChat?.avatar" :src="selectedChat.avatar" class="message-peer-avatar" alt="avatar giáo viên" />
               <div v-else class="message-peer-avatar message-peer-avatar-fallback">
                 <i class="fa fa-user"></i>
               </div>
               <div class="px-3 py-2 shadow-sm text-dark peer-message-bubble"
+                :class="{ 'clickable-message': !!msg.action_url }"
+                @click="msg.action_url ? navigateToAction(msg.action_url) : null"
                 style="font-size: 0.95rem; line-height: 1.4; border-radius: 18px 18px 18px 0; background-color: #ffffff; border: 1px solid #ffe0d9;">
                 {{ msg.text }}
+                <div v-if="msg.action_url" class="mt-1">
+                  <a href="#" class="action-link-emphasis" @click.stop.prevent="navigateToAction(msg.action_url)">
+                    Click vào đây
+                  </a>
+                </div>
               </div>
             </div>
+              <small v-if="msg.time" class="message-time">{{ msg.time }}</small>
+            </div>
 
-            <div v-else-if="msg.role === 'ai'" class="px-3 py-2 shadow-sm text-dark peer-message-bubble"
-              style="font-size: 0.95rem; line-height: 1.4; border-radius: 18px 18px 18px 0; background-color: #ffffff; border: 1px solid #ffe0d9;">
-              {{ msg.text }}
+            <div v-else-if="msg.role === 'ai'" class="d-flex flex-column align-items-start">
+              <div class="px-3 py-2 shadow-sm text-dark peer-message-bubble"
+                style="font-size: 0.95rem; line-height: 1.4; border-radius: 18px 18px 18px 0; background-color: #ffffff; border: 1px solid #ffe0d9;">
+                {{ msg.text }}
 
-              <a v-if="msg.action_url" href="#" @click.prevent="navigateToAction(msg.action_url)"
-                class="d-inline-block mt-2 px-2 py-1 bg-light text-primary rounded text-decoration-none fw-medium"
-                style="font-size: 0.85rem; border: 1px solid #d4e4ff;">
-                👉 {{ msg.action_label }}
-              </a>
+                <a v-if="msg.action_url" href="#" @click.prevent="navigateToAction(msg.action_url)"
+                  class="d-inline-block mt-2 px-2 py-1 bg-light text-primary rounded text-decoration-none fw-medium"
+                  style="font-size: 0.85rem; border: 1px solid #d4e4ff;">
+                  👉 {{ msg.action_label }}
+                </a>
+              </div>
+              <small v-if="msg.time" class="message-time">{{ msg.time }}</small>
             </div>
 
             <div v-else class="d-flex flex-column align-items-end user-message-wrap">
               <div class="px-3 py-2 shadow-sm text-white user-message-bubble"
+                :class="{ 'clickable-message': !!msg.action_url }"
+                @click="msg.action_url ? navigateToAction(msg.action_url) : null"
                 style="font-size: 0.95rem; line-height: 1.4; border-radius: 18px 18px 0 18px; background: linear-gradient(135deg, #ff8c6b, #fe5d37);">
                 {{ msg.text }}
+                <div v-if="msg.action_url" class="mt-1">
+                  <a href="#" class="action-link-emphasis action-link-emphasis-on-primary" @click.stop.prevent="navigateToAction(msg.action_url)">
+                    Click vào đây
+                  </a>
+                </div>
               </div>
               <small v-if="selectedChat?.type === 'teacher'" class="message-status mt-1">
                 <i :class="getMessageStatusIcon(msg.status)"></i>
                 {{ getMessageStatusText(msg.status) }}
               </small>
+              <small v-if="msg.time" class="message-time message-time--self mt-1">{{ msg.time }}</small>
             </div>
 
           </div>
@@ -181,6 +211,23 @@
 
         <!-- Message Input -->
         <div class="card-footer p-3 bg-white border-top">
+          <div
+            v-if="selectedChat?.type === 'ai' && !isTyping"
+            class="ai-suggest-wrap mb-3"
+          >
+            <small class="text-muted d-block mb-2 fw-semibold">Gợi ý nhanh cho bạn:</small>
+            <div class="d-flex flex-wrap gap-2">
+              <button
+                v-for="(q, idx) in goiYCauHoiAi"
+                :key="`${q}-${idx}`"
+                type="button"
+                class="btn btn-sm ai-suggest-chip"
+                @click="hoiCauGoiY(q)"
+              >
+                {{ q }}
+              </button>
+            </div>
+          </div>
           <div class="input-group align-items-center">
 
             <input ref="messageInputField" type="text" v-model="userInput" @keyup.enter="sendMessage()" :disabled="isTyping"
@@ -208,12 +255,12 @@
         </div>
 
         <!-- Resize Handle -->
-        <div class="resize-handle" @mousedown="startResize" title="Kéo để phóng to/thu nhỏ"></div>
+        <div v-if="floating" class="resize-handle" @mousedown="startResize" title="Kéo để phóng to/thu nhỏ"></div>
       </div>
     </transition>
 
     <!-- FAB Button -->
-    <div class="d-flex justify-content-end fab-wrap">
+    <div v-if="floating" class="d-flex justify-content-end fab-wrap">
       <button @click="toggleChat"
         class="btn shadow-lg rounded-circle d-flex align-items-center justify-content-center fab-button hover-scale"
         style="width: 60px; height: 60px; background: #fe5d37; border: none;">
@@ -245,9 +292,19 @@ import axios from 'axios';
 const AI_CHAT_ID = 'echokids-ai';
 
 export default {
+  props: {
+    mode: {
+      type: String,
+      default: 'student',
+    },
+    floating: {
+      type: Boolean,
+      default: true,
+    },
+  },
   data() {
     return {
-      isOpen: false,
+      isOpen: this.floating ? false : true,
       selectedChat: null,
       searchQuery: '',
       activeTab: 'all',
@@ -275,6 +332,12 @@ export default {
       speechSupported: false,
       activeLessonContext: null,
       activeLessonTeacherChat: null,
+      goiYCauHoiAi: [
+        'Gợi ý cho mình một bài học phù hợp hôm nay',
+        'Mình nên luyện phát âm âm nào trước?',
+        'Hãy đưa ra 3 mẹo luyện nói rõ ràng hơn',
+        'Tóm tắt lộ trình luyện tập trong 7 ngày',
+      ],
       branding: {
         logo_icon: "fa fa-book-reader",
       },
@@ -344,6 +407,9 @@ export default {
     },
   },
   computed: {
+    isTeacherMode() {
+      return this.mode === 'teacher';
+    },
     totalTeacherUnread() {
       return this.teacherChats.reduce((sum, chat) => sum + Number(chat?.unread || 0), 0);
     },
@@ -360,6 +426,9 @@ export default {
       };
     },
     chatList() {
+      if (this.isTeacherMode) {
+        return this.teacherChats;
+      }
       const list = [this.aiChatItem];
       if (this.activeLessonTeacherChat) {
         const hasRealChatSameTeacher = this.teacherChats.some(
@@ -402,10 +471,29 @@ export default {
       if (days < 7) return `${days}d`;
       return date.toLocaleDateString('vi-VN');
     },
+    formatMessageTime(value) {
+      if (!value) return '';
+      if (typeof value === 'string' && /^\d{1,2}:\d{2}$/.test(value.trim())) {
+        return value.trim();
+      }
+      const date = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    },
+    truncateText(text, max = 40) {
+      const value = String(text || '').trim();
+      return value.length > max ? `${value.slice(0, max)}...` : value;
+    },
     getSessionStorageKey() {
-      return 'chat_session_id_student';
+      return this.isTeacherMode ? 'chat_session_id_teacher' : 'chat_session_id_student';
     },
     getAuthToken() {
+      if (this.isTeacherMode) {
+        return localStorage.getItem('token_teacher') || '';
+      }
       return localStorage.getItem('token_nguoi_dung') || localStorage.getItem('token_khach_hang') || '';
     },
     getAuthHeader() {
@@ -413,6 +501,11 @@ export default {
       return token ? { Authorization: 'Bearer ' + token } : {};
     },
     syncActiveLessonContext() {
+      if (this.isTeacherMode) {
+        this.activeLessonContext = null;
+        this.activeLessonTeacherChat = null;
+        return;
+      }
       try {
         const raw = localStorage.getItem('active_lesson_chat_context');
         this.activeLessonContext = raw ? JSON.parse(raw) : null;
@@ -456,24 +549,42 @@ export default {
         return;
       }
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/student/chat/sessions', {
+        const endpoint = this.isTeacherMode
+          ? 'http://127.0.0.1:8000/api/teacher/chat/sessions'
+          : 'http://127.0.0.1:8000/api/student/chat/sessions';
+        const res = await axios.get(endpoint, {
           headers: this.getAuthHeader(),
         });
         const rows = Array.isArray(res?.data) ? res.data : [];
-        this.teacherChats = rows.map((row) => ({
-          id: `teacher-${row.teacher_id}`,
-          type: 'teacher',
-          teacherId: Number(row.teacher_id),
-          sessionId: Number(row.session_id || 0),
-          lessonId: Number(row.lesson_id || 0),
-          lessonTitle: row.lesson_title || '',
-          name: row.teacher_name || 'Giáo viên',
-          avatar: row.teacher_avatar ? this.resolveAvatarUrl(row.teacher_avatar) : null,
-          lastMessage: row.last_message || '',
-          lastMessageTime: row.last_message_time ? new Date(row.last_message_time) : null,
-          unread: Number(row.unread_count || 0),
-          status: 'Đã có lịch sử chat',
-        }));
+        this.teacherChats = rows.map((row) => this.isTeacherMode
+          ? {
+              id: `session-${row.id}`,
+              type: 'teacher',
+              teacherId: null,
+              sessionId: Number(row.id || 0),
+              lessonId: 0,
+              lessonTitle: row.lesson || '',
+              name: row.studentName || 'Học viên',
+              avatar: row.studentAvatar ? this.resolveAvatarUrl(row.studentAvatar) : null,
+              lastMessage: row.lastMessage || '',
+              lastMessageTime: row.timestamp ? new Date(row.timestamp) : null,
+              unread: Number(row.unreadCount || 0),
+              status: 'Đã có lịch sử chat',
+            }
+          : {
+              id: `teacher-${row.teacher_id}`,
+              type: 'teacher',
+              teacherId: Number(row.teacher_id),
+              sessionId: Number(row.session_id || 0),
+              lessonId: Number(row.lesson_id || 0),
+              lessonTitle: row.lesson_title || '',
+              name: row.teacher_name || 'Giáo viên',
+              avatar: row.teacher_avatar ? this.resolveAvatarUrl(row.teacher_avatar) : null,
+              lastMessage: row.last_message || '',
+              lastMessageTime: row.last_message_time ? new Date(row.last_message_time) : null,
+              unread: Number(row.unread_count || 0),
+              status: 'Đã có lịch sử chat',
+            });
         this.teacherChats.forEach((chat) => {
           if (chat?.sessionId) {
             this.subscribeToTeacherSession(chat.sessionId);
@@ -488,7 +599,8 @@ export default {
         return;
       }
       const channelName = `chat-session.${sessionId}`;
-      window.Echo.private(channelName).listen('.TeacherSentMessage', (e) => {
+      const listenEvent = this.isTeacherMode ? '.StudentSentMessage' : '.TeacherSentMessage';
+      window.Echo.private(channelName).listen(listenEvent, (e) => {
         const incomingText = e?.message?.content || '';
         const incomingTime = e?.message?.created_at ? new Date(e.message.created_at) : new Date();
         const chat = this.teacherChats.find((c) => Number(c.sessionId) === Number(sessionId));
@@ -526,6 +638,7 @@ export default {
     selectChat(chat) {
       const merged = { ...chat };
       if (
+        !this.isTeacherMode &&
         merged.type === 'teacher' &&
         this.activeLessonContext &&
         Number(this.activeLessonContext.teacher_id) === Number(merged.teacherId)
@@ -555,6 +668,9 @@ export default {
       return this.aiSessionId;
     },
     async ensureTeacherSession(chat) {
+      if (this.isTeacherMode) {
+        return chat.sessionId || null;
+      }
       if (chat.sessionId) return chat.sessionId;
       if (!chat.lessonId || chat.lessonId <= 0 || !chat.teacherId) {
         throw new Error('Thiếu lesson/teacher để mở chat giáo viên');
@@ -574,6 +690,13 @@ export default {
     toggleChat() {
       this.isOpen = !this.isOpen;
       if (!this.isOpen) this.selectedChat = null;
+    },
+    goToFullChatPage() {
+      if (this.isTeacherMode) {
+        this.$router.push('/teacher/chat-box');
+      } else {
+        this.$router.push('/chat-box');
+      }
     },
     initSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -632,6 +755,9 @@ export default {
       this.isRecording = false;
     },
     toggleRecording() {
+      if (this.isTeacherMode) {
+        return;
+      }
       if (!this.speechSupported) {
         this.$toast?.error('Trình duyệt chưa hỗ trợ ghi âm giọng nói.');
         return;
@@ -723,7 +849,13 @@ export default {
       });
     },
     navigateToAction(url) {
+      if (!url) return;
       this.$router.push(url);
+    },
+    hoiCauGoiY(question) {
+      if (!question || this.isTyping) return;
+      this.userInput = question;
+      this.sendMessage('suggestion');
     },
     async ensureChatHistoryLoaded() {
       if (this.hasLoadedHistory || !this.selectedChat) return;
@@ -755,6 +887,7 @@ export default {
               text: item.text || '',
               action_url: item.action_url || null,
               action_label: item.action_label || null,
+              time: this.formatMessageTime(item.created_at || item.time),
             }))
           : [{ role: 'ai', text: 'Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.' }];
       } catch (err) {
@@ -769,15 +902,23 @@ export default {
           this.messages = [{ role: 'teacher', text: 'Bạn có thể bắt đầu nhắn tin với giáo viên của bài học này.' }];
           return;
         }
-        const res = await axios.get(`http://127.0.0.1:8000/api/student/chat/session/${sessionId}/messages`, {
+        const endpoint = this.isTeacherMode
+          ? `http://127.0.0.1:8000/api/teacher/chat/session/${sessionId}/messages`
+          : `http://127.0.0.1:8000/api/student/chat/session/${sessionId}/messages`;
+        const res = await axios.get(endpoint, {
           headers: this.getAuthHeader(),
         });
         const list = Array.isArray(res?.data?.messages) ? res.data.messages : [];
         this.messages = list.map((item) => ({
           id: item.id,
-          role: item.sender === 'Giáo viên' ? 'teacher' : 'user',
+          role: this.isTeacherMode
+            ? (item.sender === 'Giáo viên' ? 'user' : 'teacher')
+            : (item.sender === 'Giáo viên' ? 'teacher' : 'user'),
           text: item.text || '',
+          action_url: item.action_url || null,
+          action_label: item.action_label || null,
           status: item.status || null,
+          time: this.formatMessageTime(item.time || item.created_at),
         }));
         if (!this.messages.length) {
           this.messages = [{ role: 'teacher', text: 'Bạn có thể bắt đầu nhắn tin với giáo viên của bài học này.' }];
@@ -809,6 +950,7 @@ export default {
         role: 'user',
         text,
         status: 'sent',
+        time: this.formatMessageTime(new Date()),
       });
       this.userInput = '';
       const isAiChat = this.selectedChat.type !== 'teacher';
@@ -818,8 +960,11 @@ export default {
       try {
         if (this.selectedChat.type === 'teacher') {
           const sessionId = await this.ensureTeacherSession(this.selectedChat);
+          const sendEndpoint = this.isTeacherMode
+            ? `http://127.0.0.1:8000/api/teacher/chat/session/${sessionId}/send`
+            : `http://127.0.0.1:8000/api/student/chat/session/${sessionId}/send`;
           const res = await axios.post(
-            `http://127.0.0.1:8000/api/student/chat/session/${sessionId}/send`,
+            sendEndpoint,
             { message: text },
             { headers: this.getAuthHeader() }
           );
@@ -828,12 +973,15 @@ export default {
           if (newestMessage && newestMessage.role === 'user') {
             newestMessage.id = data.id || newestMessage.id;
             newestMessage.status = data.status || 'sent';
+            newestMessage.time = this.formatMessageTime(data.time || data.created_at || new Date());
           }
-          const target = this.teacherChats.find((c) => c.teacherId === this.selectedChat.teacherId);
+          const target = this.isTeacherMode
+            ? this.teacherChats.find((c) => c.sessionId === this.selectedChat.sessionId)
+            : this.teacherChats.find((c) => c.teacherId === this.selectedChat.teacherId);
           if (!target) {
             this.teacherChats.unshift({
               ...this.selectedChat,
-              id: `teacher-${this.selectedChat.teacherId}`,
+              id: this.isTeacherMode ? `session-${this.selectedChat.sessionId}` : `teacher-${this.selectedChat.teacherId}`,
               isTemp: false,
             });
           }
@@ -857,6 +1005,7 @@ export default {
             text: data.message || 'EchoKids chưa nghe rõ, bạn thử nhập lại nhé.',
             action_url: data.action_url || null,
             action_label: data.action_label || null,
+            time: this.formatMessageTime(data.created_at || data.time || new Date()),
           });
         }
       } catch (err) {
@@ -1066,6 +1215,17 @@ body.is-resizing-global {
   z-index: 999;
 }
 
+.chatbox-page-shell {
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.chat-page-window {
+  position: relative;
+}
+
 .chat-list {
   display: flex;
   flex-direction: column;
@@ -1082,13 +1242,13 @@ body.is-resizing-global {
 }
 
 .chat-item-hover:hover {
-  background-color: #f5f5f5;
+  background-color: #fff5f2;
 }
 
 .chat-list-header,
 .chat-detail-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef !important;
+  background: linear-gradient(135deg, #fffaf8 0%, #fff2ee 100%);
+  border-bottom: 1px solid #ffd8cc !important;
 }
 
 .chat-title {
@@ -1102,16 +1262,21 @@ body.is-resizing-global {
   border: 2px solid #fff3ef;
   background: linear-gradient(135deg, #ff6b35, #ff8c42) !important;
   box-shadow: 0 6px 14px rgba(255, 107, 53, 0.24);
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .brand-avatar-glyph {
   color: #fff;
   font-size: 1rem;
   line-height: 1;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 15px;
+  margin: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .chat-header-icon {
@@ -1138,6 +1303,11 @@ body.is-resizing-global {
 
 .messenger-row {
   background: #ffffff;
+  min-width: 0;
+}
+
+.messenger-list-avatar {
+  flex-shrink: 0;
 }
 
 .messenger-row-name {
@@ -1150,6 +1320,17 @@ body.is-resizing-global {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+}
+
+.message-time {
+  color: #94a3b8;
+  font-size: 0.72rem;
+  margin-top: 4px;
+  padding-left: 36px;
+}
+
+.message-time--self {
+  padding-left: 0;
 }
 
 .message-peer-avatar {
@@ -1173,6 +1354,8 @@ body.is-resizing-global {
   min-width: 120px;
   white-space: pre-wrap;
   word-break: break-word;
+  border-color: #ffd9cf !important;
+  background: #fffefe !important;
 }
 
 .user-message-wrap {
@@ -1184,6 +1367,51 @@ body.is-resizing-global {
   max-width: 100%;
   white-space: pre-wrap;
   word-break: break-word;
+  background: linear-gradient(135deg, #ff8a65, #ff5d37) !important;
+}
+.clickable-message {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.clickable-message:hover {
+  transform: translateY(-1px);
+  border-color: #f59e0b !important;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.2) !important;
+}
+.action-link-emphasis {
+  color: #dc2626;
+  font-weight: 700;
+  text-decoration: underline;
+}
+.action-link-emphasis:hover {
+  color: #b91c1c;
+}
+.action-link-emphasis-on-primary {
+  color: #fee2e2;
+}
+.action-link-emphasis-on-primary:hover {
+  color: #fecaca;
+}
+
+.ai-suggest-wrap {
+  border: 1px solid #ffe1d7;
+  border-radius: 12px;
+  padding: 10px;
+  background: linear-gradient(180deg, #fffaf8, #fff);
+}
+
+.ai-suggest-chip {
+  border-radius: 999px;
+  border: 1px solid #ffd1c3;
+  background: #fff;
+  color: #c2410c;
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.ai-suggest-chip:hover {
+  background: #ffefe9;
+  border-color: #ffb9a5;
 }
 
 .resize-handle {

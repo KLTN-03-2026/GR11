@@ -16,6 +16,16 @@ const routes = [
     meta: { layout: "client" },
   },
   {
+    path: "/chinh-sach",
+    component: () => import("../components/Client/ChinhSach/index.vue"),
+    meta: { layout: "client" },
+  },
+  {
+    path: "/faq",
+    component: () => import("../components/Client/FAQ/index.vue"),
+    meta: { layout: "client" },
+  },
+  {
     path: "/dang-nhap",
     component: () => import("../components/Client/DangNhap/index.vue"),
     meta: { layout: "blank" },
@@ -41,7 +51,18 @@ const routes = [
     meta: { layout: "client" },
     beforeEnter: checkClient,
   },
-
+  {
+    path: "/on-tap-loi",
+    component: () => import("../components/Client/OnTapLoiSai/index.vue"),
+    meta: { layout: "blank" },
+    beforeEnter: checkClient,
+  },
+  {
+    path: "/dang-ky-giao-vien",
+    component: () => import("../components/Client/DangKyGiaoVien/index.vue"),
+    meta: { layout: "client" },
+    beforeEnter: checkClient,
+  },
 
   //---------------------------------------------KHACH HANG--------------------------------------------------------------
   {
@@ -127,7 +148,7 @@ const routes = [
   },
   {
     path: "/admin/thong-ke",
-    component: () => import("../components/AHeThong/Admin/ThongKe/index.vue"),
+    redirect: "/admin/dashboard?tab=reports",
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,
   },
@@ -150,6 +171,12 @@ const routes = [
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,
   },
+  {
+    path: "/admin/quan-ly-ho-so-giao-vien",
+    component: () => import("../components/AHeThong/Admin/QuanLyHoSoGiaoVien/index.vue"),
+    meta: { layout: "admin" },
+    beforeEnter: checkAdmin,
+  },
 
   //---------------------------------------------TEACHER--------------------------------------------------------------
   {
@@ -160,19 +187,22 @@ const routes = [
   },
   {
     path: "/teacher/quan-ly-hoc-sinh",
-    component: () => import("../components/AHeThong/Teach/QuanLyHocSinh/index.vue"),
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyHocSinh/index.vue"),
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },
   {
     path: "/teacher/quan-ly-bai-hoc",
-    component: () => import("../components/AHeThong/Teach/QuanLyBaiHoc/index.vue"),
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyBaiHoc/index.vue"),
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },
   {
     path: "/teacher/bao-cao-thong-ke",
-    component: () => import("../components/AHeThong/Teach/BaoCaoThongKe/index.vue"),
+    component: () =>
+      import("../components/AHeThong/Teach/BaoCaoThongKe/index.vue"),
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },
@@ -182,9 +212,10 @@ const routes = [
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },
-    {
+  {
     path: "/teacher/chat-box",
-    component: () => import("../components/AHeThong/Teach/ChatTeacher/index.vue"),
+    component: () => import("../components/Client/ChatBox/index.vue"),
+    props: { mode: "teacher", floating: false },
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },
@@ -196,11 +227,12 @@ const routes = [
   },
 ];
 
-
-
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 };
+  },
 });
 
 export default router;

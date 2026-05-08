@@ -1,33 +1,44 @@
 <template>
-  <div class="container-fluid" style="background-color: #f8f9fa; min-height: 100vh;">
+  <div class="container-fluid admin-dashboard">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 dashboard-header">
       <div>
-        <h4 class="fw-bold mb-1" style="color: #2b3445;">Quản lý Tài khoản</h4>
+        <h4 class="fw-bold mb-1 dashboard-title">Quản lý Tài khoản</h4>
+        <p class="dashboard-subtitle mb-0">Danh sách tài khoản hệ thống với tìm kiếm, lọc và xuất dữ liệu nhanh.</p>
       </div>
 
-      <button
-        class="btn btn-danger rounded-3 px-4 shadow-sm"
-        data-bs-toggle="modal"
-        data-bs-target="#createUserModal"
-      >
-        <i class="fa-solid fa-user-plus me-1"></i> Cấp tài khoản
-      </button>
+      <div class="d-flex gap-2 mt-3 mt-md-0">
+        <button type="button" class="btn btn-success btn-export rounded-3 px-4 shadow-sm" @click="xuatExcel">
+          <i class="fa-solid fa-file-csv me-1"></i> Xuất Excel
+        </button>
+        <button
+          class="btn btn-danger rounded-3 px-4 shadow-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#createUserModal"
+        >
+          <i class="fa-solid fa-user-plus me-1"></i> Cấp tài khoản
+        </button>
+      </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3 mb-4" style="background: #fff;">
+    <div class="card border-0 shadow-sm rounded-3 mb-4 dashboard-card">
       <div class="card-body p-3">
         <div class="row g-2 align-items-center">
-          <div class="col-12 col-md-4 position-relative">
+          <div class="col-12 col-md-4 position-relative search-input">
+            <i class="fa-solid fa-magnifying-glass search-input-icon"></i>
             <input
               type="text"
-              class="form-control ps-4"
+              class="form-control ps-5"
               placeholder="Tìm theo tên, email, sđt..."
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
               v-model="search.keyword"
             >
           </div>
           <div class="col-12 col-md-3">
-            <select class="form-select" v-model="search.vai_tro_id" style="cursor: pointer;">
+            <select class="form-select input-rounded" v-model="search.vai_tro_id" style="cursor: pointer;">
               <option value="">Tất cả vai trò</option>
               <option value="1">Admin</option>
               <option value="2">Giáo viên</option>
@@ -35,14 +46,14 @@
             </select>
           </div>
           <div class="col-12 col-md-3">
-            <select class="form-select" v-model="search.is_block" style="cursor: pointer;">
+            <select class="form-select input-rounded" v-model="search.is_block" style="cursor: pointer;">
               <option value="">Tất cả trạng thái</option>
               <option value="0">Đang hoạt động</option>
               <option value="1">Tạm khóa</option>
             </select>
           </div>
           <div class="col-12 col-md-2">
-            <button class="btn btn-light w-100 border" @click="datLaiBoLoc">
+            <button class="btn btn-light w-100 border input-rounded" @click="datLaiBoLoc">
               <i class="fa-solid fa-rotate-right me-1"></i> Đặt lại
             </button>
           </div>
@@ -50,7 +61,7 @@
       </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3 mb-4" style="background: #fff;">
+    <div class="card border-0 shadow-sm rounded-3 mb-4 dashboard-card">
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -61,6 +72,7 @@
                 <th class="py-3 border-bottom-0">Vai trò</th>
                 <th class="py-3 border-bottom-0">Ngày tạo</th>
                 <th class="py-3 border-bottom-0">Trạng thái</th>
+                <th class="py-3 border-bottom-0">Lý do khóa</th>
                 <th class="pe-4 py-3 border-bottom-0 text-end">Hành động</th>
               </tr>
             </thead>
@@ -116,6 +128,11 @@
                   </span>
                 </td>
 
+                <td class="py-3 text-muted" style="font-size: 0.85rem; max-width: 220px;">
+                  <span v-if="user.status === 'Tạm khóa' && user.content_block" class="d-inline-block text-break">{{ user.content_block }}</span>
+                  <span v-else>—</span>
+                </td>
+
                 <td class="pe-4 py-3 text-end">
                   <button
                     type="button"
@@ -127,7 +144,17 @@
                   >
                     <i class="fa-solid fa-pen text-primary"></i>
                   </button>
+                  <span
+                    v-if="khongTheTuKhoaChinhMinh(user)"
+                    class="d-inline-block"
+                    title="Không thể khóa tài khoản đang đăng nhập"
+                  >
+                    <button type="button" class="btn btn-sm btn-light border" disabled tabindex="-1">
+                      <i class="fa-solid fa-user-lock text-secondary"></i>
+                    </button>
+                  </span>
                   <button
+                    v-else
                     class="btn btn-sm btn-light border"
                     :title="user.status === 'Đang hoạt động' ? 'Khóa tài khoản' : 'Mở khóa'"
                     @click="chuanBiDaoTrangThai(user)"
@@ -254,7 +281,7 @@
         <div class="modal-content border-0 shadow">
           <div class="modal-header border-bottom-0 pb-0">
             <h5 class="modal-title fw-bold">Xác nhận thao tác</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="ly_do_khoa = ''"></button>
           </div>
           <div class="modal-body text-center py-4" v-if="nguoi_dung_can_doi_trang_thai">
             <div
@@ -267,10 +294,21 @@
             <h5 class="fw-semibold">
               Bạn có chắc chắn muốn <span :class="nguoi_dung_can_doi_trang_thai.status === 'Đang hoạt động' ? 'text-danger' : 'text-success'">{{ nguoi_dung_can_doi_trang_thai.status === 'Đang hoạt động' ? 'khóa' : 'mở khóa' }}</span>
             </h5>
-            <p class="text-muted mb-0">tài khoản <strong>{{ nguoi_dung_can_doi_trang_thai.name }}</strong> không?</p>
+            <p class="text-muted mb-3">tài khoản <strong>{{ nguoi_dung_can_doi_trang_thai.name }}</strong> không?</p>
+            <div v-if="nguoi_dung_can_doi_trang_thai.status === 'Đang hoạt động'" class="text-start">
+              <label class="form-label small fw-semibold text-secondary mb-1">Lý do khóa <span class="text-danger">*</span></label>
+              <textarea
+                v-model="ly_do_khoa"
+                class="form-control shadow-none"
+                rows="3"
+                maxlength="255"
+                placeholder="Nhập lý do khóa tài khoản (hiển thị trong hệ thống, tối đa 255 ký tự)"
+              ></textarea>
+              <small class="text-muted">{{ (ly_do_khoa || '').length }}/255</small>
+            </div>
           </div>
           <div class="modal-footer border-top-0 d-flex justify-content-center pt-0 pb-4">
-            <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Hủy bỏ</button>
+            <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal" @click="ly_do_khoa = ''">Hủy bỏ</button>
             <button
               type="button"
               class="btn px-4 text-white"
@@ -318,6 +356,7 @@ export default {
         mat_khau: '',
       },
       nguoi_dung_can_doi_trang_thai: null,
+      ly_do_khoa: '',
       autoRefreshTimer: null,
     }
   },
@@ -387,6 +426,7 @@ export default {
         role: this.chuyenVaiTro(item.vai_tro_id),
         is_block: Number(item.is_block ?? 0),
         status: Number(item.is_block ?? 0) === 1 ? 'Tạm khóa' : 'Đang hoạt động',
+        content_block: item.content_block ?? '',
         joinedAt: item.ngay_tao ? new Date(item.ngay_tao).toLocaleDateString('vi-VN') : '',
       }
     },
@@ -540,7 +580,20 @@ export default {
         })
     },
 
+    khongTheTuKhoaChinhMinh(user) {
+      const sid = localStorage.getItem('nguoi_dung_id')
+      if (!sid || user.status !== 'Đang hoạt động') {
+        return false
+      }
+      return Number(user.id) === Number(sid)
+    },
+
     chuanBiDaoTrangThai(user) {
+      if (this.khongTheTuKhoaChinhMinh(user)) {
+        this.$toast.error('Bạn không thể khóa tài khoản đang đăng nhập.')
+        return
+      }
+      this.ly_do_khoa = ''
       this.nguoi_dung_can_doi_trang_thai = this.danh_sach_nguoi_dung.find((u) => u.id === user.id)
     },
 
@@ -548,15 +601,27 @@ export default {
       if (!this.nguoi_dung_can_doi_trang_thai) return
 
       const u = this.nguoi_dung_can_doi_trang_thai
+      const payload = { id: u.id }
+
+      if (u.status === 'Đang hoạt động') {
+        const lyDo = (this.ly_do_khoa || '').trim()
+        if (!lyDo) {
+          this.$toast.error('Vui lòng nhập lý do khóa tài khoản.')
+          return
+        }
+        payload.content_block = lyDo
+      }
 
       axios
-        .post(`${API_URL}/change-status`, { id: u.id }, {
+        .post(`${API_URL}/change-status`, payload, {
           headers: this.authHeaders(),
         })
         .then((res) => {
           if (res.data.status) {
             this.fetchDanhSach()
             this.$toast.success(res.data.message)
+            this.ly_do_khoa = ''
+            this.nguoi_dung_can_doi_trang_thai = null
           } else {
             this.$toast.error(res.data.message)
           }
@@ -568,6 +633,40 @@ export default {
         .catch((res) => {
           this.xuLyLoiAxios(res)
         })
+    },
+
+    async xuatExcel() {
+      try {
+        const params = {}
+        if (this.search.keyword?.trim()) {
+          params.key = this.search.keyword.trim()
+        }
+        if (this.search.vai_tro_id !== '' && this.search.vai_tro_id != null) {
+          params.vai_tro_id = this.search.vai_tro_id
+        }
+        if (this.search.is_block !== '' && this.search.is_block != null) {
+          params.is_block = this.search.is_block
+        }
+
+        const response = await axios.get(`${API_URL}/export`, {
+          params,
+          headers: this.authHeaders(),
+          responseType: 'blob',
+        })
+
+        const filename = `quan-ly-tai-khoan_${new Date().toISOString().slice(0, 10)}.csv`
+        const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', filename)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      } catch (error) {
+        this.xuLyLoiAxios(error)
+      }
     },
 
     datLaiFormCreate() {
@@ -609,3 +708,98 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.admin-dashboard {
+  background-color: #f6f8fc;
+  color: #0f172a;
+}
+
+.dashboard-header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.dashboard-title {
+  color: #111827;
+  font-size: 1.6rem;
+}
+
+.dashboard-subtitle {
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-card .card-body {
+  padding: 1.4rem;
+}
+
+.btn-export {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+}
+
+.btn-export:hover {
+  background-color: #15803d;
+  border-color: #166534;
+}
+
+.search-input {
+  position: relative;
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.form-control,
+.form-select {
+  border-color: #e5e7eb;
+  min-height: 46px;
+  border-radius: 14px;
+}
+
+.input-rounded {
+  border-radius: 14px !important;
+}
+
+.table thead th {
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.modal-content {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.modal-header {
+  border-bottom: none;
+}
+
+.btn-light.border {
+  border-color: #e5e7eb !important;
+}
+</style>

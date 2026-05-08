@@ -14,7 +14,7 @@ class UpdateGeneralSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'logo_url' => 'nullable|string|max:255',
+            'logo_url' => 'nullable|string',
             'logo_icon' => 'nullable|string|max:100',
             'site_name' => 'required|string|max:255',
             'hotline' => 'nullable|string|max:50',
@@ -32,7 +32,6 @@ class UpdateGeneralSettingsRequest extends FormRequest
 
             // Thông báo lỗi cho Logo URL
             'logo_url.string' => 'Đường dẫn logo phải là một chuỗi văn bản.',
-            'logo_url.max'    => 'Đường dẫn logo không được vượt quá 255 ký tự.',
 
             // Thông báo lỗi cho Logo Icon
             'logo_icon.string' => 'Logo icon phải là một chuỗi văn bản.',

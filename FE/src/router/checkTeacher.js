@@ -8,7 +8,7 @@ export default function (to, from, next) {
   const token = localStorage.getItem("token_teacher");
 
   if (!token) {
-    toaster.error("Vui lòng đăng nhập với tài khoản Giáo viên!");
+    toaster.error("Bạn đã được xét duyệt là Giáo viên. Vui lòng đăng nhập lại!");
     return next("/dang-nhap");
   }
 
@@ -27,6 +27,11 @@ export default function (to, from, next) {
       if (response.data.status && response.data.vai_tro_id === 2) {
         const d = response.data;
         sessionStorage.setItem(TEACHER_AUTH_CACHE_KEY, String(Date.now()));
+        if (d.id != null && d.id !== "") {
+          localStorage.setItem("nguoi_dung_id", String(d.id));
+        } else {
+          localStorage.removeItem("nguoi_dung_id");
+        }
         localStorage.setItem("ho_ten", d.ho_ten ?? "");
         localStorage.setItem("email", d.email ?? "");
         localStorage.setItem("check_token", String(d.status));
