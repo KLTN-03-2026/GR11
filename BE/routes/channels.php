@@ -30,3 +30,14 @@ Broadcast::channel('teacher.{teacherId}', function ($user, int $teacherId): bool
         && (int) $user->vai_tro_id === NguoiDung::ROLE_TEACHER;
 });
 
+// Channel public cho admin — mọi admin đang đăng nhập đều nhận sự kiện hồ sơ giáo viên
+Broadcast::channel('admin', function ($user): bool {
+    return (int) $user->vai_tro_id === NguoiDung::ROLE_ADMIN;
+});
+
+// Channel private cho học viên — nhận gợi ý bài học từ giáo viên
+Broadcast::channel('student.{studentId}', function ($user, int $studentId): bool {
+    return (int) $user->id === $studentId
+        && (int) $user->vai_tro_id === NguoiDung::ROLE_USER;
+});
+

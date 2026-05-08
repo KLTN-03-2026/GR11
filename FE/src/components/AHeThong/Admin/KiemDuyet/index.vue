@@ -443,6 +443,10 @@ export default {
     },
     mounted() {
         this.loadInitialData();
+        window.addEventListener('bai-hoc-cho-duyet-moi', this.fetchTatCaBaiHoc);
+    },
+    beforeUnmount() {
+        window.removeEventListener('bai-hoc-cho-duyet-moi', this.fetchTatCaBaiHoc);
     },
 
     computed: {
@@ -706,10 +710,15 @@ export default {
         },
 
         capNhatTrangThaiTruocTiep(bh, trangThaiMoi) {
+            let trangThaiSo = trangThaiMoi;
+            if (trangThaiMoi === 'Đã duyệt') trangThaiSo = 1;
+            else if (trangThaiMoi === 'Từ chối') trangThaiSo = 2;
+            else if (trangThaiMoi === 'Chờ duyệt') trangThaiSo = 0;
+
             this.isUpdatingTrangThai = true;
             axios
                 .patch(`http://127.0.0.1:8000/api/admin/kiem-duyet-bai-hoc/${bh.id}/trang-thai`, {
-                    trang_thai: trangThaiMoi
+                    trang_thai: trangThaiSo
                 }, {
                     headers: this.authHeaders()
                 })

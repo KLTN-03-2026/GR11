@@ -89,7 +89,44 @@ export default {
   mounted() {
     // fix jQuery global (quan trọng)
     window.$ = window.jQuery;
-  }
+    this.khoiTaoRealtime();
+  },
+
+  beforeUnmount() {
+    this.dongKenh();
+  },
+
+  methods: {
+    khoiTaoRealtime() {
+      if (!window.Echo) return;
+
+      // Cập nhật auth header với token admin hiện tại
+      const token = localStorage.getItem('token_admin') || '';
+      if (token && window.Echo.connector?.pusher) {
+        window.Echo.connector.pusher.config.auth = {
+          headers: { Authorization: 'Bearer ' + token },
+        };
+      }
+
+      // Lắng nghe channel private 'admin'
+      this._adminChannel = window.Echo.private('admin');
+      this._adminChannel.listen('.GiaoVienNopHoSo', (data) => {
+        // Phát sự kiện nội bộ để các trang danh sách hồ sơ có thể tự reload
+        window.dispatchEvent(new CustomEvent('ho-so-giao-vien-moi', { detail: data }));
+      });
+
+      this._adminChannel.listen('.GiaoVienNopBaiHoc', (data) => {
+        // Phát sự kiện nội bộ để trang kiểm duyệt reload
+        window.dispatchEvent(new CustomEvent('bai-hoc-cho-duyet-moi', { detail: data }));
+      });
+    },
+
+    dongKenh() {
+      if (window.Echo && this._adminChannel) {
+        try { window.Echo.leave('admin'); } catch (_) {}
+      }
+    },
+  },
 };
 </script>
 <style>

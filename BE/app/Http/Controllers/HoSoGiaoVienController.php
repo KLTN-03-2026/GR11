@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GiaoVienNopHoSo;
 use App\Http\Requests\DangKyHoSoGiaoVienRequest;
 use App\Mail\HoSoGiaoVienDuyetMail;
 use App\Mail\HoSoGiaoVienTuChoiMail;
@@ -63,6 +64,9 @@ class HoSoGiaoVienController extends Controller
             'mo_ta'          => $request->input('mo_ta'),
             'trang_thai'     => HoSoGiaoVien::TRANG_THAI_CHO_DUYET,
         ]);
+
+        // Broadcast real-time tới tất cả admin đang online
+        broadcast(new GiaoVienNopHoSo($hoSo))->toOthers();
 
         return response()->json([
             'status'  => true,

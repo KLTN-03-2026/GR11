@@ -74,7 +74,47 @@ export default {
   mounted() {
     // fix jQuery global (quan trọng)
     window.$ = window.jQuery;
-  }
+    this.khoiTaoRealtime();
+  },
+
+  beforeUnmount() {
+    this.dongKenh();
+  },
+
+  methods: {
+    layGiaoVienId() {
+      // ID giáo viên lưu trong localStorage sau khi đăng nhập
+      return parseInt(localStorage.getItem('nguoi_dung_id') || '0', 10);
+    },
+
+    khoiTaoRealtime() {
+      if (!window.Echo) return;
+      const giaoVienId = this.layGiaoVienId();
+      if (!giaoVienId) return;
+
+      // Cập nhật auth header với token giáo viên hiện tại
+      const token = localStorage.getItem('token_teacher') || '';
+      if (token && window.Echo.connector?.pusher) {
+        window.Echo.connector.pusher.config.auth = {
+          headers: { Authorization: 'Bearer ' + token },
+        };
+      }
+
+      // Lắng nghe channel private 'teacher.{id}'
+      this._teacherChannel = window.Echo.private(`teacher.${giaoVienId}`);
+      this._teacherChannel.listen('.AdminDuyetBaiHoc', (data) => {
+        // Phát sự kiện nội bộ để trang quản lý bài học có thể tự reload
+        window.dispatchEvent(new CustomEvent('bai-hoc-duoc-duyet', { detail: data }));
+      });
+    },
+
+    dongKenh() {
+      const giaoVienId = this.layGiaoVienId();
+      if (window.Echo && giaoVienId) {
+        try { window.Echo.leave(`teacher.${giaoVienId}`); } catch (_) {}
+      }
+    },
+  },
 };
 </script>
 <style>

@@ -11,11 +11,14 @@ const hasPusherConfig = import.meta.env.VITE_PUSHER_KEY && import.meta.env.VITE_
 
 if (hasPusherConfig) {
   try {
-    echo = new Echo({
+    const isSelfHosted = !!import.meta.env.VITE_PUSHER_HOST;
+    const useTLS = (import.meta.env.VITE_PUSHER_TLS === 'true');
+
+    const echoOptions = {
       broadcaster: 'pusher',
       key: import.meta.env.VITE_PUSHER_KEY,
       cluster: import.meta.env.VITE_PUSHER_CLUSTER,
-      forceTLS: (import.meta.env.VITE_PUSHER_TLS === 'true') || true,
+      forceTLS: useTLS,
       authEndpoint: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '') + '/api/broadcasting/auth',
       auth: {
         headers: {
@@ -28,7 +31,18 @@ if (hasPusherConfig) {
           )
         }
       }
-    });
+    };
+
+    // Nếu dùng Soketi / server self-hosted thì cần wsHost + wsPort
+    if (isSelfHosted) {
+      echoOptions.wsHost = import.meta.env.VITE_PUSHER_HOST;
+      echoOptions.wsPort = parseInt(import.meta.env.VITE_PUSHER_PORT || '6001', 10);
+      echoOptions.wssPort = parseInt(import.meta.env.VITE_PUSHER_PORT || '6001', 10);
+      echoOptions.enabledTransports = ['ws', 'wss'];
+      echoOptions.disableStats = true;
+    }
+
+    echo = new Echo(echoOptions);
 
     // expose globally for legacy components that check window.Echo
     window.Echo = echo;
@@ -39,6 +53,7 @@ if (hasPusherConfig) {
       channel: () => ({ on: () => {}, listen: () => {} }),
       private: () => ({ on: () => {}, listen: () => {} }),
       presence: () => ({ on: () => {}, listen: () => {} }),
+      leave: () => {},
     };
     echo = window.Echo;
   }
@@ -49,6 +64,7 @@ if (hasPusherConfig) {
     channel: () => ({ on: () => {}, listen: () => {} }),
     private: () => ({ on: () => {}, listen: () => {} }),
     presence: () => ({ on: () => {}, listen: () => {} }),
+    leave: () => {},
   };
   echo = window.Echo;
 }
