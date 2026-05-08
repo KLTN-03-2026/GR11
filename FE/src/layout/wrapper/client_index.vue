@@ -14,11 +14,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { createToaster } from '@meforma/vue-toaster'
 import NavbarClient from '../components/Client/NavbarClient.vue';
 import FooterClient from '../components/Client/FooterClient.vue';
 
 const isReady = ref(false)
+const toast = createToaster({ position: "top-right" })
+let _studentChannel = null
+
 const loadCSS = (href) => {
   if (!document.querySelector(`link[href="${href}"]`)) {
     const link = document.createElement('link')
@@ -40,6 +44,32 @@ const loadScript = (src) => {
     script.onload = resolve
     script.onerror = reject
     document.body.appendChild(script)
+  })
+}
+
+function khoiTaoStudentChannel() {
+  if (!window.Echo) return
+  const studentId = parseInt(localStorage.getItem('nguoi_dung_id') || '0', 10)
+  if (!studentId) return
+
+  // Cập nhật auth header với token học viên
+  const token = localStorage.getItem('token_nguoi_dung') || ''
+  if (token && window.Echo.connector?.pusher) {
+    window.Echo.connector.pusher.config.auth = {
+      headers: { Authorization: 'Bearer ' + token },
+    }
+  }
+
+  // Lắng nghe channel private 'student.{id}'
+  _studentChannel = window.Echo.private(`student.${studentId}`)
+  _studentChannel.listen('.GiaoVienGuiGoiY', (data) => {
+    const uuTienLabel = data.uu_tien === 'cao' ? '🔴 Ưu tiên cao' : '🟡 Bình thường'
+    let msg = `📚 Giáo viên ${data.ten_giao_vien} gợi ý bài "${data.tieu_de}". [${uuTienLabel}]`
+    if (data.loi_nhan) msg += ` — ${data.loi_nhan}`
+    toast.info(msg, { duration: 10000 })
+
+    // Phát sự kiện nội bộ để ChatBox hoặc trang chat có thể cập nhật
+    window.dispatchEvent(new CustomEvent('goi-y-bai-hoc-moi', { detail: data }))
   })
 }
 
@@ -70,8 +100,19 @@ onMounted(async () => {
     }
     window.dispatchEvent(new Event('resize'))
   }, 300)
+
+  // Khởi tạo kênh real-time cho học viên
+  khoiTaoStudentChannel()
+})
+
+onBeforeUnmount(() => {
+  const studentId = parseInt(localStorage.getItem('nguoi_dung_id') || '0', 10)
+  if (window.Echo && studentId) {
+    try { window.Echo.leave(`student.${studentId}`) } catch (_) {}
+  }
 })
 </script>
+
 
 <style>
 </style>

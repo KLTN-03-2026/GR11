@@ -14,6 +14,7 @@ use App\Models\DanhMucBaiHoc;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Events\GiaoVienNopBaiHoc;
 
 class TeacherQuanLyBaiHocController extends Controller
 {
@@ -155,6 +156,7 @@ class TeacherQuanLyBaiHocController extends Controller
         });
 
         $baiHoc->load('tuVungs:id,bai_hoc_id');
+        broadcast(new GiaoVienNopBaiHoc($baiHoc, $request->user()->ho_ten ?? 'Giáo viên'));
 
         return response()->json([
             'status' => true,
@@ -226,6 +228,7 @@ class TeacherQuanLyBaiHocController extends Controller
         });
 
         $baiHoc->load('tuVungs:id,bai_hoc_id');
+        broadcast(new GiaoVienNopBaiHoc($baiHoc, $request->user()->ho_ten ?? 'Giáo viên'));
 
         return response()->json([
             'status' => true,

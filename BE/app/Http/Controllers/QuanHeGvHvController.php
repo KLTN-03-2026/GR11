@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GiaoVienGuiGoiY;
 use App\Http\Requests\GuiGoiYQuanHeGvHvRequest;
 use App\Models\BaiHoc;
 use App\Models\ChatMessage;
@@ -320,6 +321,16 @@ class QuanHeGvHvController extends Controller
                 'da_doc' => 0,
             ]);
         });
+
+        // Broadcast real-time tới học viên được gợi ý
+        broadcast(new GiaoVienGuiGoiY(
+            (int) $request->hoc_vien_id,
+            (int) $giaoVien->id,
+            (string) ($giaoVien->ho_ten ?? ''),
+            $baiHoc,
+            (string) $request->uu_tien,
+            $request->loi_nhan
+        ));
 
         return response()->json([
             'status' => true,

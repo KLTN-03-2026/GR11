@@ -185,10 +185,10 @@
                                                     </span>
                                                     <span
                                                         class="badge rounded-pill px-2 py-1 fw-medium d-flex align-items-center gap-1 border"
-                                                        :style="bai.trang_thai == 1 ? 'font-size: 0.8rem; background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;' : 'font-size: 0.8rem; background-color: #f1f5f9; color: #475569; border-color: #e2e8f0 !important;'">
+                                                        :style="bai.trang_thai == 1 ? 'font-size: 0.8rem; background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;' : (bai.trang_thai == 2 ? 'font-size: 0.8rem; background-color: #fee2e2; color: #991b1b; border-color: #fecaca !important;' : 'font-size: 0.8rem; background-color: #f1f5f9; color: #475569; border-color: #e2e8f0 !important;')">
                                                         <i class="fa-solid"
-                                                            :class="bai.trang_thai == 1 ? 'fa-circle-check' : 'fa-clock'"></i>
-                                                        {{ bai.trang_thai == 1 ? 'Đã duyệt' : 'Đợi duyệt' }}
+                                                            :class="bai.trang_thai == 1 ? 'fa-circle-check' : (bai.trang_thai == 2 ? 'fa-circle-xmark' : 'fa-clock')"></i>
+                                                        {{ bai.trang_thai == 1 ? 'Đã duyệt' : (bai.trang_thai == 2 ? 'Từ chối' : 'Đợi duyệt') }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -378,8 +378,19 @@ export default {
     },
     mounted() {
         this.taiDanhMuc();
+        window.addEventListener('bai-hoc-duoc-duyet', this.handleBaiHocDuyet);
+    },
+    beforeUnmount() {
+        window.removeEventListener('bai-hoc-duoc-duyet', this.handleBaiHocDuyet);
     },
     methods: {
+        handleBaiHocDuyet(e) {
+            const data = e.detail;
+            const baiHocIndex = this.bai_hoc.findIndex(b => b.id === data.bai_hoc_id);
+            if (baiHocIndex !== -1) {
+                this.bai_hoc[baiHocIndex].trang_thai = data.trang_thai;
+            }
+        },
         getAuthToken() {
             return localStorage.getItem('token_teacher') || '';
         },

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AdminDuyetBaiHoc;
 use App\Http\Requests\ChangeStatusKiemDuyetRequest;
 use App\Http\Requests\DestroyDanhMucBaiHocRequest;
 use App\Http\Requests\GetBaiHocTheoDanhMucRequest;
@@ -18,7 +19,7 @@ class KiemDuyetBaiHocConTroller extends Controller
     public function index(Request $request): JsonResponse
     {
         if ($this->isKiemDuyetBaiHocRoute($request)) {
-            $data = BaiHoc::with(['danhMuc:id,ten_danh_muc', 'tuVungs:id,bai_hoc_id'])
+            $data = BaiHoc::with(['danhMuc:id,ten_danh_muc', 'tuVungs:id,bai_hoc_id', 'nguoiTao:id,ho_ten'])
                 ->orderByDesc('id')
                 ->get()
                 ->map(function (BaiHoc $baiHoc) {
@@ -28,7 +29,7 @@ class KiemDuyetBaiHocConTroller extends Controller
                         'tieu_de' => $baiHoc->tieu_de,
                         'cap_do' => $baiHoc->cap_do,
                         'so_luong_tu' => $baiHoc->tuVungs->count(),
-                        'nguoi_tao_ten' => 'Giáo viên',
+                        'nguoi_tao_ten' => $baiHoc->nguoiTao ? $baiHoc->nguoiTao->ho_ten : 'Giáo viên',
                         'ngay_tao' => optional($baiHoc->created_at)->format('d/m/Y'),
                         'trang_thai' => $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai),
                     ];
@@ -126,6 +127,12 @@ class KiemDuyetBaiHocConTroller extends Controller
 
             $baiHoc->trang_thai = $trangThaiMoi;
             $baiHoc->save();
+
+            // Broadcast real-time tới giáo viên sở hữu bài học
+            if ($baiHoc->nguoi_tao_id) {
+                $trangThaiLabel = $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai);
+                broadcast(new AdminDuyetBaiHoc($baiHoc, (int) $baiHoc->nguoi_tao_id, $trangThaiLabel));
+            }
 
             return response()->json([
                 'status' => true,
