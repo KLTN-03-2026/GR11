@@ -5,33 +5,52 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ChatSystemRequest;
 use App\Models\NguoiDung;
 use App\Services\AI\Rag\Pipelines\ChatRagService;
+use App\Services\AI\Rag\Pipelines\ProactiveGreetingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ChatBoxAIController extends Controller
 {
     public function __construct(
-        private readonly ChatRagService $chatRagService
-    ) {
-    }
+        private readonly ChatRagService $chatRagService,
+        private readonly ProactiveGreetingService $proactiveGreetingService,
+    ) {}
 
     private function ensureStudentOnly(?NguoiDung $user): ?JsonResponse
     {
         if (!$user) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Bạn chưa đăng nhập.',
             ], 401);
         }
 
         if ((int) $user->vai_tro_id !== NguoiDung::ROLE_USER) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Chatbox AI chỉ dành cho học viên.',
             ], 403);
         }
 
         return null;
+    }
+
+    public function greeting(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $guardError = $this->ensureStudentOnly($user);
+        if ($guardError !== null) {
+            return $guardError;
+        }
+
+        $result = $this->proactiveGreetingService->greet($user);
+
+        return response()->json([
+            'status'      => true,
+            'message'     => $result['message'],
+            'suggestions' => $result['suggestions'],
+            'case'        => $result['case'],
+        ]);
     }
 
     public function chatSystem(ChatSystemRequest $request): JsonResponse

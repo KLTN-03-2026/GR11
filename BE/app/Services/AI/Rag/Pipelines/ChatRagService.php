@@ -28,8 +28,7 @@ class ChatRagService
         private readonly StudentMessagingTools $studentMessagingTools,
         private readonly ToolPlanService $toolPlanService,
         private readonly RoleRagKnowledgeService $roleRagKnowledgeService,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -355,7 +354,8 @@ class ChatRagService
                 : 'Hiện cô đang ở chế độ hỗ trợ nhanh. Con vào mục Tiến độ để xem điểm gần nhất nhé, rồi cô phân tích tiếp cho con.',
             'ask_mistake' => 'Mình luyện chậm từng âm tiết nhé. Con gửi cho cô 1 câu con hay đọc sai, cô sẽ hướng dẫn sửa từng bước.',
             'ask_lesson' => 'Con vào mục Bài học, chọn bài mức dễ trước rồi gửi tên bài cho cô, cô sẽ gợi ý cách luyện nhanh nhất.',
-            'ask_pronunciation' => 'Con đọc chậm từng âm giúp cô nhé. Ví dụ với "Apple": /ˈæp.əl/, con tách 2 nhịp "ap" - "ple" rồi đọc liền lại.',
+            'ask_phonics_path' => 'Cô gợi ý con bắt đầu từ nguyên âm đơn (/a/, /e/, /i/, /o/, /u/) trước nhé, sau đó mới đến phụ âm đơn rồi âm ghép. Luyện theo thứ tự từng nhóm giúp con chắc nền hơn nhiều đó.',
+            'ask_pronunciation' => 'Con đọc chậm từng âm tiết giúp cô nhé. Ví dụ từ "nghưỡng": âm đầu "ng" + vần "ưỡng" + thanh sắc, con tách ra rồi ghép lại từng bước.',
             'ask_lesson_switch' => 'Được con nha. Mình đổi sang bài dễ hơn để lấy lại tự tin trước, rồi cô nâng độ khó dần cho con.',
             'ask_parent_report' => 'Phụ huynh vào mục Tiến độ để xem số câu đã luyện và điểm gần đây của bé nhé. Cần thì cô sẽ tóm tắt nhanh theo ngày.',
             'motivation_low' => 'Không sao đâu con, mình nghỉ 2-3 phút rồi quay lại 1 câu thật ngắn nhé. Cô ở đây hỗ trợ con từng bước.',
@@ -385,7 +385,7 @@ class ChatRagService
             return 'Con vào trang Bài học, chọn bài phù hợp rồi nói cô biết tên bài để cô hướng dẫn cách luyện.';
         }
 
-        return 'Cô đang hỗ trợ ở chế độ nhanh. Con hỏi ngắn gọn theo 1 trong 3 hướng nhé: điểm, lỗi phát âm, hoặc bài nên học tiếp.';
+        return 'Cô chỉ là trợ lý nên chỉ có thể trả lời những gì liên quan đế Echokids không thể trả lời câu hỏi này của con được. Bù lại, cô có thể hướng dẫn con bài học luyện phát âm hôm nay, bài tập luyện âm đầu phù hợp nhất cho ngày hôm nay.';
     }
 
     private function resolveAssistantRole(NguoiDung $user): string
@@ -550,6 +550,12 @@ class ChatRagService
             || str_contains($normalized, 'nen hoc bai gi')
             || str_contains($normalized, 'hoc bai gi')
             || str_contains($normalized, 'bai hoc tiep')
+            || str_contains($normalized, 'bai hoc hom nay')
+            || str_contains($normalized, 'goi y hom nay')
+            || str_contains($normalized, 'bai phu hop hom nay')
+            || str_contains($normalized, 'nen hoc gi hom nay')
+            || str_contains($normalized, 'bai nao phu hop')
+            || str_contains($normalized, 'de xuat bai')
         ) {
             return $pick('student_get_suggested_lessons_by_level', ['days' => min($days, 30), 'limit' => $limit]);
         }

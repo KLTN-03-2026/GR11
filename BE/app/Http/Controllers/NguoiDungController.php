@@ -266,6 +266,8 @@ class NguoiDungController extends Controller
 
             event(new \Illuminate\Auth\Events\Registered($nguoiDung));
 
+            $token = $nguoiDung->createToken('token_nguoi_dung')->plainTextToken;
+
             return response()->json([
                 'status'  => 1,
                 'message' => 'Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.',
@@ -273,6 +275,7 @@ class NguoiDungController extends Controller
                     'id'     => $nguoiDung->id,
                     'email'  => $nguoiDung->email,
                     'ho_ten' => $nguoiDung->ho_ten,
+                    'token'  => $token,
                 ],
             ], 201);
         } catch (\Exception $e) {

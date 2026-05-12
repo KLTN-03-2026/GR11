@@ -203,7 +203,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/system/session', [ChatBoxAIController::class, 'session']);
     Route::post('/chat/system', [ChatBoxAIController::class, 'chatSystem']);
     Route::get('/chat/system/history', [ChatBoxAIController::class, 'history']);
-    Route::prefix('/tien-do-bai-hoc')->group(function () {
+    Route::get('/chat/system/greeting', [ChatBoxAIController::class, 'greeting']);
+    route::prefix('/tien-do-bai-hoc')->group(function () {
         Route::get('/tong-quan', [TienDoBaiHocController::class, 'tongQuan']);
     });
 
@@ -229,8 +230,10 @@ Route::prefix('/homepage')->group(function () {
     Route::get('/data-open', [HomeController::class, 'dataOpen']); 
 
     // Hồ sơ đăng ký giáo viên (Client)
-    Route::post('/ho-so-giao-vien', [HoSoGiaoVienController::class, 'store']);
-    Route::get('/ho-so-giao-vien/my-status', [HoSoGiaoVienController::class, 'myStatus']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/ho-so-giao-vien', [HoSoGiaoVienController::class, 'store']);
+        Route::get('/ho-so-giao-vien/my-status', [HoSoGiaoVienController::class, 'myStatus']);
+    });
 });
 
 Route::prefix('/danh-muc-bai-hoc')->group(function () {

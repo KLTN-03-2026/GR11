@@ -1397,7 +1397,7 @@ export default {
       try {
         const axios = (await import("axios")).default;
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/ho-so-giao-vien/my-status",
+          "http://127.0.0.1:8000/api/homepage/ho-so-giao-vien/my-status",
           {
             headers: { Authorization: "Bearer " + this.getAuthToken() },
           },
@@ -1418,7 +1418,7 @@ export default {
       this.isFetchingHoSo = true;
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/ho-so-giao-vien/my-status",
+          "http://127.0.0.1:8000/api/homepage/ho-so-giao-vien/my-status",
           {
             headers: { Authorization: "Bearer " + this.getAuthToken() },
           },

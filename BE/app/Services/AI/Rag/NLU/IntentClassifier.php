@@ -54,7 +54,20 @@ class IntentClassifier
             ],
             'ask_mistake' => ['sai o dau', 'loi', 'am dau', 'van', 'thanh dieu', 'sua loi'],
             'ask_lesson' => ['bai hoc', 'goi y bai', 'hoc gi', 'de xuat bai', 'lo trinh'],
-            'ask_pronunciation' => ['doc sao cho dung', 'doc mau', 'phat am', 'apple doc', 'doc chu'],
+            // Hỏi lộ trình: âm nào nên luyện trước, thứ tự nhóm âm
+            'ask_phonics_path' => [
+                'am nao truoc',
+                'am nao nen luyen truoc',
+                'bat dau tu am nao',
+                'thu tu phat am',
+                'nhom am nao',
+                'am don',
+                'phu am',
+                'nguyen am',
+                'luyen am nao truoc',
+            ],
+            // Hướng dẫn đọc một từ/cụm từ cụ thể (tiếng Việt)
+            'ask_pronunciation' => ['doc sao cho dung', 'doc mau', 'doc chu nay', 'doc tu nay', 'huong dan doc', 'doc the nao'],
             'ask_lesson_switch' => ['doi bai', 'bai khac', 'de hon', 'bai nay kho'],
             'ask_parent_report' => ['be nha toi', 'phu huynh', 'luyen duoc bao nhieu cau', 'bao nhieu cau roi'],
             'motivation_low' => ['buon ngu', 'khong thich hoc', 'muon nghi', 'nghi choi game'],
