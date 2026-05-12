@@ -12,7 +12,6 @@ class LoTrinhCaNhan extends Model
         'hoc_vien_id',
         'giao_vien_id',
         'ten_lo_trinh',
-        'ngay_tao',
     ];
 
     public function nguoiDung()

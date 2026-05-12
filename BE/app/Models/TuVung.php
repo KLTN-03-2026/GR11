@@ -19,7 +19,6 @@ class TuVung extends Model
         'hinh_anh_url',
         'am_thanh_mau_url',
         'thu_tu',
-        'ngay_tao',
     ];
 
     /**

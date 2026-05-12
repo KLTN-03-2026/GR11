@@ -171,6 +171,12 @@ const routes = [
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,
   },
+  {
+    path: "/admin/don-nap-tien",
+    component: () => import("../components/AHeThong/Admin/QuanLyDonNapTien/index.vue"),
+    meta: { layout: "admin" },
+    beforeEnter: checkAdmin,
+  },
 
   //---------------------------------------------TEACHER--------------------------------------------------------------
   {

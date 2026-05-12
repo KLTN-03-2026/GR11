@@ -20,14 +20,13 @@ return new class extends Migration
             $table->string('ten_ngan_hang_snapshot', 100);
             $table->string('so_tai_khoan_snapshot', 30);
             $table->string('chu_tai_khoan_snapshot', 100);
-            $table->string('trang_thai', 20)->default('cho_duyet');
+            $table->integer('trang_thai')->default(0); // 0 = cho_duyet, 1 = da_duyet, 2 = tu_choi
             $table->text('ly_do_tu_choi')->nullable();
             $table->foreignId('admin_xu_ly_id')
                 ->nullable()
                 ->constrained('nguoi_dungs')
                 ->onDelete('set null');
             $table->timestamp('ngay_xu_ly')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
             $table->timestamps();
 
             $table->index('giao_vien_id');

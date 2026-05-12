@@ -44,7 +44,7 @@
                                     <div class="row g-4">
                                         <div class="col-12 d-flex align-items-center gap-4 mb-2">
                                             <div class="bg-light border rounded-3 d-flex align-items-center justify-content-center p-2" style="width: 100px; height: 100px;">
-                                                <img :src="general.logo_url" alt="Logo" class="img-fluid" v-if="general.logo_url">
+                                                <img :src="logoDisplayUrl" alt="Logo" class="img-fluid" v-if="logoDisplayUrl">
                                                 <i v-else-if="general.logo_icon" :class="general.logo_icon" style="font-size: 2rem; color: #ff6b35;"></i>
                                                 <i class="fa-solid fa-image text-muted fs-3" v-else></i>
                                             </div>
@@ -248,6 +248,8 @@ export default {
                 { id: 2, image: 'https://via.placeholder.com/800x400?text=Banner+Huong+Dan+Phu+Huynh', link: '/blog/huong-dan', is_active: true }
             ],
             isLoading: false,
+            isUploadingLogo: false,
+            localLogoPreviewUrl: '',
             isLoadingAi: false,
             isSavingAi: false,
             aiLoaded: false,
@@ -265,6 +267,9 @@ export default {
     },
     computed: {
         // Tính toán % sử dụng API để đổi màu thanh tiến trình
+        logoDisplayUrl() {
+            return this.localLogoPreviewUrl || this.general.logo_url || '';
+        },
         usagePercentage() {
             if (this.api.speech_to_text.monthly_limit === 0) return 0;
             return Math.round((this.api.speech_to_text.current_usage / this.api.speech_to_text.monthly_limit) * 100);
@@ -443,19 +448,66 @@ export default {
                 reader.readAsDataURL(file);
             });
         },
+        setLogoPreview(file) {
+            this.clearLogoPreview();
+            this.localLogoPreviewUrl = URL.createObjectURL(file);
+            this.general.logo_icon = '';
+        },
+        clearLogoPreview() {
+            if (this.localLogoPreviewUrl) {
+                URL.revokeObjectURL(this.localLogoPreviewUrl);
+            }
+            this.localLogoPreviewUrl = '';
+        },
         chonLogoTuMay(event) {
             const file = event.target.files?.[0];
             if (!file) return;
-            this.docFileAsDataUrl(file)
-                .then((dataUrl) => {
-                    this.general.logo_url = String(dataUrl);
-                    this.general.logo_icon = '';
+            if (!file.type || !file.type.startsWith('image/')) {
+                this.$toast.error("Vui lòng chọn file ảnh hợp lệ.");
+                event.target.value = "";
+                return;
+            }
+            const maxSize = 2 * 1024 * 1024;
+            if (file.size > maxSize) {
+                this.$toast.error("Logo không được vượt quá 2MB.");
+                event.target.value = "";
+                return;
+            }
+            this.setLogoPreview(file);
+            this.uploadLogo(file);
+        },
+        uploadLogo(file) {
+            this.isUploadingLogo = true;
+            const formData = new FormData();
+            formData.append('logo', file);
+
+            axios
+                .post("http://127.0.0.1:8000/api/admin/cau-hinh/chung/update-logo", formData, {
+                    headers: {
+                        ...this.authHeaders(),
+                        'Content-Type': 'multipart/form-data',
+                    }
                 })
-                .catch(() => {
-                    this.$toast.error("Không thể đọc file logo");
+                .then((res) => {
+                    if (res.data.status) {
+                        const duLieu = res.data.data?.du_lieu || {};
+                        this.general = { ...this.general, ...duLieu };
+                        this.$toast.success(res.data.message || "Đã cập nhật logo hệ thống");
+                        this.clearLogoPreview();
+                    } else {
+                        this.$toast.error(res.data.message || "Không thể cập nhật logo hệ thống");
+                        this.clearLogoPreview();
+                    }
+                })
+                .catch((err) => {
+                    this.xuLyLoiAxios(err, "Có lỗi xảy ra khi cập nhật logo hệ thống");
+                    this.clearLogoPreview();
                 })
                 .finally(() => {
-                    event.target.value = "";
+                    this.isUploadingLogo = false;
+                    if (this.$refs.logoInput) {
+                        this.$refs.logoInput.value = "";
+                    }
                 });
         },
         themBanner(image) {
@@ -531,6 +583,9 @@ export default {
                     this.xuLyLoiAxios(err, "Có lỗi xảy ra khi xóa banner");
                 });
         }
+    },
+    beforeUnmount() {
+        this.clearLogoPreview();
     }
 }
 </script>

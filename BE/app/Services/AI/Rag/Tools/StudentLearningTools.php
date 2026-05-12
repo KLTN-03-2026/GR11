@@ -71,7 +71,7 @@ class StudentLearningTools
             ->where(function ($q) use ($from): void {
                 $q->where('thoi_gian_bat_dau', '>=', $from)
                     ->orWhere('thoi_gian_ket_thuc', '>=', $from)
-                    ->orWhere('ngay_tao', '>=', $from);
+                    ->orWhere('created_at', '>=', $from);
             });
 
         $sessionCount = (int) (clone $query)->count();
@@ -105,7 +105,7 @@ class StudentLearningTools
             ->where(function ($q) use ($from): void {
                 $q->where('p.thoi_gian_bat_dau', '>=', $from)
                     ->orWhere('p.thoi_gian_ket_thuc', '>=', $from)
-                    ->orWhere('p.ngay_tao', '>=', $from);
+                    ->orWhere('p.created_at', '>=', $from);
             })
             ->selectRaw('SUM(CASE WHEN ct.loi_am_dau = 1 THEN 1 ELSE 0 END) as loi_am_dau')
             ->selectRaw('SUM(CASE WHEN ct.loi_van = 1 THEN 1 ELSE 0 END) as loi_van')

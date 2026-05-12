@@ -111,7 +111,6 @@ class StudentMessagingTools
             ],
             [
                 'trang_thai' => 'active',
-                'ngay_tao' => now(),
             ]
         );
 
@@ -122,7 +121,6 @@ class StudentMessagingTools
             'noi_dung' => $message,
             'type' => $type,
             'role' => 'user',
-            'ngay_tao' => now(),
         ]);
 
         return [
@@ -156,10 +154,10 @@ class StudentMessagingTools
                     ->orWhere('cs.participant_2_id', $student->id);
             })
             ->where('cm.sender_id', '!=', $student->id)
-            ->where('cm.ngay_tao', '>=', $from)
-            ->orderByDesc('cm.ngay_tao')
+            ->where('cm.created_at', '>=', $from)
+            ->orderByDesc('cm.created_at')
             ->limit($limit)
-            ->select('cm.id', 'cm.sender_id', 'cm.noi_dung', 'cm.ngay_tao', 'nd.ho_ten')
+            ->select('cm.id', 'cm.sender_id', 'cm.noi_dung', 'cm.created_at', 'nd.ho_ten')
             ->get();
 
         return [
@@ -170,7 +168,7 @@ class StudentMessagingTools
                     'id' => $m->id,
                     'from' => $m->ho_ten,
                     'content' => $m->noi_dung,
-                    'time' => $m->ngay_tao,
+                    'time' => $m->created_at,
                 ])->toArray(),
             ],
         ];

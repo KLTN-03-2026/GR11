@@ -27,7 +27,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => null,
-                'ngay_tao' => $now->copy()->subMinutes(29),
+                'created_at' => $now->copy()->subMinutes(29),
+                'updated_at' => $now->copy()->subMinutes(29),
             ],
             [
                 'id' => 2,
@@ -41,7 +42,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => null,
-                'ngay_tao' => $now->copy()->subMinutes(28),
+                'created_at' => $now->copy()->subMinutes(28),
+                'updated_at' => $now->copy()->subMinutes(28),
             ],
             [
                 'id' => 3,
@@ -55,7 +57,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => null,
-                'ngay_tao' => $now->copy()->subMinutes(27),
+                'created_at' => $now->copy()->subMinutes(27),
+                'updated_at' => $now->copy()->subMinutes(27),
             ],
 
             // Phiên 2 (phien_id = 2) - Phạm Thị Học, bài 4
@@ -71,7 +74,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => true,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => 'Phát âm ngắn hơn mẫu; cần kéo dài âm đôi.',
-                'ngay_tao' => $now->copy()->subDays(1)->subMinutes(19),
+                'created_at' => $now->copy()->subDays(1)->subMinutes(19),
+                'updated_at' => $now->copy()->subDays(1)->subMinutes(19),
             ],
             [
                 'id' => 5,
@@ -85,7 +89,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => null,
-                'ngay_tao' => $now->copy()->subDays(1)->subMinutes(18),
+                'created_at' => $now->copy()->subDays(1)->subMinutes(18),
+                'updated_at' => $now->copy()->subDays(1)->subMinutes(18),
             ],
 
             // Phiên 3 (phien_id = 3) - Đặng Minh Học, bài 3
@@ -101,7 +106,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => true,
                 'chi_tiet_loi' => 'Thanh điệu đôi khi bị sai khi nói câu.',
-                'ngay_tao' => $now->copy()->subDays(2)->subMinutes(14),
+                'created_at' => $now->copy()->subDays(2)->subMinutes(14),
+                'updated_at' => $now->copy()->subDays(2)->subMinutes(14),
             ],
 
             // Phiên 4 (phien_id = 4) - Hoàng Thị Thảo, bài 6
@@ -117,7 +123,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => null,
-                'ngay_tao' => $now->copy()->subDays(3)->subMinutes(39),
+                'created_at' => $now->copy()->subDays(3)->subMinutes(39),
+                'updated_at' => $now->copy()->subDays(3)->subMinutes(39),
             ],
 
             // Phiên 5 (phien_id = 5) - Bùi Văn Tài, bài 8
@@ -133,7 +140,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => false,
                 'chi_tiet_loi' => 'Âm m chưa rõ, cần bài tập môi và hơi.',
-                'ngay_tao' => $now->copy()->subHours(5),
+                'created_at' => $now->copy()->subHours(5),
+                'updated_at' => $now->copy()->subHours(5),
             ],
 
             // Phiên 6 (phien_id = 6) - Trịnh Thị Yêu, bài 10
@@ -149,7 +157,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van' => false,
                 'loi_thanh_dieu' => true,
                 'chi_tiet_loi' => 'Ngữ điệu chào hỏi chưa tự nhiên; cần luyện ngữ điệu câu.',
-                'ngay_tao' => $now->copy()->subDays(1)->subHours(2),
+                'created_at' => $now->copy()->subDays(1)->subHours(2),
+                'updated_at' => $now->copy()->subDays(1)->subHours(2),
             ],
         ];
 
@@ -167,7 +176,8 @@ class ChiTietLuyenTapSeeder extends Seeder
                 'loi_van',
                 'loi_thanh_dieu',
                 'chi_tiet_loi',
-                'ngay_tao'
+                'created_at',
+                'updated_at'
             ]
         );
     }

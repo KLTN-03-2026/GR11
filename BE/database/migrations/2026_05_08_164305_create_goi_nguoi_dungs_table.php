@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('gia_da_mua');
             $table->timestamp('ngay_kich_hoat')->useCurrent();
             $table->dateTime('ngay_het_han');
-            $table->string('trang_thai', 20)->default('dang_hoat_dong');
+            $table->integer('trang_thai')->default(1); // 0 = het_han, 1 = dang_hoat_dong
             $table->timestamps();
 
             $table->index('nguoi_dung_id');

@@ -61,8 +61,8 @@ class BookmarkController extends Controller
                 'da_hoan_thanh' => $bookmark->da_hoan_thanh,
                 'ngay_danh_dau' => $bookmark->ngay_danh_dau,
                 'ngay_hoan_thanh' => $bookmark->ngay_hoan_thanh,
-                'ngay_tao' => $bookmark->ngay_tao,
-                'ngay_cap_nhat' => $bookmark->ngay_cap_nhat,
+                'ngay_tao' => $bookmark->created_at,
+                'ngay_cap_nhat' => $bookmark->updated_at,
             ];
         });
 
@@ -199,7 +199,7 @@ class BookmarkController extends Controller
                 'id' => $bookmark->id,
                 'muc_do_uu_tien' => $bookmark->muc_do_uu_tien,
                 'ghi_chu' => $bookmark->ghi_chu,
-                'ngay_cap_nhat' => $bookmark->ngay_cap_nhat,
+                'ngay_cap_nhat' => $bookmark->updated_at,
             ],
         ]);
     }

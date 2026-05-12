@@ -931,122 +931,146 @@
 <script>
 import axios from "axios";
 
-const TOPIC_STYLE_PRESETS = [
+const MAU_HINH_CHU_DE = [
   { image: "/Client/images/classes-1.jpg" },
   { image: "/Client/images/classes-2.jpg" },
   { image: "/Client/images/classes-3.jpg" },
   { image: "/Client/images/classes-4.jpg" },
 ];
 
-const LESSON_STYLE_PRESETS = [
+const MAU_HINH_BAI_HOC = [
   { image: "/Client/images/classes-5.jpg" },
   { image: "/Client/images/classes-6.jpg" },
   { image: "/Client/images/about-1.jpg" },
   { image: "/Client/images/about-2.jpg" },
 ];
 
-export default {
-  name: "HomePage",
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api",
+  timeout: 10000,
+});
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token_nguoi_dung");
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
+export default {
+  name: "TrangChu",
   data() {
     return {
-      favoriteTopics: [],
-      favoriteLessons: [],
+      danhSachChuDeYeuThich: [],
+      danhSachBaiHocYeuThich: [],
+      dangTai: false,
     };
   },
-
   mounted() {
-    this.fetchHomeData();
-    this.initCarousel();
+    this.khoiTaoTrang();
   },
-
   beforeUnmount() {
-    const $carousel = $(".header-carousel");
-
-    if ($carousel.length && $carousel.hasClass("owl-loaded")) {
-      $carousel.trigger("destroy.owl.carousel");
-    }
+    this.huyCarouselNeuCan();
   },
-
   watch: {
     $route() {
       this.$nextTick(() => {
-        this.initCarousel();
-        this.hydrateHomepageCards();
+        this.huyCarouselNeuCan();
+        this.khoiTaoCarousel();
+        this.capNhatTheGiaoDien();
       });
     },
   },
-
   methods: {
-    fetchHomeData() {
-      axios
-        .get("http://127.0.0.1:8000/api/homepage/data-open")
-        .then((res) => {
-          const categories = Array.isArray(res.data?.featured_categories)
-            ? res.data.featured_categories
-            : [];
-          const lessons = Array.isArray(res.data?.featured_lessons)
-            ? res.data.featured_lessons
-            : [];
+    async khoiTaoTrang() {
+      await this.layDuLieuTrangChu();
+      this.khoiTaoCarousel();
+    },
 
-          this.favoriteTopics = categories.map((item, index) =>
-            this.mapTopic(item, index)
-          );
-          this.favoriteLessons = lessons.map((item, index) =>
-            this.mapLesson(item, index)
-          );
-
-          this.$nextTick(() => {
-            this.hydrateHomepageCards();
+    xuLyLoiApi(err) {
+      try {
+        const errors = err?.response?.data?.errors;
+        if (errors && typeof errors === "object") {
+          Object.values(errors).forEach((arr) => {
+            if (Array.isArray(arr) && arr[0]) {
+              this.$toast?.error(arr[0]);
+            }
           });
-        })
-        .catch((error) => {
-          console.error(error);
-          this.favoriteTopics = [];
-          this.favoriteLessons = [];
-        });
-    },
-
-    mapTopic(item, index) {
-      const style = TOPIC_STYLE_PRESETS[index % TOPIC_STYLE_PRESETS.length];
-
-      return {
-        id: item.id,
-        name: item.ten_danh_muc,
-        description: item.mo_ta || "",
-        totalLesson: item.so_luong_bai_hoc ?? 0,
-        image: style.image,
-      };
-    },
-
-    mapLesson(item, index) {
-      const style = LESSON_STYLE_PRESETS[index % LESSON_STYLE_PRESETS.length];
-
-      return {
-        id: item.id,
-        title: item.tieu_de,
-        description: item.mo_ta || "",
-        categoryId: item.danh_muc_id,
-        image: style.image,
-      };
-    },
-
-    hydrateHomepageCards() {
-      if (!this.$el) {
-        return;
+          return;
+        }
+      } catch (e) {
+        console.warn("Lỗi khi phân tích response:", e);
       }
+      console.error(err);
+      this.$toast?.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+    },
+
+    async layDuLieuTrangChu() {
+      this.dangTai = true;
+      try {
+        const res = await api.get("/homepage/data-open");
+        const categories = Array.isArray(res.data?.featured_categories)
+          ? res.data.featured_categories
+          : [];
+        const lessons = Array.isArray(res.data?.featured_lessons)
+          ? res.data.featured_lessons
+          : [];
+
+        this.danhSachChuDeYeuThich = categories.map((item, index) =>
+          this.anhXaChuDe(item, index)
+        );
+        this.danhSachBaiHocYeuThich = lessons.map((item, index) =>
+          this.anhXaBaiHoc(item, index)
+        );
+
+        this.$nextTick(() => {
+          this.capNhatTheGiaoDien();
+        });
+      } catch (err) {
+        this.danhSachChuDeYeuThich = [];
+        this.danhSachBaiHocYeuThich = [];
+        this.xuLyLoiApi(err);
+      } finally {
+        this.dangTai = false;
+      }
+    },
+
+    anhXaChuDe(item, index) {
+      const style = MAU_HINH_CHU_DE[index % MAU_HINH_CHU_DE.length];
+      return {
+        id: item.id,
+        ten: item.ten_danh_muc,
+        moTa: item.mo_ta || "",
+        tongBaiHoc: item.so_luong_bai_hoc ?? 0,
+        hinhAnh: style.image,
+      };
+    },
+
+    anhXaBaiHoc(item, index) {
+      const style = MAU_HINH_BAI_HOC[index % MAU_HINH_BAI_HOC.length];
+      return {
+        id: item.id,
+        tieuDe: item.tieu_de,
+        moTa: item.mo_ta || "",
+        danhMucId: item.danh_muc_id,
+        hinhAnh: style.image,
+      };
+    },
+
+    capNhatTheGiaoDien() {
+      if (!this.$el) return;
 
       const cards = Array.from(this.$el.querySelectorAll(".favorite-card"));
       const topicCards = cards.slice(0, 4);
       const lessonCards = cards.slice(4, 8);
 
-      topicCards.forEach((card, index) => {
-        this.hydrateTopicCard(card, this.favoriteTopics[index]);
-      });
-
-      lessonCards.forEach((card, index) => {
-        this.hydrateLessonCard(card, this.favoriteLessons[index]);
-      });
+      topicCards.forEach((card, index) =>
+        this.capNhatTheChuDe(card, this.danhSachChuDeYeuThich[index])
+      );
+      lessonCards.forEach((card, index) =>
+        this.capNhatTheBaiHoc(card, this.danhSachBaiHocYeuThich[index])
+      );
 
       const primaryButtons = Array.from(
         this.$el.querySelectorAll(
@@ -1054,46 +1078,32 @@ export default {
         )
       );
 
-      if (primaryButtons[0]) {
-        primaryButtons[0].onclick = () => this.goToCategoryList();
-      }
-
-      if (primaryButtons[1]) {
-        primaryButtons[1].onclick = () => this.goToLessonList();
-      }
+      if (primaryButtons[0]) primaryButtons[0].onclick = () => this.diDenDanhSachDanhMuc();
+      if (primaryButtons[1]) primaryButtons[1].onclick = () => this.diDenDanhSachBaiHoc();
     },
 
-    hydrateTopicCard(card, topic) {
+    capNhatTheChuDe(card, chuDe) {
       const column = card.closest(".col-lg-3");
-      if (!topic) {
-        if (column) {
-          column.style.display = "none";
-        }
+      if (!chuDe) {
+        if (column) column.style.display = "none";
         return;
       }
-
-      if (column) {
-        column.style.display = "";
-      }
+      if (column) column.style.display = "";
 
       card.style.cursor = "pointer";
-      card.onclick = () => this.goToCategory(topic.id);
+      card.onclick = () => this.diDenDanhMuc(chuDe.id);
 
       const image = card.querySelector("img");
       if (image) {
-        image.src = topic.image;
-        image.alt = topic.name;
+        image.src = chuDe.hinhAnh;
+        image.alt = chuDe.ten;
       }
 
       const title = card.querySelector("h5");
-      if (title) {
-        title.textContent = topic.name;
-      }
+      if (title) title.textContent = chuDe.ten;
 
       const desc = card.querySelector("p");
-      if (desc) {
-        desc.textContent = topic.description || "Chua cap nhat mo ta.";
-      }
+      if (desc) desc.textContent = chuDe.moTa || "Chưa cập nhật mô tả.";
 
       let meta = card.querySelector("small");
       if (!meta) {
@@ -1101,89 +1111,84 @@ export default {
         meta.className = "text-primary fw-semibold d-block mt-2";
         card.querySelector(".p-4")?.appendChild(meta);
       }
-
-      meta.textContent = `${topic.totalLesson} bai hoc`;
+      meta.textContent = `${chuDe.tongBaiHoc} bài học`;
     },
 
-    hydrateLessonCard(card, lesson) {
+    capNhatTheBaiHoc(card, baiHoc) {
       const column = card.closest(".col-lg-3");
-      if (!lesson) {
-        if (column) {
-          column.style.display = "none";
-        }
+      if (!baiHoc) {
+        if (column) column.style.display = "none";
         return;
       }
-
-      if (column) {
-        column.style.display = "";
-      }
+      if (column) column.style.display = "";
 
       card.onclick = null;
 
       const image = card.querySelector("img");
       if (image) {
-        image.src = lesson.image;
-        image.alt = lesson.title;
+        image.src = baiHoc.hinhAnh;
+        image.alt = baiHoc.tieuDe;
       }
 
       const title = card.querySelector("h5");
-      if (title) {
-        title.textContent = lesson.title;
-      }
+      if (title) title.textContent = baiHoc.tieuDe;
 
       const desc = card.querySelector("p");
-      if (desc) {
-        desc.textContent = lesson.description || "San sang cho be luyen tap.";
-      }
+      if (desc) desc.textContent = baiHoc.moTa || "Sẵn sàng cho bé luyện tập.";
 
       const button = card.querySelector("button");
       if (button) {
         button.onclick = (event) => {
           event.stopPropagation();
-          this.goToLesson(lesson.id);
+          this.diDenBaiHoc(baiHoc.id);
         };
       }
     },
 
-    goToCategory(categoryId) {
+    diDenDanhMuc(danhMucId) {
       this.$router.push({
         path: "/bai-hoc",
-        query: { danh_muc_id: String(categoryId) },
+        query: { danh_muc_id: String(danhMucId) },
       });
     },
-
-    goToLesson(lessonId) {
-      this.$router.push(`/chi-tiet-bai-hoc/${lessonId}`);
+    diDenBaiHoc(baiHocId) {
+      this.$router.push(`/chi-tiet-bai-hoc/${baiHocId}`);
     },
-
-    goToCategoryList() {
+    diDenDanhSachDanhMuc() {
       this.$router.push("/chu-de");
     },
-
-    goToLessonList() {
+    diDenDanhSachBaiHoc() {
       this.$router.push("/bai-hoc");
     },
 
-    initCarousel() {
-      this.$nextTick(() => {
-        const $carousel = $(".header-carousel");
+    huyCarouselNeuCan() {
+      try {
+        const $carousel = typeof window !== "undefined" ? $(".header-carousel") : null;
+        if ($carousel && $carousel.length && $carousel.hasClass("owl-loaded")) {
+          $carousel.trigger("destroy.owl.carousel");
+        }
+      } catch (e) {
+        console.warn("Không thể hủy carousel:", e);
+      }
+    },
 
-        if (window.$ && $carousel.length) {
-          // destroy carousel cũ
+    khoiTaoCarousel() {
+      this.$nextTick(() => {
+        try {
+          const $carousel = typeof window !== "undefined" ? $(".header-carousel") : null;
+          if (!window.$ || !$carousel || !$carousel.length) return;
+
           if ($carousel.hasClass("owl-loaded")) {
             $carousel.trigger("destroy.owl.carousel");
-
             $carousel.removeClass("owl-loaded owl-hidden");
             $carousel.find(".owl-stage-outer").children().unwrap();
             $carousel.find(".owl-stage").children().unwrap();
             $carousel.find(".owl-item").children().unwrap();
-
             $carousel.find(".owl-stage-outer").remove();
             $carousel.find(".owl-nav").remove();
             $carousel.find(".owl-dots").remove();
           }
 
-          // khởi tạo lại
           $carousel.owlCarousel({
             autoplay: true,
             autoplayTimeout: 5000,
@@ -1198,12 +1203,15 @@ export default {
               '<i class="bi bi-chevron-right"></i>',
             ],
           });
+        } catch (e) {
+          console.warn("Không thể khởi tạo carousel:", e);
         }
       });
     },
   },
 };
 </script>
+
 <style>
 .carousel-full {
   width: 100vw;

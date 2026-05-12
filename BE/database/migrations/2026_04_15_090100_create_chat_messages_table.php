@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('session_id')->constrained('chat_sessions')->cascadeOnDelete();
             $table->string('role', 20);
             $table->longText('content');
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             $table->index(['session_id', 'created_at']);
         });

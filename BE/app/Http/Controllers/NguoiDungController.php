@@ -121,8 +121,12 @@ class NguoiDungController extends Controller
             Storage::disk('public')->delete($anhCu);
         }
 
-        $duongDanAnh = $request->file('anh_dai_dien')->store('avatars', 'public');
-        $user->anh_dai_dien = $duongDanAnh;
+        $uploadedFile = cloudinary()->uploadApi()->upload(
+            $request->file('anh_dai_dien')->getRealPath(),
+            ['folder' => 'avatars']
+        );
+
+        $user->anh_dai_dien = $uploadedFile['secure_url'];
         $user->save();
         $user->load('vaiTro');
 

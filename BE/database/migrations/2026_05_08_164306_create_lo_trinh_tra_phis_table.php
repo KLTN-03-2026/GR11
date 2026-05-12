@@ -19,7 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->unsignedBigInteger('gia');
             $table->text('mo_ta_ban')->nullable();
-            $table->string('trang_thai', 20)->default('cho_duyet');
+            $table->integer('trang_thai')->default(0); // 0 = cho_duyet, 1 = da_duyet, 2 = tu_choi
             $table->timestamp('ngay_duyet')->nullable();
             $table->timestamps();
 

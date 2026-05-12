@@ -20,9 +20,8 @@ return new class extends Migration
             $table->integer('so_lan_mac_loi')->default(1); // Số lần trẻ em mắc lỗi này
             $table->timestamp('lan_mac_loi_gan_nhat')->useCurrent(); // Lần gần nhất mắc lỗi
             $table->text('chi_tiet_loi')->nullable(); // Chi tiết về lỗi
-            $table->string('trang_thai', 50)->default('chua_on_tap'); // 'chua_on_tap', 'dang_on_tap', 'da_phat_hien_on_tap'
-            $table->timestamp('ngay_tao')->useCurrent();
-            $table->timestamp('ngay_cap_nhat')->useCurrent()->useCurrentOnUpdate();
+            $table->integer('trang_thai')->default(0); // 0 = chua_on_tap, 1 = dang_on_tap, 2 = da_hoan_thanh_on_tap
+            $table->timestamps();
             
             // Indexes để tối ưu query
             $table->index('nguoi_dung_id');

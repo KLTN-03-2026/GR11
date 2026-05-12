@@ -9,16 +9,16 @@ class HomeController extends Controller
     public function dataOpen()
     {
         $categories = DanhMucBaiHoc::query()
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->orderBy('thu_tu')
             ->withCount([
                 'baiHocs as so_luong_bai_hoc' => function ($query): void {
-                    $query->where('trang_thai', 1);
+                    $query->where('trang_thai', 0);
                 },
             ])
             ->with([
                 'baiHocs' => function ($query) {
-                    $query->where('trang_thai', 1)
+                    $query->where('trang_thai', 0)
                         ->orderBy('thu_tu')
                         ->select(
                             'id',

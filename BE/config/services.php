@@ -56,4 +56,8 @@ return [
         'secret' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
+    'python_ai' => [
+        'url' => env('PYTHON_AI_URL', 'http://127.0.0.1:8001'),
+    ],
+
 ];

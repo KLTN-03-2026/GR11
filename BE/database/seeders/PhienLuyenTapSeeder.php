@@ -21,7 +21,8 @@ class PhienLuyenTapSeeder extends Seeder
                 'thoi_gian_bat_dau' => $now->copy()->subMinutes(30),
                 'thoi_gian_ket_thuc' => $now->copy()->subMinutes(25),
                 'tong_diem' => 85,
-                'ngay_tao' => $now->copy()->subMinutes(30),
+                'created_at' => $now->copy()->subMinutes(30),
+                'updated_at' => $now->copy()->subMinutes(30),
             ],
             [
                 'id' => 2,
@@ -30,7 +31,8 @@ class PhienLuyenTapSeeder extends Seeder
                 'thoi_gian_bat_dau' => $now->copy()->subDays(1)->subMinutes(20),
                 'thoi_gian_ket_thuc' => $now->copy()->subDays(1)->subMinutes(10),
                 'tong_diem' => 72,
-                'ngay_tao' => $now->copy()->subDays(1)->subMinutes(20),
+                'created_at' => $now->copy()->subDays(1)->subMinutes(20),
+                'updated_at' => $now->copy()->subDays(1)->subMinutes(20),
             ],
             [
                 'id' => 3,
@@ -39,7 +41,8 @@ class PhienLuyenTapSeeder extends Seeder
                 'thoi_gian_bat_dau' => $now->copy()->subDays(2)->subMinutes(15),
                 'thoi_gian_ket_thuc' => $now->copy()->subDays(2)->subMinutes(5),
                 'tong_diem' => 90,
-                'ngay_tao' => $now->copy()->subDays(2)->subMinutes(15),
+                'created_at' => $now->copy()->subDays(2)->subMinutes(15),
+                'updated_at' => $now->copy()->subDays(2)->subMinutes(15),
             ],
             [
                 'id' => 4,
@@ -48,7 +51,8 @@ class PhienLuyenTapSeeder extends Seeder
                 'thoi_gian_bat_dau' => $now->copy()->subDays(3)->subMinutes(40),
                 'thoi_gian_ket_thuc' => $now->copy()->subDays(3)->subMinutes(20),
                 'tong_diem' => 98,
-                'ngay_tao' => $now->copy()->subDays(3)->subMinutes(40),
+                'created_at' => $now->copy()->subDays(3)->subMinutes(40),
+                'updated_at' => $now->copy()->subDays(3)->subMinutes(40),
             ],
             [
                 'id' => 5,
@@ -57,7 +61,8 @@ class PhienLuyenTapSeeder extends Seeder
                 'thoi_gian_bat_dau' => $now->copy()->subHours(5),
                 'thoi_gian_ket_thuc' => $now->copy()->subHours(4)->subMinutes(50),
                 'tong_diem' => 55,
-                'ngay_tao' => $now->copy()->subHours(5),
+                'created_at' => $now->copy()->subHours(5),
+                'updated_at' => $now->copy()->subHours(5),
             ],
             [
                 'id' => 6,
@@ -66,14 +71,15 @@ class PhienLuyenTapSeeder extends Seeder
                 'thoi_gian_bat_dau' => $now->copy()->subDays(1)->subHours(2),
                 'thoi_gian_ket_thuc' => $now->copy()->subDays(1)->subHours(1)->subMinutes(50),
                 'tong_diem' => 82,
-                'ngay_tao' => $now->copy()->subDays(1)->subHours(2),
+                'created_at' => $now->copy()->subDays(1)->subHours(2),
+                'updated_at' => $now->copy()->subDays(1)->subHours(2),
             ],
         ];
 
         DB::table('phien_luyen_taps')->upsert(
             $phienLuyenTaps,
             ['id'],
-            ['nguoi_dung_id', 'bai_hoc_id', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'tong_diem', 'ngay_tao']
+            ['nguoi_dung_id', 'bai_hoc_id', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'tong_diem', 'created_at', 'updated_at']
         );
     }
 }

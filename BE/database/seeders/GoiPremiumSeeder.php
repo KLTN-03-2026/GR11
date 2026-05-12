@@ -19,7 +19,7 @@ class GoiPremiumSeeder extends Seeder
                 'gia' => 149000,
                 'thoi_han_ngay' => 30,
                 'tinh_nang' => json_encode([]),
-                'trang_thai' => true,
+                'trang_thai' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -32,7 +32,7 @@ class GoiPremiumSeeder extends Seeder
                 'tinh_nang' => json_encode([
                     'gioi_han_hoc_vien' => 80,
                 ]),
-                'trang_thai' => true,
+                'trang_thai' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],

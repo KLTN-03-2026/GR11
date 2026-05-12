@@ -9,8 +9,6 @@ class DiemDanhLoi extends Model
 {
     protected $table = 'diem_danh_lois';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'nguoi_dung_id',
         'tu_vung_id',
@@ -19,17 +17,16 @@ class DiemDanhLoi extends Model
         'da_hoan_thanh',
         'ngay_danh_dau',
         'ngay_hoan_thanh',
-        'ngay_tao',
-        'ngay_cap_nhat',
     ];
 
-    protected $casts = [
-        'da_hoan_thanh' => 'boolean',
-        'ngay_danh_dau' => 'datetime',
-        'ngay_hoan_thanh' => 'datetime',
-        'ngay_tao' => 'datetime',
-        'ngay_cap_nhat' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'da_hoan_thanh' => 'boolean',
+            'ngay_danh_dau' => 'datetime',
+            'ngay_hoan_thanh' => 'datetime',
+        ];
+    }
 
     /**
      * @return BelongsTo<NguoiDung, $this>

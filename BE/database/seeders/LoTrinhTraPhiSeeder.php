@@ -21,7 +21,7 @@ class LoTrinhTraPhiSeeder extends Seeder
             'lo_trinh_id' => $lt->id,
             'gia' => 149000,
             'mo_ta_ban' => 'Lộ trình phát âm nâng cao do giáo viên biên soạn.',
-            'trang_thai' => 'da_duyet',
+            'trang_thai' => 1,
             'ngay_duyet' => $now,
             'created_at' => $now,
             'updated_at' => $now,
