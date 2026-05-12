@@ -109,7 +109,6 @@ class ChiTietLuyenTapController extends Controller
                     'so_lan_mac_loi'      => $existing->so_lan_mac_loi + 1,
                     'lan_mac_loi_gan_nhat' => $now,
                     'chi_tiet_loi'        => $chiTietLoiJson,
-                    'ngay_cap_nhat'       => $now,
                 ]);
             } else {
                 LichSuLoiPhatAm::create([
@@ -120,9 +119,7 @@ class ChiTietLuyenTapController extends Controller
                     'so_lan_mac_loi'      => 1,
                     'lan_mac_loi_gan_nhat' => $now,
                     'chi_tiet_loi'        => $chiTietLoiJson,
-                    'trang_thai'          => 'chua_on_tap',
-                    'ngay_tao'            => $now,
-                    'ngay_cap_nhat'       => $now,
+                    'trang_thai'          => 0,
                 ]);
             }
         }

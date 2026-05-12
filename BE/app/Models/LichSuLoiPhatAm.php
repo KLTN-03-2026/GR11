@@ -9,8 +9,6 @@ class LichSuLoiPhatAm extends Model
 {
     protected $table = 'lich_su_loi_phat_ams';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'nguoi_dung_id',
         'tu_vung_id',
@@ -20,15 +18,14 @@ class LichSuLoiPhatAm extends Model
         'lan_mac_loi_gan_nhat',
         'chi_tiet_loi',
         'trang_thai',
-        'ngay_tao',
-        'ngay_cap_nhat',
     ];
 
-    protected $casts = [
-        'lan_mac_loi_gan_nhat' => 'datetime',
-        'ngay_tao' => 'datetime',
-        'ngay_cap_nhat' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'lan_mac_loi_gan_nhat' => 'datetime',
+        ];
+    }
 
     /**
      * @return BelongsTo<NguoiDung, $this>

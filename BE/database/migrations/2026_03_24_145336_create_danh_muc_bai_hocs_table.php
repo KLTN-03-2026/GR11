@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('mo_ta')->nullable();
             $table->integer('trang_thai')->default(0); // 0 = hiển thị, 1 = tạm ẩn
             $table->integer('thu_tu')->nullable();
-            $table->dateTime('ngay_tao')->default(now());
             $table->timestamps();
         });
     }

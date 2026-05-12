@@ -27,7 +27,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => $index + 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
         $tu_vung = [
@@ -40,7 +41,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 2,
@@ -50,7 +52,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // Phụ âm M
             [
@@ -61,7 +64,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 2,
@@ -71,7 +75,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // Phụ âm P (ít từ đơn, thường dùng trong từ mượn hoặc ghép)
             [
@@ -82,7 +87,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // Phụ âm PH
             [
@@ -93,7 +99,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 2,
@@ -103,7 +110,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,     
                 'am_thanh_mau_url' => null, 
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // --- PHỤ ÂM T ---
             [
@@ -114,7 +122,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 3,
@@ -124,7 +133,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM TH ---
@@ -136,7 +146,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 3,
@@ -146,7 +157,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM N ---
@@ -158,7 +170,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 3,
@@ -168,7 +181,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM L ---
@@ -180,7 +194,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 3,
@@ -190,7 +205,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM D (Đọc là "giờ") ---
@@ -202,7 +218,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 3,
@@ -212,7 +229,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // --- PHỤ ÂM TR (Quặt lưỡi) ---
             [
@@ -223,7 +241,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 4,
@@ -233,7 +252,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM CH (Mặt lưỡi) ---
@@ -245,7 +265,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 4,
@@ -255,7 +276,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM R (Rung/Quặt lưỡi) ---
@@ -267,7 +289,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 4,
@@ -277,7 +300,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM S (Xát quặt lưỡi - "s nặng") ---
@@ -289,7 +313,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 4,
@@ -299,7 +324,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM X (Xát đầu lưỡi - "x nhẹ") ---
@@ -311,7 +337,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 4,
@@ -321,7 +348,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // --- PHỤ ÂM C / K (Âm tắc gốc lưỡi) ---
             [
@@ -332,7 +360,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 5,
@@ -342,7 +371,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM G / GH ---
@@ -354,7 +384,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 5,
@@ -364,7 +395,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM KH (Âm xát gốc lưỡi) ---
@@ -376,7 +408,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 5,
@@ -386,7 +419,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM H (Âm khe cửa thanh) ---
@@ -398,7 +432,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 5,
@@ -408,7 +443,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- PHỤ ÂM NG / NGH (Âm mũi gốc lưỡi) ---
@@ -420,7 +456,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 5,
@@ -430,7 +467,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // --- THANH NGANG (Không dấu) ---
             [
@@ -441,7 +479,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- THANH HUYỀN ---
@@ -453,7 +492,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- THANH SẮC ---
@@ -465,7 +505,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- THANH HỎI ---
@@ -477,7 +518,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- THANH NGÃ ---
@@ -489,7 +531,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- THANH NẶNG ---
@@ -501,7 +544,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VÍ DỤ MINH HỌA KHÁC (Để trẻ so sánh) ---
@@ -513,7 +557,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 6,
@@ -523,7 +568,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 6,
@@ -533,7 +579,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // --- VẦN -AN (Kết thúc chạm đầu lưỡi) ---
             [
@@ -544,7 +591,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 7,
@@ -554,7 +602,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VẦN -AT (Kết thúc chặn hơi đầu lưỡi) ---
@@ -566,7 +615,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 7,
@@ -576,7 +626,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VẦN -AM (Kết thúc mím môi - âm mũi) ---
@@ -588,7 +639,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 7,
@@ -598,7 +650,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VẦN -AP (Kết thúc mím môi - âm bật/tắc) ---
@@ -610,7 +663,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 7,
@@ -620,7 +674,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 7,
@@ -630,7 +685,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // --- VẦN -ONG (Nguyên âm tròn môi + âm mũi gốc lưỡi) ---
             [
@@ -641,7 +697,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 8,
@@ -651,7 +708,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VẦN -OC (Âm tắc gốc lưỡi, môi khép nhanh) ---
@@ -663,7 +721,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 8,
@@ -673,7 +732,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VẦN -ANG (Âm mở, kết thúc tại gốc lưỡi) ---
@@ -685,7 +745,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 8,
@@ -695,7 +756,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
 
             // --- VẦN -AC (Âm mở, chặn hơi tại gốc lưỡi) ---
@@ -707,7 +769,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 8,
@@ -717,7 +780,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 8,
@@ -727,7 +791,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -737,7 +802,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -747,7 +813,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -757,7 +824,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -767,7 +835,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -777,7 +846,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -787,7 +857,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -797,7 +868,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -807,7 +879,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 9,
@@ -817,7 +890,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -827,7 +901,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -837,7 +912,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -847,7 +923,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -857,7 +934,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -867,7 +945,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -877,7 +956,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -887,7 +967,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -897,7 +978,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 10,
@@ -907,7 +989,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -917,7 +1000,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -927,7 +1011,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -937,7 +1022,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -947,7 +1033,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -957,7 +1044,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -967,7 +1055,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -977,7 +1066,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 11,
@@ -987,7 +1077,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -997,7 +1088,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1007,7 +1099,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1017,7 +1110,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1027,7 +1121,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1037,7 +1132,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1047,7 +1143,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1057,7 +1154,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1067,7 +1165,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1077,7 +1176,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1087,7 +1187,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1097,7 +1198,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1107,7 +1209,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1117,7 +1220,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1127,7 +1231,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1137,7 +1242,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 13,
@@ -1147,7 +1253,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1157,7 +1264,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1167,7 +1275,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1177,7 +1286,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1187,7 +1297,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1197,7 +1308,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1207,7 +1319,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1217,7 +1330,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 14,
@@ -1227,7 +1341,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1237,7 +1352,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1247,7 +1363,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1257,7 +1374,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1267,7 +1385,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1277,7 +1396,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1287,7 +1407,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1297,7 +1418,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 15,
@@ -1307,7 +1429,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1317,7 +1440,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1327,7 +1451,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1337,7 +1462,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1347,7 +1473,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1357,7 +1484,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1367,7 +1495,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1377,7 +1506,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 16,
@@ -1387,7 +1517,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1397,7 +1528,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1407,7 +1539,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1417,7 +1550,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1427,7 +1561,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1437,7 +1572,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1447,7 +1583,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1457,7 +1594,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 17,
@@ -1467,7 +1605,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1477,7 +1616,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1487,7 +1627,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1497,7 +1638,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1507,7 +1649,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1517,7 +1660,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1527,7 +1671,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1537,7 +1682,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 18,
@@ -1547,7 +1693,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1557,7 +1704,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1567,7 +1715,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1577,7 +1726,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1587,7 +1737,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1597,7 +1748,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1607,7 +1759,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1617,7 +1770,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1627,7 +1781,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1637,7 +1792,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1647,7 +1803,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1657,7 +1814,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1667,7 +1825,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1677,7 +1836,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1687,7 +1847,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 14,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1697,7 +1858,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 15,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 19,
@@ -1707,7 +1869,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 16,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1717,7 +1880,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 12,
@@ -1727,7 +1891,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1737,7 +1902,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1747,7 +1913,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1757,7 +1924,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1767,7 +1935,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1777,7 +1946,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1787,7 +1957,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1797,7 +1968,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1807,7 +1979,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1817,7 +1990,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1827,7 +2001,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1837,7 +2012,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1847,7 +2023,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 14,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1857,7 +2034,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 15,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 20,
@@ -1867,7 +2045,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 16,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1877,7 +2056,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1887,7 +2067,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1897,7 +2078,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1907,7 +2089,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1917,7 +2100,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1927,7 +2111,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1937,7 +2122,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1947,7 +2133,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1957,7 +2144,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1967,7 +2155,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1977,7 +2166,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1987,7 +2177,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -1997,7 +2188,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -2007,7 +2199,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 14,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -2017,7 +2210,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 15,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 21,
@@ -2027,7 +2221,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 16,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2037,7 +2232,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2047,7 +2243,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2057,7 +2254,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2067,7 +2265,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2077,7 +2276,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2087,7 +2287,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2097,7 +2298,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2107,7 +2309,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2117,7 +2320,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2127,7 +2331,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2137,7 +2342,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2147,7 +2353,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2157,7 +2364,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2167,7 +2375,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 14,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2177,7 +2386,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 15,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2187,7 +2397,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 16,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2197,7 +2408,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 17,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2207,7 +2419,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 18,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2217,7 +2430,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 19,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 22,
@@ -2227,7 +2441,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 20,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2237,7 +2452,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2247,7 +2463,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2257,7 +2474,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2267,7 +2485,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2277,7 +2496,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2287,7 +2507,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2297,7 +2518,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 23,
@@ -2307,7 +2529,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2317,7 +2540,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2327,7 +2551,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2337,7 +2562,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2347,7 +2573,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2357,7 +2584,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2367,7 +2595,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2377,7 +2606,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2387,7 +2617,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2397,7 +2628,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2407,7 +2639,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2417,7 +2650,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2427,7 +2661,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2437,7 +2672,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2447,7 +2683,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 14,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2457,7 +2694,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 15,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 24,
@@ -2467,7 +2705,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 16,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 25: Cây Cối
             [
@@ -2478,7 +2717,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2488,7 +2728,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2498,7 +2739,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2508,7 +2750,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2518,7 +2761,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2528,7 +2772,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2538,7 +2783,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 25,
@@ -2548,7 +2794,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 26: Thời Tiết & Thiên Nhiên
             [
@@ -2559,7 +2806,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2569,7 +2817,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2579,7 +2828,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2589,7 +2839,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2599,7 +2850,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2609,7 +2861,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2619,7 +2872,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2629,7 +2883,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2639,7 +2894,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2649,7 +2905,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2659,7 +2916,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2669,7 +2927,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2679,7 +2938,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2689,7 +2949,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 14,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2699,7 +2960,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 15,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2709,7 +2971,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 16,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2719,7 +2982,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 17,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 26,
@@ -2729,7 +2993,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 18,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 27: Địa Hình
             [
@@ -2740,7 +3005,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2750,7 +3016,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2760,7 +3027,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2770,7 +3038,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2780,7 +3049,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2790,7 +3060,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2800,7 +3071,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2810,7 +3082,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2820,7 +3093,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 27,
@@ -2830,7 +3104,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
              [
                 'bai_hoc_id' => 28,
@@ -2840,7 +3115,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 28,
@@ -2850,7 +3126,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 28,
@@ -2860,7 +3137,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 28,
@@ -2870,7 +3148,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 28,
@@ -2880,7 +3159,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 28,
@@ -2890,7 +3170,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 28,
@@ -2900,7 +3181,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 29: Màu Sắc
             [
@@ -2911,7 +3193,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2921,7 +3204,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2931,7 +3215,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2941,7 +3226,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2951,7 +3237,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2961,7 +3248,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2971,7 +3259,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2981,7 +3270,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -2991,7 +3281,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 29,
@@ -3001,7 +3292,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 30: Hình Dạng & Kích Thước
             [
@@ -3012,7 +3304,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3022,7 +3315,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3032,7 +3326,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3042,7 +3337,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3052,7 +3348,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3062,7 +3359,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3072,7 +3370,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3082,7 +3381,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3092,7 +3392,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3102,7 +3403,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 30,
@@ -3112,7 +3414,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3122,7 +3425,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3132,7 +3436,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3142,7 +3447,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3152,7 +3458,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3162,7 +3469,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3172,7 +3480,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3182,7 +3491,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3192,7 +3502,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3202,7 +3513,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 31,
@@ -3212,7 +3524,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 32: Hoạt Động Ở Trường
             [
@@ -3223,7 +3536,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3233,7 +3547,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3243,7 +3558,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3253,7 +3569,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3263,7 +3580,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3273,7 +3591,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3283,7 +3602,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3293,7 +3613,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3303,7 +3624,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3313,7 +3635,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 32,
@@ -3323,7 +3646,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3333,7 +3657,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3343,7 +3668,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3353,7 +3679,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3363,7 +3690,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3373,7 +3701,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3383,7 +3712,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 33,
@@ -3393,7 +3723,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 34: Nghề Nghiệp
             [
@@ -3404,7 +3735,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3414,7 +3746,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3424,7 +3757,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3434,7 +3768,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3444,7 +3779,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3454,7 +3790,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3464,7 +3801,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3474,7 +3812,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3484,7 +3823,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3494,7 +3834,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 34,
@@ -3504,7 +3845,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
                         [
                 'bai_hoc_id' => 35,
@@ -3514,7 +3856,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 35,
@@ -3524,7 +3867,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 35,
@@ -3534,7 +3878,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 35,
@@ -3544,7 +3889,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 35,
@@ -3554,7 +3900,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 35,
@@ -3564,7 +3911,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 35,
@@ -3574,7 +3922,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 36: Thời Gian
             [
@@ -3585,7 +3934,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3595,7 +3945,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3605,7 +3956,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3615,7 +3967,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3625,7 +3978,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3635,7 +3989,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3645,7 +4000,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3655,7 +4011,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3665,7 +4022,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3675,7 +4033,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3685,7 +4044,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 11,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3695,7 +4055,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 12,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 36,
@@ -3705,7 +4066,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 13,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
                         [
                 'bai_hoc_id' => 37,
@@ -3715,7 +4077,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 37,
@@ -3725,7 +4088,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 37,
@@ -3735,7 +4099,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 37,
@@ -3745,7 +4110,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 37,
@@ -3755,7 +4121,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 37,
@@ -3765,7 +4132,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 37,
@@ -3775,7 +4143,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             // BAI 38: Diễn Đạt Nhu Cầu
             [
@@ -3786,7 +4155,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3796,7 +4166,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3806,7 +4177,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3816,7 +4188,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3826,7 +4199,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3836,7 +4210,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3846,7 +4221,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3856,7 +4232,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 8,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3866,7 +4243,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 9,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 38,
@@ -3876,7 +4254,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 10,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
                         [
                 'bai_hoc_id' => 39,
@@ -3886,7 +4265,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 1,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 39,
@@ -3896,7 +4276,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 2,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 39,
@@ -3906,7 +4287,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 3,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 39,
@@ -3916,7 +4298,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 4,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 39,
@@ -3926,7 +4309,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 5,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 39,
@@ -3936,7 +4320,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 6,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'bai_hoc_id' => 39,
@@ -3946,7 +4331,8 @@ class TuVungSeeder extends Seeder
                 'hinh_anh_url' => null,
                 'am_thanh_mau_url' => null,
                 'thu_tu' => 7,
-                'ngay_tao' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
         ];
         

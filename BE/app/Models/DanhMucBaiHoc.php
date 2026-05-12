@@ -15,7 +15,6 @@ class DanhMucBaiHoc extends Model
         'mo_ta',
         'trang_thai',
         'thu_tu',
-        'ngay_tao',
     ];
 
     /**

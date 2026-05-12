@@ -23,8 +23,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => false,
                 'ngay_danh_dau' => $now->copy()->subDays(10),
                 'ngay_hoan_thanh' => null,
-                'ngay_tao' => $now->copy()->subDays(10),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(10),
+                'updated_at' => $now,
             ],
             [
                 'id' => 2,
@@ -35,8 +35,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => true,
                 'ngay_danh_dau' => $now->copy()->subDays(20),
                 'ngay_hoan_thanh' => $now->copy()->subDays(5),
-                'ngay_tao' => $now->copy()->subDays(20),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(20),
+                'updated_at' => $now,
             ],
             [
                 'id' => 3,
@@ -47,8 +47,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => false,
                 'ngay_danh_dau' => $now->copy()->subDays(2),
                 'ngay_hoan_thanh' => null,
-                'ngay_tao' => $now->copy()->subDays(2),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(2),
+                'updated_at' => $now,
             ],
             [
                 'id' => 4,
@@ -59,8 +59,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => false,
                 'ngay_danh_dau' => $now->copy()->subDays(30),
                 'ngay_hoan_thanh' => null,
-                'ngay_tao' => $now->copy()->subDays(30),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(30),
+                'updated_at' => $now,
             ],
             [
                 'id' => 5,
@@ -71,8 +71,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => true,
                 'ngay_danh_dau' => $now->copy()->subDays(7),
                 'ngay_hoan_thanh' => $now->copy()->subDays(1),
-                'ngay_tao' => $now->copy()->subDays(7),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(7),
+                'updated_at' => $now,
             ],
             [
                 'id' => 6,
@@ -83,8 +83,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => true,
                 'ngay_danh_dau' => $now->copy()->subDays(15),
                 'ngay_hoan_thanh' => $now->copy()->subDays(3),
-                'ngay_tao' => $now->copy()->subDays(15),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(15),
+                'updated_at' => $now,
             ],
             [
                 'id' => 7,
@@ -95,8 +95,8 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => false,
                 'ngay_danh_dau' => $now->copy()->subDays(1),
                 'ngay_hoan_thanh' => null,
-                'ngay_tao' => $now->copy()->subDays(1),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(1),
+                'updated_at' => $now,
             ],
             [
                 'id' => 8,
@@ -107,15 +107,15 @@ class DiemDanhLoiSeeder extends Seeder
                 'da_hoan_thanh' => false,
                 'ngay_danh_dau' => $now->copy()->subDays(4),
                 'ngay_hoan_thanh' => null,
-                'ngay_tao' => $now->copy()->subDays(4),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(4),
+                'updated_at' => $now,
             ],
         ];
 
         DB::table('diem_danh_lois')->upsert(
             $diemDanhLois,
             ['id'],
-            ['nguoi_dung_id', 'tu_vung_id', 'muc_do_uu_tien', 'ghi_chu', 'da_hoan_thanh', 'ngay_danh_dau', 'ngay_hoan_thanh', 'ngay_cap_nhat']
+            ['nguoi_dung_id', 'tu_vung_id', 'muc_do_uu_tien', 'ghi_chu', 'da_hoan_thanh', 'ngay_danh_dau', 'ngay_hoan_thanh', 'created_at', 'updated_at']
         );
     }
 }

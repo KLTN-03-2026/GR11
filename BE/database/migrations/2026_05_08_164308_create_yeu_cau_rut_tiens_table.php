@@ -27,7 +27,6 @@ return new class extends Migration
                 ->constrained('nguoi_dungs')
                 ->onDelete('set null');
             $table->timestamp('ngay_xu_ly')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
             $table->timestamps();
 
             $table->index('giao_vien_id');

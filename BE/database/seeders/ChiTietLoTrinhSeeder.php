@@ -24,7 +24,6 @@ class ChiTietLoTrinhSeeder extends Seeder
                 'bai_hoc_id'     => 1,
                 'thu_tu_uu_tien' => 1,
                 'ghi_chu_gv'     => 'Bài mở đầu, làm quen kiến thức.',
-                'ngay_tao'       => $now,
                 'created_at'     => $now,
                 'updated_at'     => $now,
             ];
@@ -34,7 +33,6 @@ class ChiTietLoTrinhSeeder extends Seeder
                 'bai_hoc_id'     => 2,
                 'thu_tu_uu_tien' => 2,
                 'ghi_chu_gv'     => 'Bài thực hành cơ bản.',
-                'ngay_tao'       => $now,
                 'created_at'     => $now,
                 'updated_at'     => $now,
             ];
@@ -44,7 +42,6 @@ class ChiTietLoTrinhSeeder extends Seeder
                 'bai_hoc_id'     => 3,
                 'thu_tu_uu_tien' => 3,
                 'ghi_chu_gv'     => 'Kiểm tra kiến thức nhập môn.',
-                'ngay_tao'       => $now,
                 'created_at'     => $now,
                 'updated_at'     => $now,
             ];

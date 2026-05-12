@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('hinh_anh_url', 255)->nullable();
             $table->string('am_thanh_mau_url', 255)->nullable();
             $table->integer('thu_tu')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
+            $table->timestamps();
         });
     }
 

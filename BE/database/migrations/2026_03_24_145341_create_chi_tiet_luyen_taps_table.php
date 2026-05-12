@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('loi_van')->nullable();
             $table->boolean('loi_thanh_dieu')->nullable();
             $table->text('chi_tiet_loi')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
+            $table->timestamps();
         });
     }
 

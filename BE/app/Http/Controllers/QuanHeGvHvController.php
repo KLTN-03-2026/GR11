@@ -67,7 +67,7 @@ class QuanHeGvHvController extends Controller
                 ->where(function ($q): void {
                     $q->where('thoi_gian_bat_dau', '>=', now()->subDays(7))
                         ->orWhere('thoi_gian_ket_thuc', '>=', now()->subDays(7))
-                        ->orWhere('ngay_tao', '>=', now()->subDays(7));
+                        ->orWhere('created_at', '>=', now()->subDays(7));
                 })
                 ->exists();
         })->count() / $tongHocVien) * 100) : 0;
@@ -76,14 +76,14 @@ class QuanHeGvHvController extends Controller
             ->where(function ($q): void {
                 $q->where('thoi_gian_bat_dau', '>=', now()->subDays(7))
                     ->orWhere('thoi_gian_ket_thuc', '>=', now()->subDays(7))
-                    ->orWhere('ngay_tao', '>=', now()->subDays(7));
+                    ->orWhere('created_at', '>=', now()->subDays(7));
             })
             ->count();
         $tuanTruoc = (int) (clone $queryPhien)
             ->where(function ($q): void {
                 $q->whereBetween('thoi_gian_bat_dau', [now()->subDays(14), now()->subDays(7)])
                     ->orWhereBetween('thoi_gian_ket_thuc', [now()->subDays(14), now()->subDays(7)])
-                    ->orWhereBetween('ngay_tao', [now()->subDays(14), now()->subDays(7)]);
+                    ->orWhereBetween('created_at', [now()->subDays(14), now()->subDays(7)]);
             })
             ->count();
         $tiLeCaiThien = $tuanTruoc > 0
@@ -493,7 +493,7 @@ class QuanHeGvHvController extends Controller
             ->get();
 
         return $phien->map(function (PhienLuyenTap $p) {
-            $ref = $p->thoi_gian_ket_thuc ?? $p->thoi_gian_bat_dau ?? $p->ngay_tao;
+            $ref = $p->thoi_gian_ket_thuc ?? $p->thoi_gian_bat_dau ?? $p->created_at;
             $carbon = $ref ? Carbon::parse($ref) : null;
 
             return [
@@ -537,7 +537,7 @@ class QuanHeGvHvController extends Controller
             return ['Chưa luyện', '—', 'text-muted'];
         }
 
-        $ref = $last->thoi_gian_ket_thuc ?? $last->thoi_gian_bat_dau ?? $last->ngay_tao;
+        $ref = $last->thoi_gian_ket_thuc ?? $last->thoi_gian_bat_dau ?? $last->created_at;
         if (! $ref) {
             return ['Chưa rõ', '—', 'text-secondary'];
         }
@@ -656,7 +656,7 @@ class QuanHeGvHvController extends Controller
                 ->where(function ($q) use ($start, $end): void {
                     $q->whereBetween('thoi_gian_bat_dau', [$start, $end])
                         ->orWhereBetween('thoi_gian_ket_thuc', [$start, $end])
-                        ->orWhereBetween('ngay_tao', [$start, $end]);
+                        ->orWhereBetween('created_at', [$start, $end]);
                 })
                 ->count();
         }
@@ -680,7 +680,7 @@ class QuanHeGvHvController extends Controller
                 ->where(function ($q) use ($start, $end): void {
                     $q->whereBetween('thoi_gian_bat_dau', [$start, $end])
                         ->orWhereBetween('thoi_gian_ket_thuc', [$start, $end])
-                        ->orWhereBetween('ngay_tao', [$start, $end]);
+                        ->orWhereBetween('created_at', [$start, $end]);
                 })
                 ->count();
         }
@@ -704,7 +704,7 @@ class QuanHeGvHvController extends Controller
                 ->where(function ($q) use ($start, $end): void {
                     $q->whereBetween('thoi_gian_bat_dau', [$start, $end])
                         ->orWhereBetween('thoi_gian_ket_thuc', [$start, $end])
-                        ->orWhereBetween('ngay_tao', [$start, $end]);
+                        ->orWhereBetween('created_at', [$start, $end]);
                 })
                 ->count();
         }
@@ -728,7 +728,7 @@ class QuanHeGvHvController extends Controller
                 ->where(function ($q) use ($start, $end): void {
                     $q->whereBetween('thoi_gian_bat_dau', [$start, $end])
                         ->orWhereBetween('thoi_gian_ket_thuc', [$start, $end])
-                        ->orWhereBetween('ngay_tao', [$start, $end]);
+                        ->orWhereBetween('created_at', [$start, $end]);
                 })
                 ->count();
         }
@@ -762,7 +762,7 @@ class QuanHeGvHvController extends Controller
             $tenHocVien = $hocVien?->ho_ten ?? ('Học viên #'.$phien->nguoi_dung_id);
             $tieuDeBai = $phien->baiHoc?->tieu_de ?? ('Bài #'.$phien->bai_hoc_id);
             $diem = (int) ($phien->tong_diem ?? 0);
-            $ref = $phien->thoi_gian_ket_thuc ?? $phien->thoi_gian_bat_dau ?? $phien->ngay_tao;
+            $ref = $phien->thoi_gian_ket_thuc ?? $phien->thoi_gian_bat_dau ?? $phien->created_at;
             $thoiGian = 'Vừa xong';
             if ($ref) {
                 try {
@@ -860,7 +860,7 @@ class QuanHeGvHvController extends Controller
         $query->where(function ($subQuery) use ($tuNgay, $denNgay): void {
             $subQuery->whereBetween('thoi_gian_bat_dau', [$tuNgay, $denNgay])
                 ->orWhereBetween('thoi_gian_ket_thuc', [$tuNgay, $denNgay])
-                ->orWhereBetween('ngay_tao', [$tuNgay, $denNgay]);
+                ->orWhereBetween('created_at', [$tuNgay, $denNgay]);
         });
     }
 

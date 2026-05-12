@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('hoc_vien_id')->constrained('nguoi_dungs')->onDelete('cascade');
             $table->foreignId('giao_vien_id')->constrained('nguoi_dungs')->onDelete('cascade');
             $table->string('ten_lo_trinh');
-            $table->date('ngay_tao');  
             $table->timestamps();
         });
     }

@@ -42,7 +42,7 @@ class TienDoBaiHocController extends Controller
 
         $loTrinhs = DB::table('lo_trinh_ca_nhans')
             ->where('hoc_vien_id', $userId)
-            ->orderByDesc('ngay_tao')
+            ->orderByDesc('created_at')
             ->get();
 
         $tongLoTrinh = $loTrinhs->count();

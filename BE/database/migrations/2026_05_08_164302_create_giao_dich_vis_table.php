@@ -23,11 +23,11 @@ return new class extends Migration
             $table->unsignedBigInteger('so_du_sau');
             $table->nullableMorphs('tham_chieu');
             $table->text('ghi_chu')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
+            $table->timestamps();
 
             $table->index('vi_id');
             $table->index('loai_giao_dich');
-            $table->index('ngay_tao');
+            $table->index('created_at');
         });
     }
 

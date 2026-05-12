@@ -598,7 +598,7 @@
                   <div class="card inner-card border-0 shadow-sm">
                     <div class="card-body p-4">
                       <h5 class="fw-bold mb-4"><i class="fa-solid fa-circle-plus me-2 text-success"></i>Nạp tiền vào ví</h5>
-                      <form @submit.prevent="napTien">
+                      <form @submit.prevent="onNapTienSubmit">
                         <div class="row g-3">
                           <div class="col-md-6">
                             <label class="form-label">Số tiền nạp (VNĐ) <span class="text-danger">*</span></label>
@@ -608,9 +608,9 @@
                             </div>
                           </div>
                           <div class="col-md-6">
-                            <label class="form-label">Phương thức thanh toán <span class="text-danger">*</span></label>
-                            <select class="form-select" v-model="napData.phuong_thuc" required>
-                              <option value="">-- Chọn phương thức --</option>
+                            <label class="form-label">Phương thức thanh toán</label>
+                            <select class="form-select" v-model="napData.phuong_thuc">
+                              <option value="">Chuyển khoản (VietQR)</option>
                               <option value="vnpay">VNPay</option>
                               <option value="momo">MoMo</option>
                               <option value="banking">Chuyển khoản ngân hàng</option>
@@ -623,8 +623,8 @@
                         </div>
                         <div class="text-end mt-4 pt-3 border-top">
                           <button type="button" class="btn btn-light me-2 px-4" @click="napData = { so_tien: '', phuong_thuc: '', ghi_chu: '' }">Huỷ</button>
-                          <button type="submit" class="btn btn-success-custom px-5" :disabled="isNapTien">
-                            <span v-if="isNapTien" class="spinner-border spinner-border-sm me-2"></span>
+                          <button type="submit" class="btn btn-success-custom px-5" :disabled="napTienFlowLoading">
+                            <span v-if="napTienFlowLoading" class="spinner-border spinner-border-sm me-2"></span>
                             <i v-else class="fa-solid fa-circle-plus me-2"></i>Nạp tiền
                           </button>
                         </div>
@@ -882,6 +882,70 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal: mã QR thanh toán nạp tiền -->
+    <div
+      v-if="showNapQrModal"
+      class="modal-overlay"
+      @click.self="closeNapQrModal"
+    >
+      <div class="modal-card" style="max-width: 420px">
+        <div class="modal-header-custom info">
+          <i class="fa-solid fa-qrcode fa-lg me-2"></i>Thanh toán nạp tiền
+          <button
+            class="btn-close-modal ms-auto"
+            type="button"
+            @click="closeNapQrModal"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body-custom text-center py-4 px-3">
+          <p class="mb-2 fw-semibold">{{ formatMoney(napQrAmount) }}</p>
+          <div v-if="napMaDon" class="mb-2">
+            <span class="badge rounded-pill" :class="napTrangThaiBadgeClass">{{
+              statusLabel(napTrangThai)
+            }}</span>
+            <span class="small text-muted ms-2">Mã đơn: {{ napMaDon }}</span>
+          </div>
+          <p v-if="napQrMode === 'vietqr'" class="small text-muted mb-2">
+            Quét mã VietQR để chuyển khoản. Ghi đúng <strong>mã đơn</strong> trong
+            nội dung chuyển khoản để admin đối soát.
+            <span v-if="napQrBankHint || vietQrDisplayName"><br />{{ napQrBankHint || vietQrDisplayName }}</span>
+          </p>
+          <p v-else class="small text-muted mb-2">
+            QR mô phỏng (backend chưa cấu hình VietQR). Cấu hình biến môi trường
+            <code class="small">VIETQR_*</code> trên máy chủ API để hiển thị mã
+            VietQR thật.
+          </p>
+          <p class="small text-secondary mb-3">
+            Sau khi chuyển khoản, quản trị viên sẽ xác nhận thủ công. Trạng thái
+            đơn cập nhật tự động khi được duyệt.
+          </p>
+          <div class="nap-qr-wrap mx-auto mb-3">
+            <img
+              v-if="napQrImageUrl"
+              :src="napQrImageUrl"
+              alt="Mã QR thanh toán"
+              class="img-fluid rounded border bg-white p-2"
+              style="max-width: 280px"
+            />
+          </div>
+          <p class="small text-secondary mb-0">
+            Phương thức: {{ napQrMethodLabel }}
+          </p>
+        </div>
+        <div class="modal-footer-custom bg-light d-flex flex-wrap gap-2 justify-content-end align-items-center">
+          <button
+            type="button"
+            class="btn btn-outline-secondary px-3"
+            @click="closeNapQrModal"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -911,6 +975,21 @@ export default {
     isGiaoVien() {
       const vaiTro = this.thong_tin.vai_tro_id;
       return Number(vaiTro) === 2; // Giả sử ID 2 là Giáo viên trong DB của bạn
+    },
+    /** Tên chủ TK hiển thị khi dùng VietQR (env VITE_VIETQR_ACCOUNT_NAME) */
+    vietQrDisplayName() {
+      return String(import.meta.env.VITE_VIETQR_ACCOUNT_NAME || "").trim();
+    },
+    napTrangThaiBadgeClass() {
+      const m = {
+        cho_thanh_toan: "text-bg-warning text-dark",
+        cho_quet_ma: "text-bg-warning text-dark",
+        cho_xac_nhan: "text-bg-info",
+        thanh_cong: "text-bg-success",
+        that_bai: "text-bg-danger",
+        cho_xu_ly: "text-bg-secondary",
+      };
+      return m[this.napTrangThai] || "text-bg-secondary";
     },
   },
   data() {
@@ -946,7 +1025,6 @@ export default {
       soDu: 0,
       loadingSoDu: false,
       napData: { so_tien: "", phuong_thuc: "", ghi_chu: "" },
-      isNapTien: false,
       rutData: { so_tien: "", ten_ngan_hang: "", so_tai_khoan: "", chu_tai_khoan: "", ghi_chu: "" },
       isRutTien: false,
       lichSuGD: [],
@@ -955,6 +1033,18 @@ export default {
       filterLoai: "",
       currentPage: 1,
       quickAmounts: [50000, 100000, 200000, 500000],
+
+      /** Mã QR nạp tiền: mở sau khi bấm «Nạp tiền» */
+      showNapQrModal: false,
+      napQrImageUrl: "",
+      napQrMode: "demo",
+      napQrAmount: 0,
+      napQrMethodLabel: "",
+      napQrBankHint: "",
+      napMaDon: "",
+      napTrangThai: "",
+      napTienFlowLoading: false,
+      napPollTimerId: null,
     };
   },
   mounted() {
@@ -1366,7 +1456,7 @@ export default {
     async loadSoDu() {
       this.loadingSoDu = true;
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/vi/so-du", {
+        const res = await axios.get(this.beApi("/api/vi/so-du"), {
           headers: { Authorization: "Bearer " + this.getAuthToken() },
         });
         if (res.data.status) this.soDu = res.data.so_du || 0;
@@ -1376,29 +1466,116 @@ export default {
         this.loadingSoDu = false;
       }
     },
-    async napTien() {
+    napTienPhuongThucLabel(code) {
+      const map = {
+        vnpay: "VNPay",
+        momo: "MoMo",
+        banking: "Chuyển khoản ngân hàng",
+      };
+      return map[code] || code || "—";
+    },
+    beApi(path) {
+      const base = (
+        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+      ).replace(/\/$/, "");
+      const p = path.startsWith("/") ? path : `/${path}`;
+      return `${base}${p}`;
+    },
+    clearNapDonTimers() {
+      if (this.napPollTimerId != null) {
+        clearInterval(this.napPollTimerId);
+        this.napPollTimerId = null;
+      }
+    },
+    closeNapQrModal() {
+      this.clearNapDonTimers();
+      this.showNapQrModal = false;
+    },
+    startNapDonFlow() {
+      this.clearNapDonTimers();
+      if (!this.napMaDon) return;
+      this.napPollTimerId = setInterval(() => {
+        this.refreshNapTrangThai();
+      }, 4000);
+    },
+    async refreshNapTrangThai() {
+      if (!this.napMaDon || !this.showNapQrModal) return;
+      try {
+        const res = await axios.get(
+          this.beApi(
+            `/api/vi/nap-tien/${encodeURIComponent(this.napMaDon)}/trang-thai`,
+          ),
+          { headers: { Authorization: "Bearer " + this.getAuthToken() } },
+        );
+        if (res.data.status && res.data.trang_thai) {
+          this.napTrangThai = res.data.trang_thai;
+          if (this.napTrangThai === "thanh_cong") {
+            this.finishNapFlowSuccess();
+          }
+          if (this.napTrangThai === "that_bai") {
+            this.clearNapDonTimers();
+            this.$toast.error("Đơn nạp đã bị từ chối.");
+            this.closeNapQrModal();
+            this.loadLichSu();
+          }
+        }
+      } catch {
+        /* bỏ qua lỗi poll */
+      }
+    },
+    finishNapFlowSuccess() {
+      this.clearNapDonTimers();
+      this.showNapQrModal = false;
+      this.napMaDon = "";
+      this.napTrangThai = "";
+      this.napQrImageUrl = "";
+      this.napQrBankHint = "";
+      this.napData = { so_tien: "", phuong_thuc: "", ghi_chu: "" };
+      this.$toast.success("Nạp tiền thành công!");
+      this.loadSoDu();
+      this.loadLichSu();
+    },
+    async onNapTienSubmit() {
       if (!this.napData.so_tien || this.napData.so_tien < 10000) {
         this.$toast.error("Số tiền nạp tối thiểu là 10.000 ₫");
         return;
       }
-      this.isNapTien = true;
+      const amount = Math.floor(Number(this.napData.so_tien));
+
+      this.napQrAmount = amount;
+      this.napQrMethodLabel = this.napTienPhuongThucLabel(
+        this.napData.phuong_thuc || "banking",
+      );
+
+      this.napTienFlowLoading = true;
       try {
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/vi/nap-tien",
-          this.napData,
-          { headers: { Authorization: "Bearer " + this.getAuthToken() } }
+          this.beApi("/api/deposit/create"),
+          {
+            so_tien: amount,
+            phuong_thuc: this.napData.phuong_thuc || null,
+            ghi_chu: this.napData.ghi_chu || null,
+          },
+          { headers: { Authorization: "Bearer " + this.getAuthToken() } },
         );
-        if (res.data.status) {
-          this.$toast.success(res.data.message || "Yêu cầu nạp tiền đã được ghi nhận!");
-          this.napData = { so_tien: "", phuong_thuc: "", ghi_chu: "" };
-          this.loadSoDu();
-        } else {
-          this.$toast.error(res.data.message || "Không thể thực hiện nạp tiền.");
+        if (!res.data.status || !res.data.ma_don) {
+          this.$toast.error(res.data.message || "Không tạo được đơn nạp.");
+          return;
         }
+        this.napMaDon = res.data.ma_don;
+        this.napTrangThai = res.data.trang_thai || "cho_thanh_toan";
+        this.napQrImageUrl = res.data.qr_url || "";
+        this.napQrMode = res.data.vietqr_configured ? "vietqr" : "demo";
+        this.napQrBankHint = res.data.qr_account_name || "";
+
+        this.showNapQrModal = true;
+        this.startNapDonFlow();
       } catch (err) {
-        this.$toast.error(err.response?.data?.message || "Lỗi khi nạp tiền.");
+        this.$toast.error(
+          err.response?.data?.message || "Lỗi khi tạo đơn nạp tiền.",
+        );
       } finally {
-        this.isNapTien = false;
+        this.napTienFlowLoading = false;
       }
     },
     async rutTien() {
@@ -1413,7 +1590,7 @@ export default {
       this.isRutTien = true;
       try {
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/vi/rut-tien",
+          this.beApi("/api/vi/rut-tien"),
           this.rutData,
           { headers: { Authorization: "Bearer " + this.getAuthToken() } }
         );
@@ -1436,7 +1613,7 @@ export default {
     async loadLichSu() {
       this.loadingLichSu = true;
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/vi/lich-su", {
+        const res = await axios.get(this.beApi("/api/vi/lich-su"), {
           params: { loai: this.filterLoai || undefined, page: this.currentPage },
           headers: { Authorization: "Bearer " + this.getAuthToken() },
         });
@@ -1486,6 +1663,9 @@ export default {
     },
     statusLabel(tt) {
       const map = {
+        cho_thanh_toan: "Chờ thanh toán",
+        cho_quet_ma: "Chờ quét mã / CK",
+        cho_xac_nhan: "Chờ xác nhận",
         cho_xu_ly: "Chờ xử lý",
         thanh_cong: "Thành công",
         that_bai: "Thất bại",
@@ -1495,6 +1675,9 @@ export default {
     },
     statusClass(tt) {
       const map = {
+        cho_thanh_toan: "status-pending",
+        cho_quet_ma: "status-pending",
+        cho_xac_nhan: "status-pending",
         cho_xu_ly: "status-pending",
         thanh_cong: "status-success",
         that_bai: "status-fail",
@@ -1509,6 +1692,7 @@ export default {
     },
   },
   beforeUnmount() {
+    this.clearNapDonTimers();
     this.clearAvatarPreview();
   },
 };

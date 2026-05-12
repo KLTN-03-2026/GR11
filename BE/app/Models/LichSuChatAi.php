@@ -13,7 +13,6 @@ class LichSuChatAi extends Model
         'noi_dung_chat',
         'phan_hoi_ai',
         'bai_hoc_duoc_goi_y_ai',
-        'ngay_tao',
     ];
 
     public function nguoiDung()

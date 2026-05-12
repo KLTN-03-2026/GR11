@@ -25,8 +25,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(1),
                 'chi_tiet_loi' => 'Phát âm thành "ch" thay vì "tr"; cần bài tập đặt lưỡi.',
                 'trang_thai' => 0,
-                'ngay_tao' => $now->copy()->subDays(10),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(10),
+                'updated_at' => $now,
             ],
             [
                 'id' => 2,
@@ -38,8 +38,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(5),
                 'chi_tiet_loi' => 'Âm "ch" hơi yếu, cần tăng cường bài tập bật hơi.',
                 'trang_thai' => 1,
-                'ngay_tao' => $now->copy()->subDays(20),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(20),
+                'updated_at' => $now,
             ],
             [
                 'id' => 3,
@@ -51,8 +51,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(2),
                 'chi_tiet_loi' => 'Nhầm nguyên âm đôi; phát âm ngắn hơn so với mẫu.',
                 'trang_thai' => 0,
-                'ngay_tao' => $now->copy()->subDays(2),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(2),
+                'updated_at' => $now,
             ],
             [
                 'id' => 4,
@@ -64,8 +64,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(1),
                 'chi_tiet_loi' => 'Thay "r" bằng "g" hoặc lược âm; cần lộ trình chuyên sâu.',
                 'trang_thai' => 1,
-                'ngay_tao' => $now->copy()->subDays(30),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(30),
+                'updated_at' => $now,
             ],
             [
                 'id' => 5,
@@ -77,8 +77,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(3),
                 'chi_tiet_loi' => 'Thanh điệu đôi khi bị sai (ngang vs huyền).',
                 'trang_thai' => 2,
-                'ngay_tao' => $now->copy()->subDays(7),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(7),
+                'updated_at' => $now,
             ],
             [
                 'id' => 6,
@@ -90,8 +90,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(12),
                 'chi_tiet_loi' => 'Đã cải thiện; theo dõi tiếp để chuyển trạng thái hoàn thành.',
                 'trang_thai' => 1,
-                'ngay_tao' => $now->copy()->subDays(15),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(15),
+                'updated_at' => $now,
             ],
             [
                 'id' => 7,
@@ -103,8 +103,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subHours(20),
                 'chi_tiet_loi' => 'Phát âm "m" chưa rõ; cần bài tập môi.',
                 'trang_thai' => 0,
-                'ngay_tao' => $now->copy()->subDays(1),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(1),
+                'updated_at' => $now,
             ],
             [
                 'id' => 8,
@@ -116,8 +116,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(4),
                 'chi_tiet_loi' => 'Ngữ điệu chào hỏi chưa tự nhiên; cần luyện ngữ điệu câu.',
                 'trang_thai' => 1,
-                'ngay_tao' => $now->copy()->subDays(4),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(4),
+                'updated_at' => $now,
             ],
             [
                 'id' => 9,
@@ -129,8 +129,8 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(6),
                 'chi_tiet_loi' => 'Nhầm vần; cần bài tập nối âm.',
                 'trang_thai' => 0,
-                'ngay_tao' => $now->copy()->subDays(6),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(6),
+                'updated_at' => $now,
             ],
             [
                 'id' => 10,
@@ -142,15 +142,15 @@ class LichSuLoiPhatAmSeeder extends Seeder
                 'lan_mac_loi_gan_nhat' => $now->copy()->subDays(2),
                 'chi_tiet_loi' => 'Sai thanh khi nói câu dài; cần luyện nối câu.',
                 'trang_thai' => 1,
-                'ngay_tao' => $now->copy()->subDays(10),
-                'ngay_cap_nhat' => $now,
+                'created_at' => $now->copy()->subDays(10),
+                'updated_at' => $now,
             ],
         ];
 
         DB::table('lich_su_loi_phat_ams')->upsert(
             $lichSuLoiPhatAms,
             ['nguoi_dung_id', 'tu_vung_id', 'loai_loi'],
-            ['so_lan_mac_loi', 'lan_mac_loi_gan_nhat', 'chi_tiet_loi', 'trang_thai', 'ngay_cap_nhat']
+            ['so_lan_mac_loi', 'lan_mac_loi_gan_nhat', 'chi_tiet_loi', 'trang_thai', 'updated_at']
         );
     }
 }

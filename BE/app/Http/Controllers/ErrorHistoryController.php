@@ -59,8 +59,8 @@ class ErrorHistoryController extends Controller
                 'lan_mac_loi_gan_nhat' => $error->lan_mac_loi_gan_nhat,
                 'chi_tiet_loi' => $error->chi_tiet_loi,
                 'trang_thai' => $error->trang_thai,
-                'ngay_tao' => $error->ngay_tao,
-                'ngay_cap_nhat' => $error->ngay_cap_nhat,
+                'ngay_tao' => $error->created_at,
+                'ngay_cap_nhat' => $error->updated_at,
             ];
         });
 
@@ -141,8 +141,8 @@ class ErrorHistoryController extends Controller
                 'lan_mac_loi_gan_nhat' => $error->lan_mac_loi_gan_nhat,
                 'chi_tiet_loi' => $error->chi_tiet_loi,
                 'trang_thai' => $error->trang_thai,
-                'ngay_tao' => $error->ngay_tao,
-                'ngay_cap_nhat' => $error->ngay_cap_nhat,
+                'ngay_tao' => $error->created_at,
+                'ngay_cap_nhat' => $error->updated_at,
             ];
         });
 
@@ -185,6 +185,7 @@ class ErrorHistoryController extends Controller
         $error->update([
             'trang_thai' => $validated['trang_thai'],
         ]);
+        $error->refresh();
 
         return response()->json([
             'status' => true,
@@ -192,7 +193,7 @@ class ErrorHistoryController extends Controller
             'data' => [
                 'id' => $error->id,
                 'trang_thai' => $error->trang_thai,
-                'ngay_cap_nhat' => $error->ngay_cap_nhat,
+                'ngay_cap_nhat' => $error->updated_at,
             ],
         ]);
     }

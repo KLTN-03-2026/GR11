@@ -19,15 +19,14 @@ return new class extends Migration
             $table->string('ma_don', 50)->unique();
             $table->unsignedBigInteger('so_tien');
             $table->string('trang_thai', 20)->default('cho_xu_ly');
-            $table->string('ma_giao_dich_vnpay', 50)->nullable();
-            $table->string('ngan_hang_vnpay', 20)->nullable();
+            $table->string('ma_giao_dich', 50)->nullable();
+            $table->string('ngan_hang', 20)->nullable();
             $table->text('du_lieu_callback')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
-            $table->timestamp('ngay_cap_nhat')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
 
             $table->index('nguoi_dung_id');
             $table->index('trang_thai');
-            $table->index('ngay_tao');
+            $table->index('created_at');
         });
     }
 

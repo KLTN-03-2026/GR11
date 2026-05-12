@@ -52,12 +52,6 @@ const routes = [
     beforeEnter: checkClient,
   },
   {
-    path: "/on-tap-loi",
-    component: () => import("../components/Client/OnTapLoiSai/index.vue"),
-    meta: { layout: "blank" },
-    beforeEnter: checkClient,
-  },
-  {
     path: "/dang-ky-giao-vien",
     component: () => import("../components/Client/DangKyGiaoVien/index.vue"),
     meta: { layout: "client" },
@@ -174,6 +168,12 @@ const routes = [
   {
     path: "/admin/quan-ly-ho-so-giao-vien",
     component: () => import("../components/AHeThong/Admin/QuanLyHoSoGiaoVien/index.vue"),
+    meta: { layout: "admin" },
+    beforeEnter: checkAdmin,
+  },
+  {
+    path: "/admin/don-nap-tien",
+    component: () => import("../components/AHeThong/Admin/QuanLyDonNapTien/index.vue"),
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,
   },

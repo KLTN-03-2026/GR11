@@ -56,7 +56,6 @@ class PhienLuyenTapController extends Controller
             'nguoi_dung_id' => $user->id,
             'bai_hoc_id' => (int) $request->input('bai_hoc_id'),
             'thoi_gian_bat_dau' => now(),
-            'ngay_tao' => now(),
         ]);
 
         return response()->json([

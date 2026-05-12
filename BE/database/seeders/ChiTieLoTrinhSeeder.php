@@ -49,7 +49,6 @@ class ChiTieLoTrinhSeeder extends Seeder
                     [
                         'thu_tu_uu_tien' => $thuTu + 1,
                         'ghi_chu_gv' => $ghiChuMau[$thuTu % count($ghiChuMau)],
-                        'ngay_tao' => now(), 
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]

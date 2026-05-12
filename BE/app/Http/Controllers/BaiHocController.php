@@ -19,14 +19,14 @@ class BaiHocController extends Controller
             'cap_do'      => ['sometimes', Rule::in(['basic', 'intermediate', 'advanced'])],
         ]);
 
-        // Đồng bộ với TeacherQuanLyBaiHocController: 1 = hoat_dong (hiển thị học viên), 0 = nhap
+        // Đồng bộ với TeacherQuanLyBaiHocController: 0 = hoat_dong (hiển thị học viên), 1 = nhap
         $query = BaiHoc::query()
             ->with([
                 'danhMuc' => function ($q): void {
                     $q->select('id', 'ten_danh_muc', 'slug_danh_muc');
                 },
             ])
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->orderBy('thu_tu');
 
         $meta = null;
@@ -83,7 +83,7 @@ class BaiHocController extends Controller
 
     public function showPublic(BaiHoc $baiHoc): JsonResponse
     {
-        if ((int) $baiHoc->trang_thai !== 1) {
+        if ((int) $baiHoc->trang_thai !== 0) {
             abort(404);
         }
 

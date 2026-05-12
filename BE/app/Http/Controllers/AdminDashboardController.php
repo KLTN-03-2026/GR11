@@ -25,9 +25,9 @@ class AdminDashboardController extends Controller
         $totalUsers = NguoiDung::count();
         $activeUsers = $this->countActiveUsers();
         $lockedUsers = $this->countLockedUsers();
-        $todaySessions = PhienLuyenTap::whereDate('ngay_tao', Carbon::today())->count();
+        $todaySessions = PhienLuyenTap::whereDate('created_at', Carbon::today())->count();
         $todayErrorDetails = ChiTietLuyenTap::query()
-            ->whereDate('ngay_tao', Carbon::today())
+            ->whereDate('created_at', Carbon::today())
             ->where(function ($query): void {
                 $query->where('loi_am_dau', true)
                     ->orWhere('loi_van', true)
@@ -103,10 +103,10 @@ class AdminDashboardController extends Controller
         $serviceFilter = (string) $request->query('service', '');
 
         $sessionsQuery = PhienLuyenTap::query()
-            ->whereBetween('ngay_tao', [$startDate, $endDate]);
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
         $detailsQuery = ChiTietLuyenTap::query()
-            ->whereBetween('ngay_tao', [$startDate, $endDate]);
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
         $totalRequests = (clone $sessionsQuery)->count();
         $errorCount = (clone $detailsQuery)
@@ -156,14 +156,14 @@ class AdminDashboardController extends Controller
             for ($i = 6; $i >= 0; $i--) {
                 $day = Carbon::today()->subDays($i);
                 $result['labels'][] = 'T' . $day->isoWeekday();
-                $result['data'][] = PhienLuyenTap::whereDate('ngay_tao', $day)->count();
+                $result['data'][] = PhienLuyenTap::whereDate('created_at', $day)->count();
             }
         } elseif ($period === 'nam') {
             for ($i = 5; $i >= 0; $i--) {
                 $month = Carbon::now()->subMonths($i);
                 $result['labels'][] = 'T' . $month->month;
-                $result['data'][] = PhienLuyenTap::whereYear('ngay_tao', $month->year)
-                    ->whereMonth('ngay_tao', $month->month)
+                $result['data'][] = PhienLuyenTap::whereYear('created_at', $month->year)
+                    ->whereMonth('created_at', $month->month)
                     ->count();
             }
         } else {
@@ -171,7 +171,7 @@ class AdminDashboardController extends Controller
                 $start = Carbon::now()->startOfMonth()->subWeeks($i);
                 $end = (clone $start)->copy()->endOfWeek();
                 $result['labels'][] = 'Tuần ' . (4 - $i);
-                $result['data'][] = PhienLuyenTap::whereBetween('ngay_tao', [$start, $end])->count();
+                $result['data'][] = PhienLuyenTap::whereBetween('created_at', [$start, $end])->count();
             }
         }
 

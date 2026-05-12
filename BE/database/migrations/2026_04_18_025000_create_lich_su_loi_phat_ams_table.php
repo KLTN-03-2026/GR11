@@ -21,8 +21,7 @@ return new class extends Migration
             $table->timestamp('lan_mac_loi_gan_nhat')->useCurrent(); // Lần gần nhất mắc lỗi
             $table->text('chi_tiet_loi')->nullable(); // Chi tiết về lỗi
             $table->integer('trang_thai')->default(0); // 0 = chua_on_tap, 1 = dang_on_tap, 2 = da_hoan_thanh_on_tap
-            $table->timestamp('ngay_tao')->useCurrent();
-            $table->timestamp('ngay_cap_nhat')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
             
             // Indexes để tối ưu query
             $table->index('nguoi_dung_id');

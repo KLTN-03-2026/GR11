@@ -206,7 +206,7 @@ class AdminController extends Controller
                 $user->sdt ?? '',
                 $user->vaiTro?->ten_vai_tro ?? ($user->vai_tro_id === NguoiDung::ROLE_ADMIN ? 'Admin' : ($user->vai_tro_id === NguoiDung::ROLE_TEACHER ? 'Giáo viên' : 'Học viên')),
                 $status,
-                $user->ngay_tao ? Carbon::parse($user->ngay_tao)->format('d/m/Y') : '',
+                $user->created_at ? Carbon::parse($user->created_at)->format('d/m/Y') : '',
             ];
         }
 

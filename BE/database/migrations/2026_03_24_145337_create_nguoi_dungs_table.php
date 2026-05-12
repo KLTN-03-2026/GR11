@@ -20,7 +20,6 @@ return new class extends Migration
             $table->foreignId('vai_tro_id')->constrained('vai_tros')->onDelete('cascade');
             $table->date('ngay_sinh')->nullable();
             $table->string('anh_dai_dien', 255)->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
             $table->integer('trang_thai')->default(0);
             $table->integer('type_account')->default(0);
             $table->string('content_block')->nullable();
