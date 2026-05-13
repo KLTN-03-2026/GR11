@@ -18,12 +18,12 @@ class TrangChuController extends Controller
             ->where('trang_thai', 1)
             ->withCount([
                 'baiHocs as so_luong_bai_hoc' => function ($q): void {
-                    $q->where('trang_thai', 1);
+                    $q->where('trang_thai', 0);
                 },
             ])
             ->leftJoin('bai_hocs', function ($join): void {
                 $join->on('bai_hocs.danh_muc_id', '=', 'danh_muc_bai_hocs.id')
-                    ->where('bai_hocs.trang_thai', 1);
+                    ->where('bai_hocs.trang_thai', 0);
             })
             ->leftJoin('phien_luyen_taps', 'phien_luyen_taps.bai_hoc_id', '=', 'bai_hocs.id')
             ->groupBy('danh_muc_bai_hocs.id')
@@ -42,7 +42,7 @@ class TrangChuController extends Controller
 
         // Bài học nổi bật: dựa theo số phiên luyện (fallback: bài mới)
         $baiHocNoiBat = BaiHoc::query()
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->with([
                 'danhMuc:id,ten_danh_muc,slug_danh_muc',
             ])

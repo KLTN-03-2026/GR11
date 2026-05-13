@@ -151,7 +151,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $request->mo_ta,
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $thuTu,
-                'trang_thai' => (int) $request->input('trang_thai', 0),
+                'trang_thai' => (int) $request->input('trang_thai', 1),
             ]);
         });
 
@@ -223,7 +223,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $newThuTu,
                 // Mọi chỉnh sửa từ giáo viên đều đưa bài về hàng chờ admin duyệt lại.
-                'trang_thai' => 0,
+                'trang_thai' => 1,
             ]);
         });
 
@@ -278,7 +278,7 @@ class TeacherQuanLyBaiHocController extends Controller
     }
 
     /**
-     * Giáo viên: 1 = Đã duyệt, 0 = Đợi duyệt (mặc định khi tạo mới).
+     * Giáo viên: 0 = Đã duyệt, 1 = Đợi duyệt (mặc định khi tạo mới).
      */
     private function nextThuTuTrongDanhMuc(int $danhMucId): int
     {

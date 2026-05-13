@@ -66,10 +66,10 @@ class ChatController extends Controller
             ->map(function ($session) {
                 return [
                     'id' => $session->id,
-                    'studentName' => $session->user->ho_ten,
-                    'studentAvatar' => $session->user->anh_dai_dien,
+                    'studentName' => $session->user?->ho_ten ?? 'Học viên',
+                    'studentAvatar' => $session->user?->anh_dai_dien ?? null,
                     // BaiHoc model uses `tieu_de` for the title
-                    'lesson' => $session->lesson->tieu_de ?? '',
+                    'lesson' => $session->lesson?->tieu_de ?? '',
                     'lastMessage' => $session->messages->first()?->content ?? '',
                     'timestamp' => ChatDisplayTime::format($session->updated_at),
                     'unreadCount' => (int) ($session->unread_count ?? 0),
@@ -110,7 +110,7 @@ class ChatController extends Controller
             ->where('is_read_by_teacher', false)
             ->update($updatePayload);
 
-        $studentName = $session->user->ho_ten ?? '';
+        $studentName = $session->user?->ho_ten ?? '';
         $messages = ChatMessage::where('session_id', $sessionId)
             ->orderBy('created_at', 'asc')
             ->get()
@@ -133,8 +133,8 @@ class ChatController extends Controller
             'session' => [
                 'id' => $session->id,
                 'studentName' => $studentName,
-                'studentAvatar' => $session->user->anh_dai_dien,
-                'lesson' => $session->lesson->tieu_de ?? '',
+                'studentAvatar' => $session->user?->anh_dai_dien ?? null,
+                'lesson' => $session->lesson?->tieu_de ?? '',
             ],
             'messages' => $messages,
         ]);
