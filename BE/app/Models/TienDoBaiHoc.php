@@ -10,6 +10,7 @@ class TienDoBaiHoc extends Model
     use HasFactory;
 
     protected $table = 'tien_do_bai_hocs';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -20,12 +21,18 @@ class TienDoBaiHoc extends Model
         'trang_thai',
         'diem_trung_binh',
         'thoi_gian_hoc_cuoi',
+        'diem_kiem_tra',
+        'qua_kiem_tra',
+        'thoi_gian_kiem_tra_cuoi',
     ];
 
     protected $casts = [
         'phan_tram_hoan_thanh' => 'float',
         'diem_trung_binh' => 'float',
         'thoi_gian_hoc_cuoi' => 'datetime',
+        'diem_kiem_tra' => 'float',
+        'qua_kiem_tra' => 'integer',
+        'thoi_gian_kiem_tra_cuoi' => 'datetime',
     ];
 
     public function hocVien()

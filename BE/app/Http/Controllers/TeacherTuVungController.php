@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\ResolvesTeacherMediaUrl;
 use App\Http\Requests\DestroyTeacherTuVungRequest;
 use App\Http\Requests\ImportTeacherTuVungExcelRequest;
 use App\Http\Requests\ListTeacherTuVungRequest;
@@ -18,6 +19,8 @@ use Throwable;
 
 class TeacherTuVungController extends Controller
 {
+    use ResolvesTeacherMediaUrl;
+
     public function index(ListTeacherTuVungRequest $request, int $id): JsonResponse
     {
         $baiHoc = BaiHoc::query()->find($id);
@@ -186,6 +189,7 @@ class TeacherTuVungController extends Controller
                     'line' => $line,
                     'tu_chuan' => $tuChuan,
                 ];
+
                 continue;
             }
 
@@ -211,6 +215,7 @@ class TeacherTuVungController extends Controller
                     ],
                 ]);
             }
+
             return response()->json([
                 'status' => false,
                 'message' => $rowErrors === []
@@ -346,23 +351,10 @@ class TeacherTuVungController extends Controller
             'tu_chuan' => $tv->tu_chuan,
             'phien_am' => $tv->phien_am,
             'cap_do' => $tv->cap_do,
-            'hinh_anh_url' => $this->resolveMediaUrl($tv->hinh_anh_url),
-            'am_thanh_mau_url' => $this->resolveMediaUrl($tv->am_thanh_mau_url),
+            'hinh_anh_url' => $this->resolveTeacherMediaUrl($tv->hinh_anh_url),
+            'am_thanh_mau_url' => $this->resolveTeacherMediaUrl($tv->am_thanh_mau_url),
             'thu_tu' => $tv->thu_tu,
         ];
-    }
-
-    private function resolveMediaUrl(?string $path): ?string
-    {
-        if ($path === null || $path === '') {
-            return null;
-        }
-
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
-        }
-
-        return asset($path);
     }
 
     private function insertTuVungRow(

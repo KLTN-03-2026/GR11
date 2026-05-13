@@ -55,6 +55,21 @@
                 <span>Quản Lý Bài Học</span>
               </router-link>
             </li>
+            <li
+              :class="{
+                active:
+                  $route.path === '/teacher/quan-ly-bai-kiem-tra' ||
+                  $route.path.startsWith('/teacher/quan-ly-bai-kiem-tra/'),
+              }"
+            >
+              <router-link
+                to="/teacher/quan-ly-bai-kiem-tra"
+                class="iq-waves-effect mt-1"
+              >
+                <i class="fa-solid fa-clipboard-question"></i>
+                <span>Bài kiểm tra</span>
+              </router-link>
+            </li>
 
             <li
               :class="{ active: $route.path === '/teacher/bao-cao-thong-ke' }"

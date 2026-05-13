@@ -15,15 +15,15 @@ class TrangChuController extends Controller
     {
         // Chủ đề nổi bật: dựa theo số phiên luyện thuộc các bài học trong danh mục (fallback: số bài học)
         $chuDeNoiBat = DanhMucBaiHoc::query()
-            ->where('trang_thai', 1)
+            ->where('trang_thai', DanhMucBaiHoc::TRANG_THAI_HIEN_THI)
             ->withCount([
                 'baiHocs as so_luong_bai_hoc' => function ($q): void {
-                    $q->where('trang_thai', 0);
+                    $q->where('trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG);
                 },
             ])
             ->leftJoin('bai_hocs', function ($join): void {
                 $join->on('bai_hocs.danh_muc_id', '=', 'danh_muc_bai_hocs.id')
-                    ->where('bai_hocs.trang_thai', 0);
+                    ->where('bai_hocs.trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG);
             })
             ->leftJoin('phien_luyen_taps', 'phien_luyen_taps.bai_hoc_id', '=', 'bai_hocs.id')
             ->groupBy('danh_muc_bai_hocs.id')
@@ -42,7 +42,7 @@ class TrangChuController extends Controller
 
         // Bài học nổi bật: dựa theo số phiên luyện (fallback: bài mới)
         $baiHocNoiBat = BaiHoc::query()
-            ->where('trang_thai', 0)
+            ->where('trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG)
             ->with([
                 'danhMuc:id,ten_danh_muc,slug_danh_muc',
             ])
@@ -103,4 +103,3 @@ class TrangChuController extends Controller
         ]);
     }
 }
-

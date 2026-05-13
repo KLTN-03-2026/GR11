@@ -244,7 +244,7 @@ export default {
     handleBaiHocDuyet(e) {
       const data = e.detail;
       let msg = '';
-      if (data.trang_thai === 1) {
+      if (data.trang_thai === 0) {
         msg = `✅ Bài học <b>"${data.tieu_de}"</b> đã được Admin duyệt!`;
       } else if (data.trang_thai === 2) {
         msg = `❌ Bài học <b>"${data.tieu_de}"</b> bị Admin từ chối.`;
@@ -254,7 +254,7 @@ export default {
       this.addNotification({
         message: msg,
         link: '/teacher/quan-ly-bai-hoc',
-        type: data.trang_thai === 1 ? 'success' : (data.trang_thai === 2 ? 'error' : 'warning')
+        type: data.trang_thai === 0 ? 'success' : (data.trang_thai === 2 ? 'error' : 'warning')
       });
     },
     addNotification(payload) {

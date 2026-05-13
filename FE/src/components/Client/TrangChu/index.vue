@@ -279,7 +279,7 @@
         <div class="row g-4 mb-5">
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -300,7 +300,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -321,7 +321,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -342,7 +342,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -384,7 +384,7 @@
         <div class="row g-4">
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -409,7 +409,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -434,7 +434,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -459,7 +459,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -1229,5 +1229,102 @@ export default {
     padding-left: 20px;
     padding-right: 20px;
   }
+}
+
+/* Thẻ chủ đề & bài học — nổi bật, đổ bóng, hover */
+.favorite-card {
+  position: relative;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 18px !important;
+  box-shadow:
+    0 12px 40px rgba(15, 23, 42, 0.1),
+    0 4px 12px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.38s ease,
+    border-color 0.3s ease;
+  cursor: default;
+}
+
+.favorite-card--topic {
+  cursor: pointer;
+}
+
+.favorite-card--lesson {
+  cursor: default;
+}
+
+.favorite-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 3;
+  border-radius: 18px 18px 0 0;
+  opacity: 0.95;
+}
+
+.favorite-card--topic::before {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.favorite-card--lesson::before {
+  background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
+}
+
+.favorite-card:hover {
+  transform: translateY(-10px);
+  border-color: rgba(102, 126, 234, 0.28);
+  box-shadow:
+    0 24px 56px rgba(102, 126, 234, 0.2),
+    0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+.favorite-card--lesson:hover {
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow:
+    0 24px 56px rgba(14, 165, 233, 0.18),
+    0 12px 28px rgba(15, 23, 42, 0.1);
+}
+
+.favorite-image-wrapper {
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.favorite-card .favorite-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center center;
+}
+
+@media (max-width: 575px) {
+  .favorite-card .favorite-image {
+    min-height: 160px;
+  }
+}
+
+.favorite-card:hover .favorite-image {
+  transform: scale(1.08);
+}
+
+.favorite-card .p-4 {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.favorite-card .btn-outline-primary {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.favorite-card:hover .btn-outline-primary {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(13, 110, 253, 0.2);
 }
 </style>

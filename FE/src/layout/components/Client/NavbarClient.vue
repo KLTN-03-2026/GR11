@@ -55,13 +55,6 @@
           </router-link>
 
           <router-link
-            to="/luyen-tap"
-            class="dropdown-item rounded-3 py-2"
-          >
-            🎤 Luyện Tập
-          </router-link>
-
-          <router-link
             to="/bai-kiem-tra"
             class="dropdown-item rounded-3 py-2"
           >

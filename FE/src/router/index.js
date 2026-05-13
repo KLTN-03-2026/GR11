@@ -80,7 +80,7 @@ const routes = [
   {
     path: "/bai-kiem-tra",
     component: () => import("../components/KhachHang/BaiKiemTra/index.vue"),
-    meta: { layout: "client" },
+    meta: { layout: "client", quizQueryParam: "bai_kiem_tra_id" },
     beforeEnter: checkClient,
   },
   {
@@ -196,6 +196,20 @@ const routes = [
     path: "/teacher/quan-ly-bai-hoc",
     component: () =>
       import("../components/AHeThong/Teach/QuanLyBaiHoc/index.vue"),
+    meta: { layout: "teach" },
+    beforeEnter: checkTeacher,
+  },
+  {
+    path: "/teacher/quan-ly-bai-kiem-tra/chinh-sua/:id",
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyBaiKiemTra/ChinhSua.vue"),
+    meta: { layout: "teach" },
+    beforeEnter: checkTeacher,
+  },
+  {
+    path: "/teacher/quan-ly-bai-kiem-tra",
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyBaiKiemTra/index.vue"),
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },

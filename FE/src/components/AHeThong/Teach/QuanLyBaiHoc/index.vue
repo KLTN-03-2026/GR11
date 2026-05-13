@@ -314,54 +314,90 @@
                             </ul>
                           </div>
                         </div>
-                        <p
-                          class="text-secondary small mb-3 text-truncate"
-                          :title="bai.mo_ta"
-                          style="opacity: 0.85"
-                        >
-                          {{ bai.mo_ta || "Chưa có mô tả cho bài học này" }}
-                        </p>
-                        <div
-                          class="d-flex justify-content-between align-items-center mt-auto"
-                        >
-                          <span
-                            class="badge rounded-pill bg-light text-secondary me-1 border px-2 py-1 fw-medium"
-                            style="font-size: 0.8rem"
-                          >
-                            <i
-                              class="fa-solid fa-layer-group me-1 opacity-75"
-                            ></i>
-                            Cấp độ:
-                            {{ formatCapDo(bai.cap_do) }}
-                          </span>
-                          <span
-                            class="badge rounded-pill px-2 py-1 fw-medium d-flex align-items-center gap-1 border"
-                            :style="
-                              bai.trang_thai == 0
-                                ? 'font-size: 0.8rem; background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;'
-                                : bai.trang_thai == 2
-                                  ? 'font-size: 0.8rem; background-color: #fee2e2; color: #991b1b; border-color: #fecaca !important;'
-                                  : 'font-size: 0.8rem; background-color: #f1f5f9; color: #475569; border-color: #e2e8f0 !important;'
-                            "
-                          >
-                            <i
-                              class="fa-solid"
-                              :class="
-                                bai.trang_thai == 0
-                                  ? 'fa-circle-check'
-                                  : bai.trang_thai == 2
-                                    ? 'fa-circle-xmark'
-                                    : 'fa-clock'
-                              "
-                            ></i>
-                            {{
-                              bai.trang_thai == 0
-                                ? "Đã duyệt"
-                                : bai.trang_thai == 2
-                                  ? "Từ chối"
-                                  : "Đợi duyệt"
-                            }}
-                          </span>
+
+                        <div class="row g-4" v-else>
+                            <div class="col-xl-6 col-lg-6" v-for="bai in bai_hoc_hien_thi" :key="bai.id">
+
+                                <div class="card h-100 border-0 shadow-sm rounded-4"
+                                    style="cursor: pointer; transition: all 0.3s ease; border: 1px solid transparent !important;"
+                                    onmouseover="this.style.transform='translateY(-5px)'; this.classList.replace('shadow-sm', 'shadow'); this.style.borderColor='#e2e8f0';"
+                                    onmouseout="this.style.transform='translateY(0)'; this.classList.replace('shadow', 'shadow-sm'); this.style.borderColor='transparent';"
+                                    @click="quanLyTuVung(bai)">
+
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <div class="rounded-4 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
+                                                :style="`background-color: ${bai.mau_nen || '#f0fdf4'}; width: 64px; height: 64px;`">
+                                                <i :class="[bai.icon || 'fa-solid fa-book', 'fs-3']"
+                                                    :style="`color: ${bai.mau_icon || '#16a34a'};`"></i>
+                                            </div>
+
+                                            <div class="flex-grow-1" style="min-width: 0;">
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <h6 class="fw-bold text-truncate mb-0 pe-2 fs-6 text-dark"
+                                                        :title="bai.tieu_de" style="line-height: 1.4;">
+                                                        {{ bai.tieu_de }}
+                                                    </h6>
+
+                                                    <div class="dropdown flex-shrink-0">
+                                                        <button
+                                                            class="btn text-muted p-0 border-0 bg-transparent d-flex align-items-center justify-content-center"
+                                                            type="button" data-bs-toggle="dropdown" @click.stop
+                                                            style="width: 30px; height: 30px; border-radius: 50%;"
+                                                            onmouseover="this.style.backgroundColor='#f1f5f9'"
+                                                            onmouseout="this.style.backgroundColor='transparent'">
+                                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                        </button>
+                                                        <ul
+                                                            class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-1 py-2">
+                                                            <li><a class="dropdown-item py-2 fw-medium" href="#"
+                                                                    data-bs-toggle="modal" data-bs-target="#baiHocModal"
+                                                                    @click.stop.prevent="suaBaiHoc(bai)"><i
+                                                                        class="fa-regular fa-pen-to-square me-2 text-center"
+                                                                        style="color: #667eea; width: 20px;"></i> Sửa
+                                                                    bài học</a></li>
+                                                            <li><a class="dropdown-item py-2 fw-medium" href="#"
+                                                                    @click.stop.prevent="quanLyTuVung(bai)"><i
+                                                                        class="fa-solid fa-list-ul me-2 text-success text-center"
+                                                                        style="width: 20px;"></i> Quản lý từ vựng</a>
+                                                            </li>
+                                                            <li>
+                                                                <hr class="dropdown-divider opacity-25 my-1">
+                                                            </li>
+                                                            <li><a class="dropdown-item py-2 fw-medium text-danger"
+                                                                    href="#" data-bs-toggle="modal"
+                                                                    data-bs-target="#xoaModal"
+                                                                    @click.stop.prevent="xoaDoiTuong(bai, 'bai_hoc')"><i
+                                                                        class="fa-regular fa-trash-can me-2 text-center"
+                                                                        style="width: 20px;"></i> Xóa bài học</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="text-secondary small mb-3 text-truncate" :title="bai.mo_ta"
+                                                    style="opacity: 0.85;">
+                                                    {{ bai.mo_ta || 'Chưa có mô tả cho bài học này' }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                    <span
+                                                        class="badge rounded-pill bg-light text-secondary me-1 border px-2 py-1 fw-medium"
+                                                        style="font-size: 0.8rem;">
+                                                        <i class="fa-solid fa-layer-group me-1 opacity-75"></i> Cấp độ:
+                                                        {{ formatCapDo(bai.cap_do) }}
+                                                    </span>
+                                                    <span
+                                                        class="badge rounded-pill px-2 py-1 fw-medium d-flex align-items-center gap-1 border"
+                                                        :style="bai.trang_thai == 0 ? 'font-size: 0.8rem; background-color: #dcfce7; color: #166534; border-color: #bbf7d0 !important;' : (bai.trang_thai == 2 ? 'font-size: 0.8rem; background-color: #fee2e2; color: #991b1b; border-color: #fecaca !important;' : 'font-size: 0.8rem; background-color: #f1f5f9; color: #475569; border-color: #e2e8f0 !important;')">
+                                                        <i class="fa-solid"
+                                                            :class="bai.trang_thai == 0 ? 'fa-circle-check' : (bai.trang_thai == 2 ? 'fa-circle-xmark' : 'fa-clock')"></i>
+                                                        {{ bai.trang_thai == 0 ? 'Đã duyệt' : (bai.trang_thai == 2 ? 'Từ chối' : 'Đợi duyệt') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                       </div>
                     </div>
@@ -733,238 +769,71 @@ export default {
                 this.danh_muc_dang_chon = this.danh_muc[0].id;
               }
             }
-            this.taiBaiHoc(this.danh_muc_dang_chon);
-          } else {
-            this.$toast.error(res.data.message || "Không tải được danh mục.");
-          }
-        })
-        .catch((err) => {
-          if (err.response && err.response.status === 401) {
-            this.$toast.error("Vui lòng đăng nhập lại.");
-            this.$router.push("/dang-nhap");
-            return;
-          }
-          if (err.response && err.response.status === 403) {
-            this.$toast.error("Bạn không có quyền truy cập.");
-            return;
-          }
-          this.toastLoiAxios(err);
-        })
-        .finally(() => {
-          this.loadingDanhMuc = false;
-        });
-    },
-    taiBaiHoc(danhMucId) {
-      if (!danhMucId) {
-        this.bai_hoc = [];
-        return;
-      }
-      this.loadingBaiHoc = true;
-      axios
-        .get(
-          this.apiBase +
-            "/api/teacher/danh-muc-bai-hoc/" +
-            danhMucId +
-            "/bai-hoc",
-          {
-            headers: this.authHeaders(),
-          },
-        )
-        .then((res) => {
-          if (res.data.status) {
-            this.bai_hoc = (res.data.data || []).map((row) =>
-              this.mapBaiHocTuApi(row),
-            );
-          } else {
-            this.$toast.error(res.data.message || "Không tải được bài học.");
-          }
-        })
-        .catch((err) => {
-          if (err.response && err.response.status === 401) {
-            this.$toast.error("Vui lòng đăng nhập lại.");
-            this.$router.push("/dang-nhap");
-            return;
-          }
-          this.toastLoiAxios(err);
-        })
-        .finally(() => {
-          this.loadingBaiHoc = false;
-        });
-    },
-    chonDanhMuc(id) {
-      this.danh_muc_dang_chon = id;
-      this.taiBaiHoc(id);
-    },
-    locDanhMuc() {
-      const danhMucDangChonConHien = this.danh_muc_hien_thi.some(
-        (d) => d.id === this.danh_muc_dang_chon,
-      );
-      if (!danhMucDangChonConHien) {
-        this.danh_muc_dang_chon = this.danh_muc_hien_thi[0]?.id || null;
-        this.taiBaiHoc(this.danh_muc_dang_chon);
-      }
-      this.taiDanhMuc(this.danh_muc_dang_chon);
-    },
-    demSoBaiHoc(dm) {
-      if (dm && typeof dm.so_bai === "number") return dm.so_bai;
-      return this.bai_hoc.filter((bai) => bai.danh_muc_id === dm.id).length;
-    },
-    formatCapDo(capDo) {
-      const map = { de: "Dễ", trung_binh: "TB", kho: "Khó" };
-      return map[capDo] || "Dễ";
-    },
-    suaDanhMuc(dm) {
-      this.isEditDanhMuc = true;
-      this.formDanhMuc = {
-        id: dm.id,
-        ten: dm.ten || dm.ten_danh_muc || "",
-        icon: dm.icon || "fa-solid fa-folder",
-      };
-    },
-    luuDanhMuc() {
-      const ten = (this.formDanhMuc.ten || "").trim();
-      if (!ten) {
-        this.$toast.error("Vui lòng nhập tên danh mục.");
-        return;
-      }
-      this.savingDanhMuc = true;
-      const payload = {
-        ten_danh_muc: ten,
-        icon: (this.formDanhMuc.icon || "").trim() || "fa-solid fa-folder",
-      };
-      const req = this.isEditDanhMuc
-        ? axios.put(
-            this.apiBase +
-              "/api/teacher/danh-muc-bai-hoc/" +
-              this.formDanhMuc.id,
-            payload,
-            {
-              headers: this.authHeaders(),
-            },
-          )
-        : axios.post(this.apiBase + "/api/teacher/danh-muc-bai-hoc", payload, {
-            headers: this.authHeaders(),
-          });
-      req
-        .then((res) => {
-          if (res.data.status) {
-            this.$toast.success(res.data.message || "Lưu danh mục thành công.");
-            this.dongModalTheoId("danhMucModal");
-            const moiId =
-              !this.isEditDanhMuc && res.data.data && res.data.data.id
-                ? res.data.data.id
-                : null;
-            this.taiDanhMuc(moiId);
-          } else {
-            this.$toast.error(res.data.message || "Không lưu được danh mục.");
-          }
-        })
-        .catch((err) => {
-          this.toastLoiAxios(err);
-        })
-        .finally(() => {
-          this.savingDanhMuc = false;
-        });
-    },
-    themBaiHoc() {
-      this.isEditBaiHoc = false;
-      this.formBaiHoc = {
-        id: null,
-        danh_muc_id:
-          this.danh_muc_dang_chon ||
-          (this.danh_muc[0] && this.danh_muc[0].id) ||
-          null,
-        tieu_de: "",
-        mo_ta: "",
-        cap_do: "de",
-      };
-    },
-    suaBaiHoc(bai) {
-      this.isEditBaiHoc = true;
-      this.formBaiHoc = {
-        id: bai.id,
-        danh_muc_id: bai.danh_muc_id,
-        tieu_de: bai.tieu_de || "",
-        mo_ta: bai.mo_ta || "",
-        cap_do: bai.cap_do || "de",
-      };
-    },
-    luuBaiHoc() {
-      const tieuDe = (this.formBaiHoc.tieu_de || "").trim();
-      if (!tieuDe) {
-        this.$toast.error("Vui lòng nhập tiêu đề bài học.");
-        return;
-      }
-      if (!this.formBaiHoc.danh_muc_id) {
-        this.$toast.error("Vui lòng chọn danh mục.");
-        return;
-      }
-      const payload = {
-        danh_muc_id: this.formBaiHoc.danh_muc_id,
-        tieu_de: tieuDe,
-        mo_ta: (this.formBaiHoc.mo_ta || "").trim() || null,
-        cap_do: this.formBaiHoc.cap_do,
-        trang_thai: 1,
-      };
-      this.savingBaiHoc = true;
-      const req = this.isEditBaiHoc
-        ? axios.put(
-            this.apiBase + "/api/teacher/bai-hoc/" + this.formBaiHoc.id,
-            payload,
-            {
-              headers: this.authHeaders(),
-            },
-          )
-        : axios.post(this.apiBase + "/api/teacher/bai-hoc", payload, {
-            headers: this.authHeaders(),
-          });
-      req
-        .then((res) => {
-          if (res.data.status) {
-            this.$toast.success(res.data.message || "Lưu bài học thành công.");
-            this.dongModalTheoId("baiHocModal");
-            const sid = this.formBaiHoc.danh_muc_id;
-            this.danh_muc_dang_chon = sid;
-            this.taiDanhMuc(sid);
-          } else {
-            this.$toast.error(res.data.message || "Không lưu được bài học.");
-          }
-        })
-        .catch((err) => {
-          this.toastLoiAxios(err);
-        })
-        .finally(() => {
-          this.savingBaiHoc = false;
-        });
-    },
-    quanLyTuVung(bai) {
-      this.$router.push({
-        path: "/teacher/tu-vung",
-        query: { bai_hoc_id: String(bai.id) },
-      });
-    },
-    xoaDoiTuong(doiTuong, loai) {
-      this.doiTuongXoa = doiTuong;
-      this.loaiXoa = loai;
-    },
-    xacNhanXoa() {
-      if (!this.doiTuongXoa || !this.loaiXoa) return;
-      this.deleting = true;
-      if (this.loaiXoa === "bai_hoc") {
-        axios
-          .delete(
-            this.apiBase + "/api/teacher/bai-hoc/" + this.doiTuongXoa.id,
-            {
-              headers: this.authHeaders(),
-            },
-          )
-          .then((res) => {
-            if (res.data.status) {
-              this.$toast.success(res.data.message || "Đã xóa bài học.");
-              this.dongModalTheoId("xoaModal");
-              this.taiDanhMuc();
-            } else {
-              this.$toast.error(res.data.message || "Không xóa được.");
+            const payload = {
+                danh_muc_id: this.formBaiHoc.danh_muc_id,
+                tieu_de: tieuDe,
+                mo_ta: (this.formBaiHoc.mo_ta || '').trim() || null,
+                cap_do: this.formBaiHoc.cap_do,
+                trang_thai: 1,
+            };
+            this.savingBaiHoc = true;
+            const req = this.isEditBaiHoc
+                ? axios.put(this.apiBase + '/api/teacher/bai-hoc/' + this.formBaiHoc.id, payload, {
+                    headers: this.authHeaders(),
+                })
+                : axios.post(this.apiBase + '/api/teacher/bai-hoc', payload, { headers: this.authHeaders() });
+            req
+                .then((res) => {
+                    if (res.data.status) {
+                        this.$toast.success(res.data.message || 'Lưu bài học thành công.');
+                        this.dongModalTheoId('baiHocModal');
+                        const sid = this.formBaiHoc.danh_muc_id;
+                        this.danh_muc_dang_chon = sid;
+                        this.taiDanhMuc(sid);
+                    } else {
+                        this.$toast.error(res.data.message || 'Không lưu được bài học.');
+                    }
+                })
+                .catch((err) => {
+                    this.toastLoiAxios(err);
+                })
+                .finally(() => {
+                    this.savingBaiHoc = false;
+                });
+        },
+        quanLyTuVung(bai) {
+            this.$router.push({ path: '/teacher/tu-vung', query: { bai_hoc_id: String(bai.id) } });
+        },
+        xoaDoiTuong(doiTuong, loai) {
+            this.doiTuongXoa = doiTuong;
+            this.loaiXoa = loai;
+        },
+        xacNhanXoa() {
+            if (!this.doiTuongXoa || !this.loaiXoa) return;
+            this.deleting = true;
+            if (this.loaiXoa === 'bai_hoc') {
+                axios
+                    .delete(this.apiBase + '/api/teacher/bai-hoc/' + this.doiTuongXoa.id, {
+                        headers: this.authHeaders(),
+                    })
+                    .then((res) => {
+                        if (res.data.status) {
+                            this.$toast.success(res.data.message || 'Đã xóa bài học.');
+                            this.dongModalTheoId('xoaModal');
+                            this.taiDanhMuc();
+                        } else {
+                            this.$toast.error(res.data.message || 'Không xóa được.');
+                        }
+                    })
+                    .catch((err) => {
+                        this.toastLoiAxios(err);
+                    })
+                    .finally(() => {
+                        this.deleting = false;
+                        this.doiTuongXoa = null;
+                        this.loaiXoa = '';
+                    });
+                return;
             }
           })
           .catch((err) => {

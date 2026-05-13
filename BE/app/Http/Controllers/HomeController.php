@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BaiHoc;
 use App\Models\DanhMucBaiHoc;
 
 class HomeController extends Controller
@@ -9,16 +10,16 @@ class HomeController extends Controller
     public function dataOpen()
     {
         $categories = DanhMucBaiHoc::query()
-            ->where('trang_thai', 0)
+            ->where('trang_thai', DanhMucBaiHoc::TRANG_THAI_HIEN_THI)
             ->orderBy('thu_tu')
             ->withCount([
                 'baiHocs as so_luong_bai_hoc' => function ($query): void {
-                    $query->where('trang_thai', 0);
+                    $query->where('trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG);
                 },
             ])
             ->with([
                 'baiHocs' => function ($query) {
-                    $query->where('trang_thai', 0)
+                    $query->where('trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG)
                         ->orderBy('thu_tu')
                         ->select(
                             'id',

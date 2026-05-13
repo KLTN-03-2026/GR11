@@ -3,20 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\BaiHoc;
+use App\Models\CauHinhHeThong;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\ChiTietLuyenTap;
-use App\Models\CauHinhHeThong;
 use App\Models\NguoiDung;
 use App\Models\PhienLuyenTap;
 use App\Models\ThongBao;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
 {
@@ -73,7 +73,7 @@ class AdminDashboardController extends Controller
                         'icon' => 'fa-solid fa-users',
                         'type' => $lockedUsers > 0 ? 'warning' : 'info',
                         'tieu_de' => 'Tài khoản đang bị khóa',
-                        'mo_ta' => $lockedUsers . ' tài khoản đang ở trạng thái tạm khóa.',
+                        'mo_ta' => $lockedUsers.' tài khoản đang ở trạng thái tạm khóa.',
                         'thoi_gian' => 'vừa xong',
                     ],
                     [
@@ -81,7 +81,7 @@ class AdminDashboardController extends Controller
                         'icon' => 'fa-solid fa-bell',
                         'type' => $unreadNotices > 5 ? 'warning' : 'info',
                         'tieu_de' => 'Thông báo chưa đọc',
-                        'mo_ta' => $unreadNotices . ' thông báo chưa được xử lý.',
+                        'mo_ta' => $unreadNotices.' thông báo chưa được xử lý.',
                         'thoi_gian' => 'vừa xong',
                     ],
                     [
@@ -89,7 +89,7 @@ class AdminDashboardController extends Controller
                         'icon' => 'fa-solid fa-triangle-exclamation',
                         'type' => $todayErrorDetails > 50 ? 'error' : 'warning',
                         'tieu_de' => 'Lỗi phát âm hôm nay',
-                        'mo_ta' => 'Ghi nhận ' . $todayErrorDetails . ' lượt lỗi chi tiết trong ngày.',
+                        'mo_ta' => 'Ghi nhận '.$todayErrorDetails.' lượt lỗi chi tiết trong ngày.',
                         'thoi_gian' => 'hôm nay',
                     ],
                 ],
@@ -155,13 +155,13 @@ class AdminDashboardController extends Controller
         if ($period === 'tuan') {
             for ($i = 6; $i >= 0; $i--) {
                 $day = Carbon::today()->subDays($i);
-                $result['labels'][] = 'T' . $day->isoWeekday();
+                $result['labels'][] = 'T'.$day->isoWeekday();
                 $result['data'][] = PhienLuyenTap::whereDate('created_at', $day)->count();
             }
         } elseif ($period === 'nam') {
             for ($i = 5; $i >= 0; $i--) {
                 $month = Carbon::now()->subMonths($i);
-                $result['labels'][] = 'T' . $month->month;
+                $result['labels'][] = 'T'.$month->month;
                 $result['data'][] = PhienLuyenTap::whereYear('created_at', $month->year)
                     ->whereMonth('created_at', $month->month)
                     ->count();
@@ -170,7 +170,7 @@ class AdminDashboardController extends Controller
             for ($i = 3; $i >= 0; $i--) {
                 $start = Carbon::now()->startOfMonth()->subWeeks($i);
                 $end = (clone $start)->copy()->endOfWeek();
-                $result['labels'][] = 'Tuần ' . (4 - $i);
+                $result['labels'][] = 'Tuần '.(4 - $i);
                 $result['data'][] = PhienLuyenTap::whereBetween('created_at', [$start, $end])->count();
             }
         }
@@ -213,9 +213,10 @@ class AdminDashboardController extends Controller
             $escaped = array_map(static function ($field): string {
                 $fieldStr = (string) $field;
                 $fieldStr = str_replace('"', '""', $fieldStr);
-                return '"' . $fieldStr . '"';
+
+                return '"'.$fieldStr.'"';
             }, $row);
-            $csv .= implode(',', $escaped) . "\n";
+            $csv .= implode(',', $escaped)."\n";
         }
 
         $startDate = (string) $request->query('startDate', Carbon::now()->startOfMonth()->toDateString());
@@ -224,7 +225,7 @@ class AdminDashboardController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 
@@ -259,6 +260,7 @@ class AdminDashboardController extends Controller
             $errorRate = $requests > 0 ? round(($serviceErrors / $requests) * 100, 2) : 0;
             $avgResponse = max(15, (int) round($row['responseBase'] + (100 - $avgScore) * 0.6));
             $uptime = max(90, round(100 - min(8, $errorRate), 2));
+
             return [
                 'id' => $row['id'],
                 'name' => $row['name'],
@@ -322,11 +324,11 @@ class AdminDashboardController extends Controller
     private function buildTopErrors($detailsQuery): array
     {
         $rows = (clone $detailsQuery)
-            ->selectRaw("
+            ->selectRaw('
                 SUM(CASE WHEN loi_am_dau = 1 THEN 1 ELSE 0 END) AS am_dau,
                 SUM(CASE WHEN loi_van = 1 THEN 1 ELSE 0 END) AS van,
                 SUM(CASE WHEN loi_thanh_dieu = 1 THEN 1 ELSE 0 END) AS thanh_dieu
-            ")
+            ')
             ->first();
 
         return [
@@ -334,7 +336,7 @@ class AdminDashboardController extends Controller
             ['id' => 2, 'code' => 'VAN', 'service' => 'Speech Engine', 'count' => (int) ($rows->van ?? 0), 'lastOccurrence' => 'Gần nhất'],
             ['id' => 3, 'code' => 'THANH_DIEU', 'service' => 'Speech Engine', 'count' => (int) ($rows->thanh_dieu ?? 0), 'lastOccurrence' => 'Gần nhất'],
             ['id' => 4, 'code' => 'USER_LOCKED', 'service' => 'Auth', 'count' => $this->countLockedUsers(), 'lastOccurrence' => 'Hiện tại'],
-            ['id' => 5, 'code' => 'LESSON_INACTIVE', 'service' => 'Content', 'count' => BaiHoc::where('trang_thai', 1)->count(), 'lastOccurrence' => 'Hiện tại'],
+            ['id' => 5, 'code' => 'LESSON_INACTIVE', 'service' => 'Content', 'count' => BaiHoc::where('trang_thai', '!=', BaiHoc::TRANG_THAI_HOAT_DONG)->count(), 'lastOccurrence' => 'Hiện tại'],
         ];
     }
 
@@ -343,6 +345,7 @@ class AdminDashboardController extends Controller
         if (Schema::hasColumn('nguoi_dungs', 'is_block')) {
             return NguoiDung::where('is_block', 1)->count();
         }
+
         return NguoiDung::where('trang_thai', 1)->count();
     }
 
@@ -351,6 +354,7 @@ class AdminDashboardController extends Controller
         if (Schema::hasColumn('nguoi_dungs', 'is_block')) {
             return NguoiDung::where('is_block', 0)->count();
         }
+
         return NguoiDung::where('trang_thai', 0)->count();
     }
 
@@ -407,7 +411,7 @@ class AdminDashboardController extends Controller
                 'connections' => $connected,
                 'slowQueries' => $slow,
                 'optimization' => $optimization,
-                'dbSize' => number_format($dbSizeGb, 2) . ' GB',
+                'dbSize' => number_format($dbSizeGb, 2).' GB',
             ];
         } catch (\Throwable $e) {
             return [
@@ -423,17 +427,18 @@ class AdminDashboardController extends Controller
     {
         try {
             $metaFile = storage_path('app/backups/last_backup.json');
-            if (!File::exists($metaFile)) {
+            if (! File::exists($metaFile)) {
                 return 'Chưa backup';
             }
 
             $raw = File::get($metaFile);
             $json = json_decode($raw, true);
-            if (!is_array($json) || empty($json['backup_time_iso'])) {
+            if (! is_array($json) || empty($json['backup_time_iso'])) {
                 return 'Chưa backup';
             }
 
             $time = Carbon::parse((string) $json['backup_time_iso']);
+
             return $time->diffForHumans();
         } catch (\Throwable $e) {
             return 'Chưa backup';
@@ -482,4 +487,3 @@ class AdminDashboardController extends Controller
         ];
     }
 }
-

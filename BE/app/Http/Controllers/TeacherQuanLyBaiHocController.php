@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GiaoVienNopBaiHoc;
 use App\Http\Requests\DestroyDanhMucBaiHocRequest;
 use App\Http\Requests\DestroyTeacherBaiHocRequest;
 use App\Http\Requests\GetBaiHocTheoDanhMucRequest;
@@ -14,7 +15,6 @@ use App\Models\DanhMucBaiHoc;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Events\GiaoVienNopBaiHoc;
 
 class TeacherQuanLyBaiHocController extends Controller
 {
@@ -151,7 +151,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'mo_ta' => $request->mo_ta,
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $thuTu,
-                'trang_thai' => (int) $request->input('trang_thai', 1),
+                'trang_thai' => (int) $request->input('trang_thai', BaiHoc::TRANG_THAI_CHO_DUYET),
             ]);
         });
 
@@ -223,7 +223,7 @@ class TeacherQuanLyBaiHocController extends Controller
                 'cap_do' => $request->cap_do,
                 'thu_tu' => $newThuTu,
                 // Mọi chỉnh sửa từ giáo viên đều đưa bài về hàng chờ admin duyệt lại.
-                'trang_thai' => 1,
+                'trang_thai' => BaiHoc::TRANG_THAI_CHO_DUYET,
             ]);
         });
 

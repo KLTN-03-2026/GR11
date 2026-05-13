@@ -218,7 +218,7 @@ class QuanHeGvHvController extends Controller
         $baiHocs = BaiHoc::query()
             ->with(['danhMuc:id,ten_danh_muc'])
             ->where('nguoi_tao_id', $giaoVien->id)
-            ->where('trang_thai', 0)
+            ->where('trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG)
             ->orderBy('danh_muc_id')
             ->orderBy('thu_tu')
             ->orderByDesc('id')
@@ -256,7 +256,7 @@ class QuanHeGvHvController extends Controller
         $baiHoc = BaiHoc::query()
             ->where('id', (int) $request->bai_hoc_id)
             ->where('nguoi_tao_id', $giaoVien->id)
-            ->where('trang_thai', 0)
+            ->where('trang_thai', BaiHoc::TRANG_THAI_HOAT_DONG)
             ->first();
         if (! $baiHoc) {
             return response()->json([

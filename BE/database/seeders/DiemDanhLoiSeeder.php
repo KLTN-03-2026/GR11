@@ -12,110 +12,46 @@ class DiemDanhLoiSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // Giả định: nguoi_dung_id 4..10 (học viên mẫu); tu_vung_id theo TuVungSeeder (1..79)
-        $diemDanhLois = [
-            [
-                'id' => 1,
-                'nguoi_dung_id' => 4, // Phạm Thị Học
-                'tu_vung_id' => 25, // tr
-                'muc_do_uu_tien' => 'cao',
-                'ghi_chu' => 'Khó phát âm âm đầu "tr", cần bài tập lưỡi và môi.',
-                'da_hoan_thanh' => false,
-                'ngay_danh_dau' => $now->copy()->subDays(10),
-                'ngay_hoan_thanh' => null,
-                'created_at' => $now->copy()->subDays(10),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 2,
-                'nguoi_dung_id' => 4,
-                'tu_vung_id' => 26, // ch
-                'muc_do_uu_tien' => 'binh_thuong',
-                'ghi_chu' => 'Nhớ đặt lưỡi sát vòm miệng khi phát âm.',
-                'da_hoan_thanh' => true,
-                'ngay_danh_dau' => $now->copy()->subDays(20),
-                'ngay_hoan_thanh' => $now->copy()->subDays(5),
-                'created_at' => $now->copy()->subDays(20),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 3,
-                'nguoi_dung_id' => 5, // Ngô Văn Học (chưa kích hoạt)
-                'tu_vung_id' => 19, // ai
-                'muc_do_uu_tien' => 'thap',
-                'ghi_chu' => 'Chưa bắt đầu luyện; ưu tiên thấp.',
-                'da_hoan_thanh' => false,
-                'ngay_danh_dau' => $now->copy()->subDays(2),
-                'ngay_hoan_thanh' => null,
-                'created_at' => $now->copy()->subDays(2),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 4,
-                'nguoi_dung_id' => 6, // Vũ Thị Khóa (bị block)
-                'tu_vung_id' => 27, // r
-                'muc_do_uu_tien' => 'cao',
-                'ghi_chu' => 'Thường xuyên phát âm sai "r", cần lộ trình chuyên sâu.',
-                'da_hoan_thanh' => false,
-                'ngay_danh_dau' => $now->copy()->subDays(30),
-                'ngay_hoan_thanh' => null,
-                'created_at' => $now->copy()->subDays(30),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 5,
-                'nguoi_dung_id' => 7, // Đặng Minh Học
-                'tu_vung_id' => 13, // mẹ
-                'muc_do_uu_tien' => 'binh_thuong',
-                'ghi_chu' => 'Cần lặp lại 3 lần/ngày.',
-                'da_hoan_thanh' => true,
-                'ngay_danh_dau' => $now->copy()->subDays(7),
-                'ngay_hoan_thanh' => $now->copy()->subDays(1),
-                'created_at' => $now->copy()->subDays(7),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 6,
-                'nguoi_dung_id' => 8, // Hoàng Thị Thảo
-                'tu_vung_id' => 31, // ma (ngang)
-                'muc_do_uu_tien' => 'binh_thuong',
-                'ghi_chu' => 'Đã hoàn thành phần cơ bản, chuyển sang thanh huyền.',
-                'da_hoan_thanh' => true,
-                'ngay_danh_dau' => $now->copy()->subDays(15),
-                'ngay_hoan_thanh' => $now->copy()->subDays(3),
-                'created_at' => $now->copy()->subDays(15),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 7,
-                'nguoi_dung_id' => 9, // Bùi Văn Tài
-                'tu_vung_id' => 43, // mèo
-                'muc_do_uu_tien' => 'thap',
-                'ghi_chu' => 'Ưu tiên thấp, mới bắt đầu.',
-                'da_hoan_thanh' => false,
-                'ngay_danh_dau' => $now->copy()->subDays(1),
-                'ngay_hoan_thanh' => null,
-                'created_at' => $now->copy()->subDays(1),
-                'updated_at' => $now,
-            ],
-            [
-                'id' => 8,
-                'nguoi_dung_id' => 10, // Trịnh Thị Yêu
-                'tu_vung_id' => 55, // xin chào
-                'muc_do_uu_tien' => 'cao',
-                'ghi_chu' => 'Cần luyện ngữ điệu khi chào hỏi.',
-                'da_hoan_thanh' => false,
-                'ngay_danh_dau' => $now->copy()->subDays(4),
-                'ngay_hoan_thanh' => null,
-                'created_at' => $now->copy()->subDays(4),
-                'updated_at' => $now,
-            ],
+        $defs = [
+            ['id' => 1, 'nguoi_dung_id' => 4, 'bai_hoc_id' => 4, 'tu_chuan' => 'tre', 'muc_do_uu_tien' => 'cao', 'ghi_chu' => 'Khó tách tr–ch; ưu tiên luyện cặp «tre / chó».', 'da_hoan_thanh' => false, 'sub_days' => 10],
+            ['id' => 2, 'nguoi_dung_id' => 4, 'bai_hoc_id' => 4, 'tu_chuan' => 'chuối', 'muc_do_uu_tien' => 'binh_thuong', 'ghi_chu' => 'Âm ch–uôi cần kéo dài vần đủ.', 'da_hoan_thanh' => true, 'sub_days' => 20],
+            ['id' => 3, 'nguoi_dung_id' => 5, 'bai_hoc_id' => 3, 'tu_chuan' => 'tủ', 'muc_do_uu_tien' => 'thap', 'ghi_chu' => 'Mới đánh dấu; chưa luyện đều.', 'da_hoan_thanh' => false, 'sub_days' => 2],
+            ['id' => 4, 'nguoi_dung_id' => 6, 'bai_hoc_id' => 4, 'tu_chuan' => 'rổ', 'muc_do_uu_tien' => 'cao', 'ghi_chu' => 'Âm r rung; so sánh với d/g cùng vị trí.', 'da_hoan_thanh' => false, 'sub_days' => 30],
+            ['id' => 5, 'nguoi_dung_id' => 7, 'bai_hoc_id' => 2, 'tu_chuan' => 'mẹ', 'muc_do_uu_tien' => 'binh_thuong', 'ghi_chu' => 'Thanh nặng trên vần e ổn định sau ôn.', 'da_hoan_thanh' => true, 'sub_days' => 7],
+            ['id' => 6, 'nguoi_dung_id' => 8, 'bai_hoc_id' => 6, 'tu_chuan' => 'la', 'muc_do_uu_tien' => 'binh_thuong', 'ghi_chu' => 'Dùng «la» làm mốc cho dãy 6 thanh.', 'da_hoan_thanh' => true, 'sub_days' => 15],
+            ['id' => 7, 'nguoi_dung_id' => 9, 'bai_hoc_id' => 19, 'tu_chuan' => 'mèo', 'muc_do_uu_tien' => 'thap', 'ghi_chu' => 'Theo dõi sau phiên vật nuôi trong nhà.', 'da_hoan_thanh' => false, 'sub_days' => 1],
+            ['id' => 8, 'nguoi_dung_id' => 10, 'bai_hoc_id' => 37, 'tu_chuan' => 'xin chào', 'muc_do_uu_tien' => 'cao', 'ghi_chu' => 'Ngữ điệu cụm chào cần tự nhiên hơn.', 'da_hoan_thanh' => false, 'sub_days' => 4],
         ];
 
+        $rows = [];
+        foreach ($defs as $d) {
+            $tid = TuVungLookup::id((int) $d['bai_hoc_id'], (string) $d['tu_chuan']);
+            if (! $tid) {
+                continue;
+            }
+            $start = $now->copy()->subDays((int) $d['sub_days']);
+            $rows[] = [
+                'id' => $d['id'],
+                'nguoi_dung_id' => $d['nguoi_dung_id'],
+                'tu_vung_id' => $tid,
+                'muc_do_uu_tien' => $d['muc_do_uu_tien'],
+                'ghi_chu' => $d['ghi_chu'],
+                'da_hoan_thanh' => $d['da_hoan_thanh'],
+                'ngay_danh_dau' => $start,
+                'ngay_hoan_thanh' => $d['da_hoan_thanh'] ? $start->copy()->addDays(5) : null,
+                'created_at' => $start,
+                'updated_at' => $now,
+            ];
+        }
+
+        if ($rows === []) {
+            return;
+        }
+
         DB::table('diem_danh_lois')->upsert(
-            $diemDanhLois,
+            $rows,
             ['id'],
-            ['nguoi_dung_id', 'tu_vung_id', 'muc_do_uu_tien', 'ghi_chu', 'da_hoan_thanh', 'ngay_danh_dau', 'ngay_hoan_thanh', 'created_at', 'updated_at']
+            ['nguoi_dung_id', 'tu_vung_id', 'muc_do_uu_tien', 'ghi_chu', 'da_hoan_thanh', 'ngay_danh_dau', 'ngay_hoan_thanh', 'updated_at']
         );
     }
 }
