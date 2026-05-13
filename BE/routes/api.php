@@ -7,21 +7,24 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
 use App\Http\Controllers\ChatBoxAIController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ChiTietLuyenTapController;
 use App\Http\Controllers\DanhMucBaiHocController;
+use App\Http\Controllers\DepositController;
 use App\Http\Controllers\ErrorHistoryController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HoSoGiaoVienController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
 use App\Http\Controllers\NguoiDungController;
+use App\Http\Controllers\PhienKiemTraController;
 use App\Http\Controllers\PhienLuyenTapController;
 use App\Http\Controllers\QuanHeGvHvController;
+use App\Http\Controllers\TeacherBaiKiemTraController;
 use App\Http\Controllers\TeacherQuanLyBaiHocController;
 use App\Http\Controllers\TeacherTuVungController;
 use App\Http\Controllers\ThongTinHocVienController;
-use App\Http\Controllers\ChiTietLuyenTapController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TienDoBaiHocController;
-use App\Http\Controllers\TtsController;
 use App\Http\Controllers\TrangChuController;
+use App\Http\Controllers\TtsController;
 use App\Http\Controllers\VaiTroController;
 use App\Http\Controllers\VaiTroQuyenController;
 use Illuminate\Http\Request;
@@ -150,6 +153,9 @@ Route::prefix('/teacher')->middleware(['auth:sanctum', 'role:2'])->group(functio
         Route::delete('/{id}', [TeacherTuVungController::class, 'destroy']);
     });
 
+    Route::get('/bai-hoc/{baiHocId}/bai-kiem-tra', [TeacherBaiKiemTraController::class, 'show']);
+    Route::put('/bai-hoc/{baiHocId}/bai-kiem-tra', [TeacherBaiKiemTraController::class, 'sync']);
+
     Route::prefix('/gv-hv')->group(function () {
         Route::get('/dashboard', [QuanHeGvHvController::class, 'dashboardTongQuan']);
         Route::get('/hoc-vien', [QuanHeGvHvController::class, 'danhSachHocVien']);
@@ -185,6 +191,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/phien-luyen-taps/start', [PhienLuyenTapController::class, 'start']);
     Route::post('/phien-luyen-taps/end', [PhienLuyenTapController::class, 'end']);
     Route::post('/phien-luyen-taps/hoan-thanh', [PhienLuyenTapController::class, 'hoanThanh']);
+
+    Route::get('/hoc-vien/bai-kiem-tra', [PhienKiemTraController::class, 'danhSachChoHocVien']);
+    Route::get('/bai-hoc/{baiHocId}/lam-bai-kiem-tra', [PhienKiemTraController::class, 'deLamBai']);
+    Route::post('/phien-kiem-tra/start', [PhienKiemTraController::class, 'start']);
+    Route::post('/phien-kiem-tra/luu-cau', [PhienKiemTraController::class, 'luuCau']);
+    Route::post('/phien-kiem-tra/cham-phat-am', [PhienKiemTraController::class, 'chamPhatAm']);
+    Route::post('/phien-kiem-tra/nop-bai', [PhienKiemTraController::class, 'nopBai']);
     Route::get('/thong-tin-hoc-vien/me', [ThongTinHocVienController::class, 'me']);
     Route::post('/dang-xuat', [NguoiDungController::class, 'logOut']);
     Route::get('/profile', [NguoiDungController::class, 'profile']);
@@ -202,7 +215,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('/homepage')->group(function () {
-    Route::get('/data-open', [HomeController::class, 'dataOpen']); 
+    Route::get('/data-open', [HomeController::class, 'dataOpen']);
 
     // Hồ sơ đăng ký giáo viên (Client)
     Route::post('/ho-so-giao-vien', [HoSoGiaoVienController::class, 'store']);

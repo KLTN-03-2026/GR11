@@ -12,120 +12,43 @@ class TienDoHocTapSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // Giả định: nguoi_dung_id (4..10) là học viên; tu_vung_id tồn tại theo TuVungSeeder (1..79)
-        $tienDoHocTaps = [
-            [
-                'id' => 1,
-                'nguoi_dung_id' => 4, // Phạm Thị Học
-                'tu_vung_id' => 13, // mẹ
-                'trang_thai' => 1,
-                'so_lan_luyen_tap' => 5,
-                'diem_cao_nhat' => 85,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 2,
-                'nguoi_dung_id' => 4,
-                'tu_vung_id' => 14, // ba
-                'trang_thai' => 2,
-                'so_lan_luyen_tap' => 8,
-                'diem_cao_nhat' => 95,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 3,
-                'nguoi_dung_id' => 5, // Ngô Văn Học (chưa kích hoạt) - vẫn có bản ghi tiến độ mẫu
-                'tu_vung_id' => 19, // ai
-                'trang_thai' => 0,
-                'so_lan_luyen_tap' => 0,
-                'diem_cao_nhat' => 0,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 4,
-                'nguoi_dung_id' => 6, // Vũ Thị Khóa (bị block)
-                'tu_vung_id' => 25, // tr
-                'trang_thai' => 1,
-                'so_lan_luyen_tap' => 2,
-                'diem_cao_nhat' => 60,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 5,
-                'nguoi_dung_id' => 7, // Đặng Minh Học
-                'tu_vung_id' => 22, // mai
-                'trang_thai' => 1,
-                'so_lan_luyen_tap' => 3,
-                'diem_cao_nhat' => 72,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 6,
-                'nguoi_dung_id' => 7,
-                'tu_vung_id' => 23, // cao
-                'trang_thai' => 0,
-                'so_lan_luyen_tap' => 0,
-                'diem_cao_nhat' => 0,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 7,
-                'nguoi_dung_id' => 8, // Hoàng Thị Thảo
-                'tu_vung_id' => 31, // ma (ngang)
-                'trang_thai' => 2,
-                'so_lan_luyen_tap' => 12,
-                'diem_cao_nhat' => 98,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 8,
-                'nguoi_dung_id' => 8,
-                'tu_vung_id' => 32, // mà (huyền)
-                'trang_thai' => 1,
-                'so_lan_luyen_tap' => 4,
-                'diem_cao_nhat' => 78,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 9,
-                'nguoi_dung_id' => 9, // Bùi Văn Tài
-                'tu_vung_id' => 43, // mèo
-                'trang_thai' => 1,
-                'so_lan_luyen_tap' => 1,
-                'diem_cao_nhat' => 55,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 10,
-                'nguoi_dung_id' => 9,
-                'tu_vung_id' => 44, // chó
-                'trang_thai' => 0,
-                'so_lan_luyen_tap' => 0,
-                'diem_cao_nhat' => 0,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 11,
-                'nguoi_dung_id' => 10, // Trịnh Thị Yêu (yêu cầu reset mật khẩu)
-                'tu_vung_id' => 55, // xin chào
-                'trang_thai' => 1,
-                'so_lan_luyen_tap' => 6,
-                'diem_cao_nhat' => 82,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
-            [
-                'id' => 12,
-                'nguoi_dung_id' => 10,
-                'tu_vung_id' => 56, // tôi tên là
-                'trang_thai' => 0,
-                'so_lan_luyen_tap' => 0,
-                'diem_cao_nhat' => 0,
-                'ngay_cap_nhat_cuoi' => $now,
-            ],
+        $defs = [
+            ['nguoi_dung_id' => 4, 'bai_hoc_id' => 2, 'tu_chuan' => 'mẹ', 'trang_thai' => 1, 'so_lan' => 6, 'diem' => 88],
+            ['nguoi_dung_id' => 4, 'bai_hoc_id' => 2, 'tu_chuan' => 'ba', 'trang_thai' => 2, 'so_lan' => 9, 'diem' => 94],
+            ['nguoi_dung_id' => 5, 'bai_hoc_id' => 3, 'tu_chuan' => 'tủ', 'trang_thai' => 0, 'so_lan' => 0, 'diem' => 0],
+            ['nguoi_dung_id' => 6, 'bai_hoc_id' => 4, 'tu_chuan' => 'tre', 'trang_thai' => 1, 'so_lan' => 3, 'diem' => 62],
+            ['nguoi_dung_id' => 7, 'bai_hoc_id' => 3, 'tu_chuan' => 'thỏ', 'trang_thai' => 1, 'so_lan' => 4, 'diem' => 74],
+            ['nguoi_dung_id' => 7, 'bai_hoc_id' => 3, 'tu_chuan' => 'nư', 'trang_thai' => 0, 'so_lan' => 0, 'diem' => 0],
+            ['nguoi_dung_id' => 8, 'bai_hoc_id' => 6, 'tu_chuan' => 'la', 'trang_thai' => 2, 'so_lan' => 14, 'diem' => 98],
+            ['nguoi_dung_id' => 8, 'bai_hoc_id' => 6, 'tu_chuan' => 'là', 'trang_thai' => 1, 'so_lan' => 5, 'diem' => 80],
+            ['nguoi_dung_id' => 9, 'bai_hoc_id' => 19, 'tu_chuan' => 'mèo', 'trang_thai' => 1, 'so_lan' => 2, 'diem' => 58],
+            ['nguoi_dung_id' => 9, 'bai_hoc_id' => 19, 'tu_chuan' => 'chó', 'trang_thai' => 0, 'so_lan' => 0, 'diem' => 0],
+            ['nguoi_dung_id' => 10, 'bai_hoc_id' => 37, 'tu_chuan' => 'xin chào', 'trang_thai' => 1, 'so_lan' => 7, 'diem' => 84],
+            ['nguoi_dung_id' => 10, 'bai_hoc_id' => 37, 'tu_chuan' => 'tạm biệt', 'trang_thai' => 0, 'so_lan' => 0, 'diem' => 0],
         ];
 
+        $rows = [];
+        foreach ($defs as $d) {
+            $tid = TuVungLookup::id((int) $d['bai_hoc_id'], (string) $d['tu_chuan']);
+            if (! $tid) {
+                continue;
+            }
+            $rows[] = [
+                'nguoi_dung_id' => $d['nguoi_dung_id'],
+                'tu_vung_id' => $tid,
+                'trang_thai' => $d['trang_thai'],
+                'so_lan_luyen_tap' => $d['so_lan'],
+                'diem_cao_nhat' => $d['diem'],
+                'ngay_cap_nhat_cuoi' => $now,
+            ];
+        }
+
+        if ($rows === []) {
+            return;
+        }
+
         DB::table('tien_do_hoc_taps')->upsert(
-            $tienDoHocTaps,
+            $rows,
             ['nguoi_dung_id', 'tu_vung_id'],
             ['trang_thai', 'so_lan_luyen_tap', 'diem_cao_nhat', 'ngay_cap_nhat_cuoi']
         );

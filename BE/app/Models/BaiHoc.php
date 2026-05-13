@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BaiHoc extends Model
 {
@@ -42,5 +43,13 @@ class BaiHoc extends Model
     public function tuVungs(): HasMany
     {
         return $this->hasMany(TuVung::class, 'bai_hoc_id')->orderBy('thu_tu');
+    }
+
+    /**
+     * @return HasOne<BaiKiemTra, $this>
+     */
+    public function baiKiemTra(): HasOne
+    {
+        return $this->hasOne(BaiKiemTra::class, 'bai_hoc_id');
     }
 }
