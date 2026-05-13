@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('bai_kiem_tras', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bai_hoc_id')->unique()->constrained('bai_hocs')->cascadeOnDelete();
+            $table->foreignId('bai_hoc_id')->constrained('bai_hocs')->cascadeOnDelete();
             $table->foreignId('nguoi_tao_id')->constrained('nguoi_dungs')->cascadeOnDelete();
             $table->string('tieu_de', 200)->nullable();
             $table->text('mo_ta_huong_dan')->nullable();
@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedSmallInteger('diem_toi_thieu')->default(0);
             $table->unsignedTinyInteger('trang_thai')->default(0);
             $table->timestamps();
+            $table->index(['bai_hoc_id', 'trang_thai']);
+            $table->index(['nguoi_tao_id', 'bai_hoc_id']);
         });
 
         Schema::create('cau_hoi_kiem_tras', function (Blueprint $table) {

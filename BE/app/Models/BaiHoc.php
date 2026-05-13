@@ -11,6 +11,15 @@ class BaiHoc extends Model
 {
     protected $table = 'bai_hocs';
 
+    /** Đã duyệt — hiển thị cho học viên, đủ điều kiện tạo đề kiểm tra (public + teacher quiz). */
+    public const TRANG_THAI_HOAT_DONG = 0;
+
+    /** Chờ admin duyệt (giáo viên tạo mới hoặc sửa lại nội dung). */
+    public const TRANG_THAI_CHO_DUYET = 1;
+
+    /** Admin từ chối. */
+    public const TRANG_THAI_TU_CHOI = 2;
+
     protected $fillable = [
         'danh_muc_id',
         'nguoi_tao_id',

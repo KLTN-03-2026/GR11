@@ -19,7 +19,7 @@ class UpdateTeacherBaiHocRequest extends FormRequest
             'mo_ta' => 'nullable|string',
             'cap_do' => 'required|string|in:de,trung_binh,kho',
             'thu_tu' => 'nullable|integer|min:1',
-            'trang_thai' => 'nullable|integer|in:0',
+            'trang_thai' => 'nullable|integer|in:0,1,2',
         ];
     }
 

@@ -711,9 +711,9 @@ export default {
 
         capNhatTrangThaiTruocTiep(bh, trangThaiMoi) {
             let trangThaiSo = trangThaiMoi;
-            if (trangThaiMoi === 'Đã duyệt') trangThaiSo = 1;
+            if (trangThaiMoi === 'Đã duyệt') trangThaiSo = 0;
             else if (trangThaiMoi === 'Từ chối') trangThaiSo = 2;
-            else if (trangThaiMoi === 'Chờ duyệt') trangThaiSo = 0;
+            else if (trangThaiMoi === 'Chờ duyệt') trangThaiSo = 1;
 
             this.isUpdatingTrangThai = true;
             axios

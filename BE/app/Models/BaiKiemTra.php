@@ -10,6 +10,12 @@ class BaiKiemTra extends Model
 {
     protected $table = 'bai_kiem_tras';
 
+    /** Đề ở chế độ nháp / chưa xuất bản cho học viên. */
+    public const TRANG_THAI_NHAP = 0;
+
+    /** Đề đã xuất bản (học viên có thể thấy khi đủ điều kiện quan hệ + tiến độ). */
+    public const TRANG_THAI_XUAT_BAN = 1;
+
     protected $fillable = [
         'bai_hoc_id',
         'nguoi_tao_id',
