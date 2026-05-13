@@ -218,7 +218,7 @@ class QuanHeGvHvController extends Controller
         $baiHocs = BaiHoc::query()
             ->with(['danhMuc:id,ten_danh_muc'])
             ->where('nguoi_tao_id', $giaoVien->id)
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->orderBy('danh_muc_id')
             ->orderBy('thu_tu')
             ->orderByDesc('id')
@@ -256,7 +256,7 @@ class QuanHeGvHvController extends Controller
         $baiHoc = BaiHoc::query()
             ->where('id', (int) $request->bai_hoc_id)
             ->where('nguoi_tao_id', $giaoVien->id)
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->first();
         if (! $baiHoc) {
             return response()->json([
@@ -494,7 +494,7 @@ class QuanHeGvHvController extends Controller
 
         return $phien->map(function (PhienLuyenTap $p) {
             $ref = $p->thoi_gian_ket_thuc ?? $p->thoi_gian_bat_dau ?? $p->created_at;
-            $carbon = $ref ? Carbon::parse($ref) : null;
+            $carbon = $ref ? Carbon::parse($ref)->timezone('Asia/Ho_Chi_Minh') : null;
 
             return [
                 'title' => $p->baiHoc?->tieu_de ?? ('Bài học #'.$p->bai_hoc_id),
@@ -543,12 +543,12 @@ class QuanHeGvHvController extends Controller
         }
 
         try {
-            $c = Carbon::parse($ref);
+            $c = Carbon::parse($ref)->timezone('Asia/Ho_Chi_Minh');
         } catch (\Throwable) {
             return ['Chưa rõ', '—', 'text-secondary'];
         }
 
-        $now = Carbon::now();
+        $now = Carbon::now()->timezone('Asia/Ho_Chi_Minh');
         $timeStr = $c->format('H:i');
 
         if ($c->isSameDay($now)) {
@@ -766,7 +766,7 @@ class QuanHeGvHvController extends Controller
             $thoiGian = 'Vừa xong';
             if ($ref) {
                 try {
-                    $thoiGian = Carbon::parse($ref)->diffForHumans();
+                    $thoiGian = Carbon::parse($ref)->timezone('Asia/Ho_Chi_Minh')->diffForHumans();
                 } catch (\Throwable) {
                     $thoiGian = 'Vừa xong';
                 }

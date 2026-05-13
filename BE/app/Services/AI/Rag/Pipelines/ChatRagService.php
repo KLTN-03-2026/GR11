@@ -331,7 +331,7 @@ class ChatRagService
                 'action_label' => null,
             ];
         }
-        if (str_contains($normalized, 'loa')) {
+        if (preg_match('/\bloa\b/u', $normalized) === 1) {
             return [
                 'message' => 'Con kiểm tra âm lượng loa của máy trước, rồi tăng âm trong trình duyệt lên giúp cô nhé.',
                 'action_url' => null,

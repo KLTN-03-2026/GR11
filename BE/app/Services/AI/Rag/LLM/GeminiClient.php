@@ -80,6 +80,16 @@ class GeminiClient
             "Bắt đầu hội thoại:\n{$firstText}"
         );
 
+        $fileUri = $this->getCachedTrainingFileUri();
+        if ($fileUri !== null) {
+            $contents[0]['parts'][] = [
+                'fileData' => [
+                    'mimeType' => 'application/pdf',
+                    'fileUri' => $fileUri,
+                ]
+            ];
+        }
+
         $models = array_values(array_unique(array_filter([
             $primaryModel,
             'gemini-2.0-flash',
@@ -146,6 +156,42 @@ class GeminiClient
         }
 
         return trim($text);
+    }
+
+    public function getCachedTrainingFileUri(): ?string
+    {
+        $filePath = storage_path('app/ai-training/tai-lieu-training.pdf');
+        if (!file_exists($filePath)) {
+            return null;
+        }
+
+        // Tạm thời lấy cache hiện tại
+        $cacheKey = 'gemini_training_file_uri_v2';
+        $cachedUri = \Illuminate\Support\Facades\Cache::get($cacheKey);
+        if ($cachedUri !== null) {
+            return $cachedUri;
+        }
+
+        $primaryKey = (string) config('services.gemini.api_key', '');
+        if ($primaryKey === '') {
+            return null;
+        }
+
+        $url = "https://generativelanguage.googleapis.com/upload/v1beta/files?uploadType=media&key={$primaryKey}";
+        $response = \Illuminate\Support\Facades\Http::withBody(file_get_contents($filePath), 'application/pdf')
+            ->post($url);
+
+        if ($response->successful()) {
+            $uri = data_get($response->json(), 'file.uri');
+            if ($uri !== null) {
+                // Chỉ cache nếu upload thành công
+                \Illuminate\Support\Facades\Cache::put($cacheKey, $uri, 47 * 60 * 60);
+                return $uri;
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::error('Gemini File Upload Failed', ['response' => $response->body()]);
+        return null;
     }
 
     /**

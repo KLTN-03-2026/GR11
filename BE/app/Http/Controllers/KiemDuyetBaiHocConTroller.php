@@ -129,17 +129,17 @@ class KiemDuyetBaiHocConTroller extends Controller
             $baiHoc->save();
 
             // Broadcast real-time tới giáo viên sở hữu bài học
+            $trangThaiLabel = $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai);
             if ($baiHoc->nguoi_tao_id) {
-                $trangThaiLabel = $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai);
                 broadcast(new AdminDuyetBaiHoc($baiHoc, (int) $baiHoc->nguoi_tao_id, $trangThaiLabel));
             }
 
             return response()->json([
                 'status' => true,
-                'message' => 'Đã cập nhật trạng thái bài học thành công',
+                'message' => 'Đã ' . mb_strtolower($trangThaiLabel) . ' bài học thành công',
                 'data' => [
                     'id' => $baiHoc->id,
-                    'trang_thai' => $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai),
+                    'trang_thai' => $trangThaiLabel,
                 ],
             ]);
         }
