@@ -78,6 +78,13 @@ class StudentDatabaseQueryTools
                 'description' => 'Get role and permission scope for the current student account',
                 'args' => [],
             ],
+            [
+                'name' => 'student_search_vocabulary',
+                'description' => 'Tìm kiếm từ vựng, cách phát âm, phiên âm của các từ. Cực kỳ hữu ích khi học viên hỏi cách đọc một từ hoặc âm cụ thể.',
+                'args' => [
+                    'query' => 'string, từ vựng hoặc phiên âm cần tìm',
+                ],
+            ],
         ];
     }
 
@@ -96,6 +103,7 @@ class StudentDatabaseQueryTools
             'student_get_vocabulary_progress' => $this->getVocabularyProgress($student, $args),
             'student_get_personal_dashboard_data' => $this->getPersonalDashboardData($student, $args),
             'student_get_access_scope' => $this->getAccessScope($student),
+            'student_search_vocabulary' => $this->searchVocabulary($args),
             default => [
                 'ok' => false,
                 'message' => 'Công cụ không được hỗ trợ.',
@@ -467,5 +475,69 @@ class StudentDatabaseQueryTools
         }
 
         return implode(', ', $recommendations) ?: 'Tiếp tục duy trì tốc độ học hiện tại';
+    }
+
+    /**
+     * Search vocabulary by query
+     *
+     * @param array<string,mixed> $args
+     * @return array<string,mixed>
+     */
+    private function searchVocabulary(array $args): array
+    {
+        $query = (string) ($args['query'] ?? '');
+        if (empty($query)) {
+            return [
+                'ok' => false,
+                'message' => 'Vui lòng cung cấp từ khóa tìm kiếm.',
+            ];
+        }
+
+        $results = DB::table('tu_vungs')
+            ->where('tu_chuan', 'like', "%{$query}%")
+            ->orWhere('phien_am', 'like', "%{$query}%")
+            ->limit(50)
+            ->get(['id', 'tu_chuan', 'phien_am', 'cap_do', 'am_thanh_mau_url', 'hinh_anh_url']);
+
+        $lowerQuery = mb_strtolower($query, 'UTF-8');
+        $filtered = $results->filter(function($item) use ($lowerQuery) {
+            $tuChuanLower = mb_strtolower($item->tu_chuan, 'UTF-8');
+            $phienAmLower = mb_strtolower($item->phien_am, 'UTF-8');
+            
+            return $tuChuanLower === $lowerQuery || 
+                   $phienAmLower === $lowerQuery ||
+                   str_contains($tuChuanLower, $lowerQuery) || 
+                   str_contains($phienAmLower, $lowerQuery);
+        })->values();
+
+        // Ưu tiên khớp chính xác tuyệt đối
+        $exactMatches = $filtered->filter(function($item) use ($lowerQuery) {
+            return mb_strtolower($item->tu_chuan, 'UTF-8') === $lowerQuery;
+        })->values();
+
+        $finalResults = $exactMatches->isNotEmpty() ? $exactMatches : $filtered;
+
+        if ($finalResults->isEmpty()) {
+            return [
+                'ok' => true,
+                'data' => [
+                    'found' => false,
+                    'message' => "Cô không tìm thấy từ '{$query}' trong hệ thống.",
+                ],
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'data' => [
+                'found' => true,
+                'query' => $query,
+                'results' => $finalResults->take(5)->map(fn($item) => [
+                    'tu_chuan' => $item->tu_chuan,
+                    'phien_am' => $item->phien_am,
+                    'cap_do' => $item->cap_do,
+                ])->toArray(),
+            ],
+        ];
     }
 }

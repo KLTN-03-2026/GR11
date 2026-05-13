@@ -588,6 +588,28 @@ class ChatRagService
             return $pick('student_get_personal_dashboard_data', ['days' => $days]);
         }
 
+        if (
+            str_contains($normalized, 'phat am chu')
+            || str_contains($normalized, 'phat am tu')
+            || str_contains($normalized, 'chu nay doc')
+            || str_contains($normalized, 'tu nay doc')
+            || str_contains($normalized, 'doc la gi')
+            || str_contains($normalized, 'doc sao')
+        ) {
+            $query = '';
+            // Match from the original message to preserve diacritics
+            if (preg_match('/(?:chữ|từ)\s+([^\s?]+)/iu', $message, $m)) {
+                $query = $m[1];
+            } elseif (preg_match('/([^\s?]+)\s+đọc là gì/iu', $message, $m)) {
+                $query = $m[1];
+            } else {
+                // fallback extraction from normalized if exact match fails
+                $words = explode(' ', $normalized);
+                $query = end($words); 
+            }
+            return $pick('student_search_vocabulary', ['query' => $query]);
+        }
+
         return null;
     }
 
@@ -680,6 +702,17 @@ class ChatRagService
         }
         if ($toolName === 'student_send_message_to_teacher') {
             return (string) ($result['message'] ?? 'Tin nhắn đã được gửi tới giáo viên.');
+        }
+        if ($toolName === 'student_search_vocabulary') {
+            $data = (array) ($result['data'] ?? []);
+            if (($data['found'] ?? false) !== true) {
+                return (string) ($result['data']['message'] ?? 'Cô không tìm thấy từ này trong dữ liệu hệ thống.');
+            }
+            $results = (array) ($data['results'] ?? []);
+            $first = $results[0] ?? null;
+            if ($first) {
+                return "Chữ \"{$first['tu_chuan']}\" phát âm là \"{$first['phien_am']}\" con nhé. Con há miệng nhỏ, phát âm ngắn gọn nha.";
+            }
         }
 
         return 'Hệ thống đã xử lý yêu cầu bằng tool phù hợp.';

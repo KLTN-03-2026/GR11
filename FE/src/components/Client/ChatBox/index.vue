@@ -212,7 +212,7 @@
         <!-- Message Input -->
         <div class="card-footer p-3 bg-white border-top">
           <div
-            v-if="selectedChat?.type === 'ai' && !isTyping"
+            v-if="selectedChat?.type === 'ai' && !isTyping && showAiSuggestions"
             class="ai-suggest-wrap mb-3"
           >
             <small class="text-muted d-block mb-2 fw-semibold">Gợi ý nhanh cho bạn:</small>
@@ -338,6 +338,7 @@ export default {
         'Hãy đưa ra 3 mẹo luyện nói rõ ràng hơn',
         'Tóm tắt lộ trình luyện tập trong 7 ngày',
       ],
+      showAiSuggestions: true,
       branding: {
         logo_icon: "fa fa-book-reader",
       },
@@ -395,6 +396,7 @@ export default {
         this.userInput = '';
         this.isTyping = false;
         this.hasLoadedHistory = false;
+        this.showAiSuggestions = true;
         this.ensureChatHistoryLoaded();
         if (val.type === 'teacher') {
           this.startTeacherMessagePolling();
@@ -890,6 +892,11 @@ export default {
               time: this.formatMessageTime(item.created_at || item.time),
             }))
           : [{ role: 'ai', text: 'Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.' }];
+        
+        // Hide suggestions if user already has a history of chatting
+        if (list.length > 1) {
+          this.showAiSuggestions = false;
+        }
       } catch (err) {
         console.error('Lỗi tải lịch sử chat AI', err);
         this.messages = [{ role: 'ai', text: 'Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.' }];
@@ -955,6 +962,9 @@ export default {
       this.userInput = '';
       const isAiChat = this.selectedChat.type !== 'teacher';
       this.isTyping = isAiChat;
+      if (isAiChat) {
+        this.showAiSuggestions = false;
+      }
       this.scrollToBottom();
 
       try {

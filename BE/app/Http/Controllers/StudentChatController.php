@@ -138,7 +138,7 @@ class StudentChatController extends Controller
                     'giao_vien_id' => $teacherId,
                 ],
                 [
-                    'trang_thai' => 'dang_theo_doi',
+                    'trang_thai' => 1,
                     'ngay_ket_noi' => now(),
                 ]
             );

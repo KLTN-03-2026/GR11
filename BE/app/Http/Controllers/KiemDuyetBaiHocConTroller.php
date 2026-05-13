@@ -230,7 +230,7 @@ class KiemDuyetBaiHocConTroller extends Controller
 
     private function mapTrangThaiBaiHocToText(?int $trangThai): string
     {
-        if ((int) $trangThai === 1) {
+        if ((int) $trangThai === 0) {
             return 'Đã duyệt';
         }
         if ((int) $trangThai === 2) {
@@ -251,13 +251,13 @@ class KiemDuyetBaiHocConTroller extends Controller
 
         $value = mb_strtolower(trim((string) $value));
         if ($value === 'đã duyệt' || $value === 'da duyet') {
-            return 1;
+            return 0;
         }
         if ($value === 'từ chối' || $value === 'tu choi') {
             return 2;
         }
         if ($value === 'chờ duyệt' || $value === 'cho duyet') {
-            return 0;
+            return 1;
         }
 
         return null;
