@@ -19,7 +19,12 @@ class GoiPremiumSeeder extends Seeder
                 'mo_ta' => 'Gợi ý AI chi tiết sau mỗi lượt ghi âm, báo cáo tiến độ theo tuần và ưu tiên hàng đợi chấm phát âm.',
                 'gia' => 149000,
                 'thoi_han_ngay' => 30,
-                'tinh_nang' => json_encode(['uu_tien_cham_diem' => true, 'bao_cao_tuan' => true], JSON_UNESCAPED_UNICODE),
+                'tinh_nang' => json_encode([
+                    'uu_tien_cham_diem' => true,
+                    'bao_cao_tuan' => true,
+                    'bao_cao_thang' => true,
+                    'bieu_do_phat_am' => true,
+                ], JSON_UNESCAPED_UNICODE),
                 'trang_thai' => 1,
             ],
             [

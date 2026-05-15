@@ -2,16 +2,17 @@
 
 namespace App\Services\AI\Rag\Tools;
 
+use App\Models\BaiHoc;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\NguoiDung;
 use App\Models\QuanHeGvHv;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
- * Real-time messaging tools for student-teacher-admin communication.
- * Enables direct messaging without AI intermediary for real-time collaboration.
+ * Student ↔ teacher messaging via lesson-scoped chat_sessions (same schema as ChatController).
  */
 class StudentMessagingTools
 {
@@ -27,7 +28,7 @@ class StudentMessagingTools
                 'args' => [
                     'teacher_id' => 'integer, ID of the teacher',
                     'message' => 'string, message content',
-                    'type' => 'string, message type (text|request), default text',
+                    'lesson_id' => 'integer, optional lesson context for chat session',
                 ],
             ],
             [
@@ -64,18 +65,16 @@ class StudentMessagingTools
     }
 
     /**
-     * Send message to teacher
-     *
      * @param array<string,mixed> $args
      * @return array<string,mixed>
      */
     private function sendMessageToTeacher(NguoiDung $student, array $args): array
     {
         $teacherId = (int) ($args['teacher_id'] ?? 0);
-        $message = (string) ($args['message'] ?? '');
-        $type = (string) ($args['type'] ?? 'text');
+        $message = trim((string) ($args['message'] ?? ''));
+        $lessonId = isset($args['lesson_id']) ? (int) $args['lesson_id'] : 0;
 
-        if (!$teacherId || !$message) {
+        if (! $teacherId || $message === '') {
             return [
                 'ok' => false,
                 'message' => 'Thiếu thông tin giáo viên hoặc nội dung tin nhắn',
@@ -83,45 +82,68 @@ class StudentMessagingTools
         }
 
         $teacher = NguoiDung::find($teacherId);
-        if (!$teacher || (int) $teacher->vai_tro_id !== NguoiDung::ROLE_TEACHER) {
+        if (! $teacher || (int) $teacher->vai_tro_id !== NguoiDung::ROLE_TEACHER) {
             return [
                 'ok' => false,
                 'message' => 'Giáo viên không tồn tại',
             ];
         }
 
-        // Verify student is assigned to this teacher
         $relationship = QuanHeGvHv::where('giao_vien_id', $teacherId)
             ->where('hoc_vien_id', $student->id)
             ->exists();
 
-        if (!$relationship) {
+        if (! $relationship) {
             return [
                 'ok' => false,
                 'message' => 'Bạn không được phân công với giáo viên này',
             ];
         }
 
-        // Create or get session between student and teacher
+        if ($lessonId <= 0) {
+            $lessonId = (int) (ChatSession::query()
+                ->where('user_id', $student->id)
+                ->whereNotNull('lesson_id')
+                ->orderByDesc('updated_at')
+                ->value('lesson_id') ?? 0);
+        }
+
+        if ($lessonId <= 0) {
+            $lessonId = (int) (BaiHoc::query()
+                ->where('nguoi_tao_id', $teacherId)
+                ->where('trang_thai', 'approved')
+                ->orderBy('id')
+                ->value('id') ?? 0);
+        }
+
+        if ($lessonId <= 0) {
+            return [
+                'ok' => false,
+                'message' => 'Chưa có phiên chat bài học. Con mở chat giáo viên từ bài học trước nhé.',
+            ];
+        }
+
         $session = ChatSession::firstOrCreate(
             [
-                'type' => 'direct_message',
-                'participant_1_id' => min($student->id, $teacherId),
-                'participant_2_id' => max($student->id, $teacherId),
+                'user_id' => $student->id,
+                'lesson_id' => $lessonId,
             ],
-            [
-                'trang_thai' => 'active',
-            ]
+            ['status' => 'active']
         );
 
-        // Save message
-        ChatMessage::create([
+        $payload = [
             'session_id' => $session->id,
-            'sender_id' => $student->id,
-            'noi_dung' => $message,
-            'type' => $type,
             'role' => 'user',
-        ]);
+            'content' => $message,
+            'is_read_by_teacher' => false,
+            'created_at' => now(),
+        ];
+        if (Schema::hasColumn('chat_messages', 'is_delivered_to_teacher')) {
+            $payload['is_delivered_to_teacher'] = false;
+        }
+
+        ChatMessage::create($payload);
+        $session->touch();
 
         return [
             'ok' => true,
@@ -129,13 +151,12 @@ class StudentMessagingTools
             'data' => [
                 'session_id' => $session->id,
                 'recipient_id' => $teacherId,
+                'lesson_id' => $lessonId,
             ],
         ];
     }
 
     /**
-     * Get messages from teachers
-     *
      * @param array<string,mixed> $args
      * @return array<string,mixed>
      */
@@ -147,41 +168,36 @@ class StudentMessagingTools
 
         $messages = DB::table('chat_messages as cm')
             ->join('chat_sessions as cs', 'cs.id', '=', 'cm.session_id')
-            ->join('nguoi_dungs as nd', 'nd.id', '=', 'cm.sender_id')
-            ->where('cs.type', 'direct_message')
-            ->where(function ($q) use ($student) {
-                $q->where('cs.participant_1_id', $student->id)
-                    ->orWhere('cs.participant_2_id', $student->id);
-            })
-            ->where('cm.sender_id', '!=', $student->id)
+            ->where('cs.user_id', $student->id)
+            ->whereNotNull('cs.lesson_id')
+            ->where('cm.role', 'teacher')
             ->where('cm.created_at', '>=', $from)
             ->orderByDesc('cm.created_at')
             ->limit($limit)
-            ->select('cm.id', 'cm.sender_id', 'cm.noi_dung', 'cm.created_at', 'nd.ho_ten')
+            ->select('cm.id', 'cm.content', 'cm.created_at', 'cm.is_read_by_student')
             ->get();
 
         return [
             'ok' => true,
             'data' => [
                 'message_count' => $messages->count(),
-                'messages' => $messages->map(fn ($m) => [
+                'unread_count' => $messages->where('is_read_by_student', false)->count(),
+                'messages' => $messages->map(static fn ($m): array => [
                     'id' => $m->id,
-                    'from' => $m->ho_ten,
-                    'content' => $m->noi_dung,
+                    'content' => $m->content,
                     'time' => $m->created_at,
+                    'read' => (bool) $m->is_read_by_student,
                 ])->toArray(),
             ],
         ];
     }
 
     /**
-     * Get assigned teachers
-     *
      * @return array<string,mixed>
      */
     private function getAssignedTeachers(NguoiDung $student): array
     {
-        $teachers = DB::table('quan_he_gv_hv as qg')
+        $teachers = DB::table('quan_he_gv_hvs as qg')
             ->join('nguoi_dungs as nd', 'nd.id', '=', 'qg.giao_vien_id')
             ->where('qg.hoc_vien_id', $student->id)
             ->select('nd.id', 'nd.ho_ten', 'nd.email')
@@ -192,7 +208,7 @@ class StudentMessagingTools
             'ok' => true,
             'data' => [
                 'teacher_count' => $teachers->count(),
-                'teachers' => $teachers->map(fn ($t) => [
+                'teachers' => $teachers->map(static fn ($t): array => [
                     'id' => $t->id,
                     'name' => $t->ho_ten,
                     'email' => $t->email,
