@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminDepositController;
 use App\Http\Controllers\BaiHocController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CauHinhController;
+use App\Http\Controllers\AiReportController;
 use App\Http\Controllers\ChatBoxAIController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChiTietLuyenTapController;
@@ -297,6 +298,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('/goi-premium')->group(function () {
         Route::get('/goi-hien-tai', [GoiPremiumController::class, 'goiHienTai']);
         Route::post('/mua', [GoiPremiumController::class, 'mua']);
+    });
+
+    Route::prefix('/ai-reports')->group(function () {
+        Route::get('/latest', [AiReportController::class, 'latest']);
+        Route::post('/regenerate', [AiReportController::class, 'regenerate']);
+        Route::get('/{snapshotId}/export-csv', [AiReportController::class, 'exportCsv']);
+        Route::get('/{snapshotId}/export-pdf', [AiReportController::class, 'exportPdf']);
     });
 
     Route::prefix('/vi')->group(function () {

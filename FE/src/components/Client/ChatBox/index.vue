@@ -464,6 +464,18 @@
         <!-- Message Input -->
         <div class="card-footer p-3 bg-white border-top">
           <div
+            v-if="selectedChat?.type === 'ai' && learningDigest && !isTeacherMode"
+            class="learning-digest-card mb-3 p-3 rounded-3 bg-light"
+          >
+            <small class="text-muted d-block mb-2 fw-semibold">Tóm tắt học tập</small>
+            <div class="small text-secondary d-flex flex-wrap gap-2">
+              <span>{{ learningDigest.lessons_completed }} bài hoàn thành</span>
+              <span>{{ learningDigest.lessons_in_progress }} bài đang học</span>
+              <span>{{ learningDigest.vocabulary_practiced_7d }} từ / 7 ngày</span>
+              <span v-if="learningDigest.next_lesson_title">Tiếp: {{ learningDigest.next_lesson_title }}</span>
+            </div>
+          </div>
+          <div
             v-if="selectedChat?.type === 'ai' && !isTyping && showAiSuggestions"
             class="ai-suggest-wrap mb-3"
           >
@@ -633,13 +645,21 @@ export default {
       speechSupported: false,
       activeLessonContext: null,
       activeLessonTeacherChat: null,
-      goiYCauHoiAi: [
-        "Cô ơi, con nên bắt đầu học từ đâu ạ?",
-        "Làm sao để phát âm âm 'tr' và 'ch' thật chuẩn?",
-        "Chấm điểm phát âm hoạt động thế nào hả cô?",
-        "Khi đọc sai thì con phải làm gì để sửa lỗi ạ?",
+      goiYCauHoiAi: [],
+      goiYCauHoiAiTeacher: [
+        "Có học viên nào nhắn tin chưa đọc không?",
+        "Tổng quan lớp học của tôi",
+        "Lộ trình đã gán cho học viên",
+        "Báo cáo lớp tháng này (Premium)",
+      ],
+      goiYCauHoiAiStudent: [
+        "Con đã học những gì rồi ạ?",
+        "Bài tiếp theo con nên học gì?",
+        "Xu hướng phát âm của con thế nào?",
+        "Tóm tắt học tập của con",
       ],
       showAiSuggestions: true,
+      learningDigest: null,
       branding: {
         logo_icon: "fa fa-book-reader",
       },
@@ -648,10 +668,15 @@ export default {
     };
   },
   created() {
+    this.goiYCauHoiAi = this.isTeacherMode
+      ? [...this.goiYCauHoiAiTeacher]
+      : [...this.goiYCauHoiAiStudent];
     this.messages = [
       {
         role: "ai",
-        text: "Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.",
+        text: this.isTeacherMode
+          ? "Xin chào! Mình là trợ lý EchoKids dành cho giáo viên. Mình có thể hỗ trợ quản lý học sinh, bài học và chat."
+          : "Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.",
       },
     ];
   },
@@ -733,6 +758,18 @@ export default {
       );
     },
     aiChatItem() {
+      if (this.isTeacherMode) {
+        return {
+          id: AI_CHAT_ID,
+          type: "ai",
+          name: "Trợ lý giảng dạy",
+          avatar: null,
+          lastMessage: "Hỗ trợ quản lý lớp & chat học viên",
+          lastMessageTime: new Date(),
+          unread: 0,
+          status: "Trợ lý giảng dạy",
+        };
+      }
       return {
         id: AI_CHAT_ID,
         type: "ai",
@@ -746,7 +783,7 @@ export default {
     },
     chatList() {
       if (this.isTeacherMode) {
-        return this.teacherChats;
+        return [this.aiChatItem, ...this.teacherChats];
       }
       const list = [this.aiChatItem];
       if (this.activeLessonTeacherChat) {
@@ -1178,7 +1215,7 @@ export default {
       this.isRecording = false;
     },
     toggleRecording() {
-      if (this.isTeacherMode) {
+      if (this.isTeacherMode && this.selectedChat?.type === "teacher") {
         return;
       }
       if (!this.speechSupported) {
@@ -1289,7 +1326,15 @@ export default {
     },
     navigateToAction(url) {
       if (!url) return;
-      this.$router.push(url);
+      let path = String(url);
+      if (
+        this.isTeacherMode &&
+        path.startsWith("/") &&
+        !path.startsWith("/teacher")
+      ) {
+        path = `/teacher${path}`;
+      }
+      this.$router.push(path);
     },
     hoiCauGoiY(question) {
       if (!question || this.isTyping) return;
@@ -1312,7 +1357,9 @@ export default {
         this.messages = [
           {
             role: "ai",
-            text: "Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.",
+            text: this.isTeacherMode
+              ? "Xin chào! Mình là trợ lý EchoKids dành cho giáo viên."
+              : "Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.",
           },
         ];
         return;
@@ -1360,7 +1407,10 @@ export default {
             id: "greeting-" + Date.now(),
             role: "ai",
             text:
-              res.data.message || "Chào con! Cô sẵn sàng hỗ trợ con học tập.",
+              res.data.message ||
+              (this.isTeacherMode
+                ? "Chào thầy cô! Mình sẵn sàng hỗ trợ quản lý lớp và chat học viên."
+                : "Chào con! Cô sẵn sàng hỗ trợ con học tập."),
             time: this.formatMessageTime(new Date()),
           };
           this.messages = [greetingMsg];
@@ -1369,7 +1419,13 @@ export default {
             Array.isArray(res.data.suggestions) &&
             res.data.suggestions.length > 0
           ) {
-            this.goiYCauHoiAi = res.data.suggestions.map((s) => s.label);
+            this.goiYCauHoiAi = res.data.suggestions.map((s) =>
+              typeof s === "string" ? s : s.label,
+            );
+          }
+
+          if (res.data.digest && !this.isTeacherMode) {
+            this.learningDigest = res.data.digest;
           }
 
           // Auto-play greeting
@@ -1381,7 +1437,9 @@ export default {
         this.messages = [
           {
             role: "ai",
-            text: "Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.",
+            text: this.isTeacherMode
+              ? "Xin chào! Mình là trợ lý EchoKids dành cho giáo viên."
+              : "Xin chào! Mình là chatbox EchoKids. Mình có thể hỗ trợ học tập cho bạn.",
           },
         ];
       }
