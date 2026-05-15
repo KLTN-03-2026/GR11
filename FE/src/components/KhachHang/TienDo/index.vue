@@ -199,8 +199,14 @@
                       <div>
                        
                         <h5 class="fw-bold mb-1" style="color:#0d3b66;">{{ item.ten_lo_trinh }}</h5>
-                        <small class="text-muted">
+                        <small class="text-muted" v-if="item.can_hoc">
                           {{ item.so_tu_da_hoc }}/{{ item.tong_tu_vung }} từ vựng
+                        </small>
+                        <small class="text-danger d-block mt-1" v-else-if="item.can_mua">
+                          Lộ trình trả phí — {{ formatVnd(item.gia) }}. Thanh toán từ ví để xem bài theo thứ tự.
+                        </small>
+                        <small class="text-warning d-block mt-1" v-else-if="item.la_tra_phi && !item.tra_phi_da_duyet">
+                          Giá lộ trình đang chờ duyệt. Vui lòng quay lại sau.
                         </small>
                       </div>
                     </div>
@@ -219,6 +225,18 @@
                       role="progressbar"
                       :style="{ width: `${Number(item.tien_do || 0)}%`, background: topicPreset(idx).progressGradient }"
                     ></div>
+                  </div>
+                  <div v-if="item.can_mua" class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+                    <button
+                      type="button"
+                      class="btn rounded-pill px-4 py-2 fw-bold text-white"
+                      :disabled="muaLoTrinhId === item.id"
+                      style="background: linear-gradient(135deg,#10b981,#059669);"
+                      @click="muaLoTrinh(item)"
+                    >
+                      {{ muaLoTrinhId === item.id ? 'Đang xử lý...' : 'Thanh toán & mở lộ trình' }}
+                    </button>
+                    <router-link to="/profile" class="btn btn-outline-secondary rounded-pill btn-sm">Nạp tiền ví</router-link>
                   </div>
                 </div>
               </div>
@@ -360,6 +378,8 @@ export default {
       baiHocLimit: 5,
       aiSuggestions: [],
       loadingMore: false,
+      muaLoTrinhId: null,
+      apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
     };
   },
   mounted() {
@@ -376,7 +396,7 @@ export default {
       this.errorMessage = "";
       try {
         const { data: res } = await axios.get(
-          "http://127.0.0.1:8000/api/tien-do-bai-hoc/tong-quan",
+          this.apiBase + "/api/tien-do-bai-hoc/tong-quan",
           {
             headers: this.authHeaders(),
             params: {
@@ -434,7 +454,7 @@ export default {
       this.loadingMore = true;
       try {
         const { data: res } = await axios.get(
-          "http://127.0.0.1:8000/api/tien-do-bai-hoc/tong-quan",
+          this.apiBase + "/api/tien-do-bai-hoc/tong-quan",
           {
             headers: this.authHeaders(),
             params: {
@@ -482,6 +502,34 @@ export default {
 
     goToPractice(item) {
       this.goToLessonDetail(item?.bai_hoc_id);
+    },
+
+    formatVnd(n) {
+      if (!n) return "0 đ";
+      return Number(n).toLocaleString("vi-VN") + " đ";
+    },
+
+    async muaLoTrinh(item) {
+      if (!item?.id) return;
+      this.muaLoTrinhId = item.id;
+      try {
+        const { data: res } = await axios.post(
+          this.apiBase + "/api/hoc-vien/lo-trinh-ca-nhan/" + item.id + "/mua",
+          {},
+          { headers: this.authHeaders() }
+        );
+        if (res.status) {
+          if (this.$toast) this.$toast.success(res.message || "Đã mở lộ trình.");
+          await this.loadProgress();
+        } else {
+          if (this.$toast) this.$toast.error(res.message || "Không thanh toán được.");
+        }
+      } catch (e) {
+        const msg = e.response?.data?.message || "Không thanh toán được.";
+        if (this.$toast) this.$toast.error(msg);
+      } finally {
+        this.muaLoTrinhId = null;
+      }
     },
   },
 };

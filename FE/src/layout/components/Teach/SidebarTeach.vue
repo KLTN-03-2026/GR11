@@ -46,6 +46,17 @@
                 <span>Quản Lý Học Sinh</span>
               </router-link>
             </li>
+            <li
+              :class="{ active: $route.path === '/teacher/quan-ly-lo-trinh' }"
+            >
+              <router-link
+                to="/teacher/quan-ly-lo-trinh"
+                class="iq-waves-effect mt-1"
+              >
+                <i class="fa-solid fa-route"></i>
+                <span>Lộ trình cá nhân</span>
+              </router-link>
+            </li>
             <li :class="{ active: $route.path === '/teacher/quan-ly-bai-hoc' }">
               <router-link
                 to="/teacher/quan-ly-bai-hoc"

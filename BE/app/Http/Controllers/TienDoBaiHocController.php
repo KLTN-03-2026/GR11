@@ -49,16 +49,31 @@ class TienDoBaiHocController extends Controller
         $loTrinhPage = $loTrinhs->slice($offset, $limit)->values();
 
         $loTrinhData = $loTrinhPage->map(function ($lt) use ($userId) {
-            $baiHocIds = DB::table('chi_tiet_lo_trinhs')
+            $traPhi = DB::table('lo_trinh_tra_phis')->where('lo_trinh_id', $lt->id)->first();
+            $gia = $traPhi ? (int) $traPhi->gia : 0;
+            $duyet = $traPhi && (int) $traPhi->trang_thai === 1;
+            $laTraPhi = $gia > 0 && $duyet;
+            $daMua = DB::table('quyen_lo_trinhs')
                 ->where('lo_trinh_id', $lt->id)
-                ->pluck('bai_hoc_id');
+                ->where('hoc_vien_id', $userId)
+                ->exists();
+            $canHoc = ! $laTraPhi || $daMua;
 
-            $tongTuVung = DB::table('tu_vungs')
-                ->whereIn('bai_hoc_id', $baiHocIds)
-                ->count();
+            $baiHocIds = $canHoc
+                ? DB::table('chi_tiet_lo_trinhs')
+                    ->where('lo_trinh_id', $lt->id)
+                    ->orderBy('thu_tu_uu_tien')
+                    ->pluck('bai_hoc_id')
+                : collect();
+
+            $tongTuVung = $baiHocIds->isNotEmpty()
+                ? (int) DB::table('tu_vungs')
+                    ->whereIn('bai_hoc_id', $baiHocIds)
+                    ->count()
+                : 0;
 
             $soTuDaHoc = 0;
-            if ($tongTuVung > 0) {
+            if ($tongTuVung > 0 && $canHoc) {
                 $phienIds = DB::table('phien_luyen_taps')
                     ->where('nguoi_dung_id', $userId)
                     ->whereIn('bai_hoc_id', $baiHocIds)
@@ -80,6 +95,12 @@ class TienDoBaiHocController extends Controller
                 'tien_do' => $phanTram,
                 'tong_tu_vung' => $tongTuVung,
                 'so_tu_da_hoc' => $soTuDaHoc,
+                'gia' => $gia,
+                'tra_phi_da_duyet' => $duyet,
+                'la_tra_phi' => $laTraPhi,
+                'da_mua' => $daMua,
+                'can_hoc' => $canHoc,
+                'can_mua' => $laTraPhi && ! $daMua,
             ];
         });
 

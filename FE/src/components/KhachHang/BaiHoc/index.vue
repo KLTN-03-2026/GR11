@@ -121,6 +121,89 @@
             </div>
           </div>
         </div>
+
+        <!-- Lộ trình được gán (học viên đăng nhập) -->
+        <div
+          v-if="hienThiKhoiLoTrinh"
+          class="bg-white rounded-5 shadow-sm p-4 mb-5 border border-light"
+        >
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div>
+              <h3 class="fw-bold mb-1" style="color: #0d3b66;">Lộ Trình Của Bé</h3>
+              <p class="text-muted small mb-0">Bài học theo thứ tự giáo viên đã sắp xếp</p>
+            </div>
+            <div style="min-width: 220px; max-width: 100%;">
+              <select
+                v-model.number="loTrinhChonId"
+                class="form-select rounded-pill border-0 bg-light py-2 px-3"
+                :disabled="dangTaiLoTrinh || danhSachLoTrinh.length === 0"
+                @change="loadChiTietLoTrinh"
+              >
+                <option
+                  v-for="lt in danhSachLoTrinh"
+                  :key="lt.id"
+                  :value="lt.id"
+                >
+                  {{ lt.ten_lo_trinh }}{{ lt.can_mua ? ' (cần thanh toán)' : '' }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="dangTaiLoTrinh" class="text-muted small py-2">Đang tải lộ trình...</div>
+
+          <template v-else-if="danhSachLoTrinh.length > 0 && loTrinhHienTai">
+            <div v-if="loTrinhError" class="alert alert-warning rounded-4 mb-0 py-2 small">{{ loTrinhError }}</div>
+
+            <div v-else-if="loTrinhHienTai.can_mua" class="rounded-4 p-3" style="background: #fff8f5; border: 1px solid #ffe4d9;">
+              <p class="mb-2 small text-dark">
+                Lộ trình trả phí — <strong>{{ formatVnd(loTrinhHienTai.gia) }}</strong>. Thanh toán từ trang tiến độ để xem bài theo thứ tự.
+              </p>
+              <button
+                type="button"
+                class="btn rounded-pill px-4 py-2 fw-bold text-white"
+                style="background: linear-gradient(135deg, #10b981, #059669);"
+                @click="goToTienDo"
+              >
+                Đi tới trang Tiến độ
+              </button>
+            </div>
+
+            <div
+              v-else-if="loTrinhHienTai.la_tra_phi && !loTrinhHienTai.tra_phi_da_duyet"
+              class="alert alert-warning rounded-4 mb-0 py-2 small"
+            >
+              Giá lộ trình đang chờ duyệt. Vui lòng quay lại sau.
+            </div>
+
+            <div v-else-if="loTrinhHienTai.can_hoc">
+              <div v-if="dangTaiChiTietLoTrinh" class="text-muted small py-3">Đang tải danh sách bài...</div>
+              <div v-else-if="chiTietLoTrinh.length === 0" class="text-muted small py-2">
+                Chưa có bài học trong lộ trình này.
+              </div>
+              <ol v-else class="list-group list-group-numbered list-group-flush rounded-4 overflow-hidden border">
+                <li
+                  v-for="(row) in chiTietLoTrinh"
+                  :key="row.bai_hoc_id"
+                  class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-2 py-3"
+                >
+                  <div class="flex-grow-1" style="min-width: 200px;">
+                    <span class="fw-semibold" style="color: #0d3b66;">{{ row.tieu_de || 'Bài học' }}</span>
+                    <p v-if="row.ghi_chu_gv" class="small text-muted mb-0 mt-1">{{ row.ghi_chu_gv }}</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-sm rounded-pill px-3 fw-bold text-white shrink-0"
+                    style="background: linear-gradient(135deg, #ff6b35, #ff8c42);"
+                    @click="vaoChiTietBaiHoc(row.bai_hoc_id)"
+                  >
+                    Học ngay
+                  </button>
+                </li>
+              </ol>
+            </div>
+          </template>
+        </div>
   
         <!-- Danh sách bài học -->
         <div v-if="lessons.length === 0 && !dangTai" class="text-center py-5">
@@ -477,6 +560,7 @@ export default {
     name: 'LessonPage',
     data() {
         return {
+            apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
             lessons: [],
             chuDeTen: '',
             tuKhoa: '',
@@ -489,6 +573,12 @@ export default {
             trangHienTai: 1,
             debounceTimer: null,
             abortController: null,
+            danhSachLoTrinh: [],
+            loTrinhChonId: null,
+            chiTietLoTrinh: [],
+            loTrinhError: '',
+            dangTaiLoTrinh: false,
+            dangTaiChiTietLoTrinh: false,
             TOPIC_BTN_OUTLINE,
             TOPIC_BTN_ACTIVE,
             danhSachCapDo: [
@@ -508,6 +598,16 @@ export default {
             const cd = this.danhSachCapDo.find((c) => c.value === this.capDoChon);
             return cd?.label || '';
         },
+        coTokenHocVien() {
+            return !!localStorage.getItem('token_nguoi_dung');
+        },
+        hienThiKhoiLoTrinh() {
+            return this.coTokenHocVien && (this.dangTaiLoTrinh || this.danhSachLoTrinh.length > 0);
+        },
+        loTrinhHienTai() {
+            if (!this.loTrinhChonId) return null;
+            return this.danhSachLoTrinh.find((l) => Number(l.id) === Number(this.loTrinhChonId)) || null;
+        },
     },
     mounted() {
         const idFromRoute = this.$route.query.danh_muc_id;
@@ -516,6 +616,7 @@ export default {
         }
         this.fetchDanhMuc();
         this.fetchLessons(false);
+        this.fetchDanhSachLoTrinh();
     },
     beforeUnmount() {
         clearTimeout(this.debounceTimer);
@@ -539,6 +640,89 @@ export default {
         authHeaders() {
             const token = localStorage.getItem('token_nguoi_dung');
             return token ? { Authorization: `Bearer ${token}` } : {};
+        },
+        formatVnd(n) {
+            if (n == null || n === '') return '0 đ';
+            return `${Number(n).toLocaleString('vi-VN')} đ`;
+        },
+        goToTienDo() {
+            this.$router.push('/tien-do');
+        },
+        async fetchDanhSachLoTrinh() {
+            const token = localStorage.getItem('token_nguoi_dung');
+            if (!token) {
+                this.danhSachLoTrinh = [];
+                this.loTrinhChonId = null;
+                this.chiTietLoTrinh = [];
+                return;
+            }
+            this.dangTaiLoTrinh = true;
+            this.loTrinhError = '';
+            try {
+                const { data: res } = await axios.get(`${this.apiBase}/api/hoc-vien/lo-trinh-ca-nhan`, {
+                    headers: this.authHeaders(),
+                });
+                if (res.status && Array.isArray(res.data)) {
+                    this.danhSachLoTrinh = res.data;
+                    const stillValid = this.danhSachLoTrinh.some(
+                        (l) => Number(l.id) === Number(this.loTrinhChonId)
+                    );
+                    if (!stillValid) {
+                        this.loTrinhChonId = this.danhSachLoTrinh.length ? this.danhSachLoTrinh[0].id : null;
+                    }
+                    await this.loadChiTietLoTrinh();
+                } else {
+                    this.danhSachLoTrinh = [];
+                    this.loTrinhChonId = null;
+                    this.chiTietLoTrinh = [];
+                }
+            } catch (err) {
+                if (err.response?.status === 401) {
+                    this.danhSachLoTrinh = [];
+                    this.loTrinhChonId = null;
+                    this.chiTietLoTrinh = [];
+                } else {
+                    this.loTrinhError = 'Không tải được danh sách lộ trình.';
+                    this.danhSachLoTrinh = [];
+                    this.loTrinhChonId = null;
+                    this.chiTietLoTrinh = [];
+                }
+            } finally {
+                this.dangTaiLoTrinh = false;
+            }
+        },
+        async loadChiTietLoTrinh() {
+            this.loTrinhError = '';
+            const lt = this.loTrinhHienTai;
+            if (!lt || !lt.can_hoc) {
+                this.chiTietLoTrinh = [];
+                this.dangTaiChiTietLoTrinh = false;
+                return;
+            }
+            this.dangTaiChiTietLoTrinh = true;
+            this.chiTietLoTrinh = [];
+            try {
+                const { data: res } = await axios.get(
+                    `${this.apiBase}/api/hoc-vien/lo-trinh-ca-nhan/${lt.id}`,
+                    { headers: this.authHeaders() }
+                );
+                if (res.status && res.data?.chi_tiet) {
+                    const raw = Array.isArray(res.data.chi_tiet) ? res.data.chi_tiet : [];
+                    this.chiTietLoTrinh = [...raw].sort(
+                        (a, b) => Number(a.thu_tu_uu_tien || 0) - Number(b.thu_tu_uu_tien || 0)
+                    );
+                }
+            } catch (err) {
+                if (err.response?.status === 403 || err.response?.data?.code === 'REQUIRES_PURCHASE') {
+                    this.chiTietLoTrinh = [];
+                } else if (err.response?.status === 401) {
+                    this.chiTietLoTrinh = [];
+                } else {
+                    this.loTrinhError = 'Không tải được chi tiết lộ trình.';
+                }
+            } finally {
+                this.dangTaiChiTietLoTrinh = false;
+            }
         },
         mapBaiHocToLesson(row, globalIndex) {
             const style = LESSON_STYLE_PRESETS[globalIndex % LESSON_STYLE_PRESETS.length];
@@ -564,7 +748,7 @@ export default {
 
             try {
                 const { data: res } = await axios.get(
-                    'http://127.0.0.1:8000/api/tien-do-bai-hoc/tong-quan',
+                    `${this.apiBase}/api/tien-do-bai-hoc/tong-quan`,
                     {
                         headers: this.authHeaders(),
                         params: {
@@ -624,7 +808,7 @@ export default {
         },
         fetchDanhMuc() {
             axios
-                .get('http://127.0.0.1:8000/api/danh-muc-bai-hoc')
+                .get(`${this.apiBase}/api/danh-muc-bai-hoc`)
                 .then((res) => {
                     this.danhSachChuDe = Array.isArray(res.data?.data) ? res.data.data : [];
                 })
@@ -654,7 +838,7 @@ export default {
             if (this.capDoChon) params.cap_do = this.capDoChon;
 
             axios
-                .get('http://127.0.0.1:8000/api/bai-hoc', {
+                .get(`${this.apiBase}/api/bai-hoc`, {
                     params,
                     signal: this.abortController.signal,
                 })

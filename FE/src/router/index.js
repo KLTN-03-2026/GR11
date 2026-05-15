@@ -193,6 +193,13 @@ const routes = [
     beforeEnter: checkTeacher,
   },
   {
+    path: "/teacher/quan-ly-lo-trinh",
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyLoTrinh/index.vue"),
+    meta: { layout: "teach" },
+    beforeEnter: checkTeacher,
+  },
+  {
     path: "/teacher/quan-ly-bai-hoc",
     component: () =>
       import("../components/AHeThong/Teach/QuanLyBaiHoc/index.vue"),

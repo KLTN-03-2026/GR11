@@ -31,6 +31,7 @@
                   <th class="ps-4 py-3 text-secondary fw-bold text-uppercase border-0" style="font-size: 0.75rem; letter-spacing: 0.5px;">Học viên</th>
                   <th class="py-3 text-secondary fw-bold text-uppercase border-0" style="font-size: 0.75rem; letter-spacing: 0.5px;">Tiến độ luyện tập</th>
                   <th class="py-3 text-secondary fw-bold text-uppercase border-0" style="font-size: 0.75rem; letter-spacing: 0.5px;">Lỗi cần chú ý</th>
+                  <th class="py-3 text-secondary fw-bold text-uppercase border-0" style="font-size: 0.75rem; letter-spacing: 0.5px;">Lịch sử lỗi phát âm</th>
                   <th class="py-3 text-secondary fw-bold text-uppercase border-0 text-center" style="font-size: 0.75rem; letter-spacing: 0.5px;">Hoạt động cuối</th>
                   <th class="pe-4 py-3 text-secondary fw-bold text-uppercase border-0 text-end" style="font-size: 0.75rem; letter-spacing: 0.5px;">Thao tác</th>
                 </tr>
@@ -38,14 +39,14 @@
   
               <tbody>
                 <tr v-if="loading">
-                  <td colspan="5" class="text-center py-5 text-muted border-0">
+                  <td colspan="6" class="text-center py-5 text-muted border-0">
                     <div class="spinner-border text-primary mb-2" role="status" style="width: 2rem; height: 2rem;"></div>
                     <div class="fw-medium">Đang tải danh sách học viên...</div>
                   </td>
                 </tr>
   
                 <tr v-else-if="filteredStudents.length === 0">
-                  <td colspan="5" class="text-center py-5 border-0">
+                  <td colspan="6" class="text-center py-5 border-0">
                     <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 70px; height: 70px;">
                       <i class="fa-solid fa-users-slash fs-2 text-secondary opacity-50"></i>
                     </div>
@@ -90,6 +91,15 @@
                     </span>
                   </td>
   
+                  <td class="py-3" style="border-bottom: 1px solid #f1f5f9;">
+                    <div class="d-flex flex-wrap gap-1">
+                      <span v-for="(row, lix) in (student.loiPhatAmLichSu || [])" :key="lix" class="badge rounded-pill bg-white text-dark border fw-medium px-2 py-1">
+                        {{ nhanLoaiLoi(row.loai_loi) }}: <strong>{{ row.so_lan_mac_loi }}</strong>
+                      </span>
+                      <span v-if="!(student.loiPhatAmLichSu && student.loiPhatAmLichSu.length)" class="text-muted small">—</span>
+                    </div>
+                  </td>
+
                   <td class="py-3 text-center" style="border-bottom: 1px solid #f1f5f9;">
                     <div class="fw-semibold" :class="student.lastActiveColor" style="font-size: 0.9rem;">{{ student.lastActiveLabel }}</div>
                     <small class="text-muted">{{ student.lastActiveTime }}</small>
@@ -189,6 +199,22 @@
                     <span v-if="!selectedStudent.commonMistakes || selectedStudent.commonMistakes.length === 0" class="text-success fw-medium small">
                       <i class="fa-solid fa-check-circle me-1"></i>Học viên phát âm khá tốt, chưa ghi nhận lỗi hệ thống.
                     </span>
+                  </div>
+                </div>
+  
+                <div class="mb-4 bg-light p-3 rounded-4 border border-info-subtle">
+                  <h6 class="fw-bold text-dark mb-3">
+                    <i class="fa-solid fa-wave-square text-info me-2"></i>Tổng hợp lỗi phát âm (lịch sử từ vựng)
+                  </h6>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span
+                      v-for="(row, j) in (selectedStudent.loi_phat_am_lich_su || [])"
+                      :key="j"
+                      class="badge rounded-pill bg-white text-dark border px-3 py-2"
+                    >
+                      {{ nhanLoaiLoi(row.loai_loi) }}: <strong>{{ row.so_lan_mac_loi }}</strong> lần
+                    </span>
+                    <span v-if="!(selectedStudent.loi_phat_am_lich_su && selectedStudent.loi_phat_am_lich_su.length)" class="text-muted small">Chưa có dữ liệu lịch sử lỗi phát âm.</span>
                   </div>
                 </div>
   
@@ -393,15 +419,19 @@ export default {
     },
     taiDanhSach() {
       this.loading = true;
-      axios
-        .get(this.apiBase + '/api/teacher/gv-hv/hoc-vien', {
-          headers: this.authHeaders(),
-        })
-        .then((res) => {
-          if (res.data.status) {
-            this.students = res.data.data || [];
+      Promise.all([
+        axios.get(this.apiBase + '/api/teacher/gv-hv/hoc-vien', { headers: this.authHeaders() }),
+        axios.get(this.apiBase + '/api/teacher/gv-hv/loi-phat-am-lich-su', { headers: this.authHeaders() }),
+      ])
+        .then(([res1, res2]) => {
+          if (res1.data.status) {
+            const map = res2.data.status ? res2.data.data || {} : {};
+            this.students = (res1.data.data || []).map((s) => ({
+              ...s,
+              loiPhatAmLichSu: map[s.id] || [],
+            }));
           } else {
-            this.$toast.error(res.data.message || 'Không tải được danh sách.');
+            this.$toast.error(res1.data.message || 'Không tải được danh sách.');
           }
         })
         .catch((err) => {
@@ -440,6 +470,10 @@ export default {
       if (score >= 80) return 'text-success';
       if (score >= 60) return 'text-warning';
       return 'text-danger';
+    },
+    nhanLoaiLoi(loai) {
+      const m = { am_dau: 'Âm đầu', van: 'Vần', thanh_dieu: 'Thanh điệu' };
+      return m[loai] || loai || '—';
     },
     xemChiTiet(student) {
       this.selectedStudent = {

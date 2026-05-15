@@ -9,6 +9,7 @@ use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\ChiTietLuyenTap;
 use App\Models\GoiYLuyenTap;
+use App\Models\LichSuLoiPhatAm;
 use App\Models\NguoiDung;
 use App\Models\PhienLuyenTap;
 use App\Models\QuanHeGvHv;
@@ -203,12 +204,52 @@ class QuanHeGvHvController extends Controller
 
         $tomTat = $this->tomTatHocVien($hv);
         $tomTat['commonMistakes'] = $this->layLoiThuongGap($id);
+        $tomTat['loi_phat_am_lich_su'] = $this->layTongHopLichSuLoiPhatAmChoHocVien($id);
         $tomTat['history'] = $this->layLichSuLuyenTap($id);
         $tomTat['totalTime'] = $this->formatTongThoiGianLuyen($id);
 
         return response()->json([
             'status' => true,
             'data' => $tomTat,
+        ]);
+    }
+
+    public function thongKeLichSuLoiPhatAmTheoHocVien(Request $request): JsonResponse
+    {
+        $giaoVien = $request->user();
+        $hocVienIds = QuanHeGvHv::query()
+            ->where('giao_vien_id', $giaoVien->id)
+            ->pluck('hoc_vien_id');
+
+        if ($hocVienIds->isEmpty()) {
+            return response()->json([
+                'status' => true,
+                'data' => [],
+            ]);
+        }
+
+        $rows = LichSuLoiPhatAm::query()
+            ->whereIn('nguoi_dung_id', $hocVienIds)
+            ->selectRaw('nguoi_dung_id, loai_loi, SUM(so_lan_mac_loi) as tong_so_lan')
+            ->groupBy('nguoi_dung_id', 'loai_loi')
+            ->get();
+
+        /** @var array<int, list<array{loai_loi: string, so_lan_mac_loi: int}>> $byHocVien */
+        $byHocVien = [];
+        foreach ($rows as $row) {
+            $hid = (int) $row->nguoi_dung_id;
+            if (! isset($byHocVien[$hid])) {
+                $byHocVien[$hid] = [];
+            }
+            $byHocVien[$hid][] = [
+                'loai_loi' => (string) $row->loai_loi,
+                'so_lan_mac_loi' => (int) $row->tong_so_lan,
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $byHocVien,
         ]);
     }
 
@@ -344,6 +385,24 @@ class QuanHeGvHvController extends Controller
             ->where('giao_vien_id', $giaoVienId)
             ->where('hoc_vien_id', $hocVienId)
             ->exists();
+    }
+
+    /**
+     * @return list<array{loai_loi: string, so_lan_mac_loi: int}>
+     */
+    private function layTongHopLichSuLoiPhatAmChoHocVien(int $hocVienId): array
+    {
+        return LichSuLoiPhatAm::query()
+            ->where('nguoi_dung_id', $hocVienId)
+            ->selectRaw('loai_loi, SUM(so_lan_mac_loi) as tong_so_lan')
+            ->groupBy('loai_loi')
+            ->get()
+            ->map(fn ($row) => [
+                'loai_loi' => (string) $row->loai_loi,
+                'so_lan_mac_loi' => (int) $row->tong_so_lan,
+            ])
+            ->values()
+            ->all();
     }
 
     private function taoNoiDungTinNhanGoiY(int $baiHocId, string $tieuDeBaiHoc, string $uuTien, ?string $loiNhan): string

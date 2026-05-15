@@ -4,7 +4,6 @@ namespace App\Services\AI\Rag\Tools;
 
 use App\Models\BaiHoc;
 use App\Models\ChiTietLoTrinh;
-use App\Models\ChiTietLuyenTap;
 use App\Models\LoTrinhCaNhan;
 use App\Models\NguoiDung;
 use App\Models\PhienLuyenTap;
@@ -89,7 +88,7 @@ class StudentDatabaseQueryTools
     }
 
     /**
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     public function execute(NguoiDung $student, string $toolName, array $args): array
@@ -114,7 +113,7 @@ class StudentDatabaseQueryTools
     /**
      * Get detailed pronunciation errors by category
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getDetailedPronunciationErrors(NguoiDung $student, array $args): array
@@ -157,7 +156,7 @@ class StudentDatabaseQueryTools
     /**
      * Get suggested lessons based on proficiency level
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getSuggestedLessonsByLevel(NguoiDung $student, array $args): array
@@ -210,9 +209,12 @@ class StudentDatabaseQueryTools
      */
     private function getLearningPathProgress(NguoiDung $student): array
     {
-        $learningPath = LoTrinhCaNhan::where('nguoi_dung_id', $student->id)->first();
+        $learningPath = LoTrinhCaNhan::query()
+            ->where('hoc_vien_id', $student->id)
+            ->orderByDesc('id')
+            ->first();
 
-        if (!$learningPath) {
+        if (! $learningPath) {
             return [
                 'ok' => true,
                 'data' => [
@@ -222,22 +224,26 @@ class StudentDatabaseQueryTools
             ];
         }
 
-        $pathDetails = ChiTietLoTrinh::where('lo_trinh_id', $learningPath->id)
-            ->orderBy('tuan', 'asc')
+        $pathDetails = ChiTietLoTrinh::query()
+            ->where('lo_trinh_id', $learningPath->id)
+            ->with('baiHoc:id,tieu_de')
+            ->orderBy('thu_tu_uu_tien')
             ->get();
 
-        $currentWeek = $learningPath->tuan_hien_tai ?? 1;
-        $completedWeeks = $pathDetails->filter(fn ($d) => $d->tuan < $currentWeek)->count();
-        $totalWeeks = $pathDetails->count();
+        $lessons = $pathDetails->map(fn ($d) => [
+            'bai_hoc_id' => $d->bai_hoc_id,
+            'tieu_de' => $d->baiHoc?->tieu_de,
+            'thu_tu_uu_tien' => (int) $d->thu_tu_uu_tien,
+        ]);
 
         return [
             'ok' => true,
             'data' => [
                 'has_path' => true,
-                'current_week' => $currentWeek,
-                'total_weeks' => $totalWeeks,
-                'progress_percentage' => $totalWeeks > 0 ? round(($completedWeeks / $totalWeeks) * 100) : 0,
-                'next_milestone' => $pathDetails->firstWhere('tuan', '>=', $currentWeek)?->tieu_de,
+                'lo_trinh_id' => $learningPath->id,
+                'ten_lo_trinh' => $learningPath->ten_lo_trinh,
+                'lesson_count' => $pathDetails->count(),
+                'lessons' => $lessons->take(30)->values()->all(),
             ],
         ];
     }
@@ -245,7 +251,7 @@ class StudentDatabaseQueryTools
     /**
      * Get session history with detailed statistics
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getSessionHistoryWithDetails(NguoiDung $student, array $args): array
@@ -284,7 +290,7 @@ class StudentDatabaseQueryTools
     /**
      * Get pronunciation improvement trend
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getPronunciationProgress(NguoiDung $student, array $args): array
@@ -327,7 +333,7 @@ class StudentDatabaseQueryTools
     /**
      * Get vocabulary learning progress
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getVocabularyProgress(NguoiDung $student, array $args): array
@@ -354,7 +360,7 @@ class StudentDatabaseQueryTools
     }
 
     /**
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getPersonalDashboardData(NguoiDung $student, array $args): array
@@ -379,11 +385,12 @@ class StudentDatabaseQueryTools
             ->selectRaw('SUM(CASE WHEN ct.loi_thanh_dieu = 1 THEN 1 ELSE 0 END) as loi_thanh_dieu')
             ->first();
 
-        $learningPath = DB::table('lo_trinh_ca_nhan as ltc')
-            ->leftJoin('chi_tiet_lo_trinh as ctl', 'ctl.lo_trinh_id', '=', 'ltc.id')
-            ->where('ltc.nguoi_dung_id', $student->id)
-            ->selectRaw('ltc.id, COALESCE(ltc.tuan_hien_tai, 1) as tuan_hien_tai, COUNT(ctl.id) as tong_tuan')
-            ->groupBy('ltc.id', 'ltc.tuan_hien_tai')
+        $learningPath = DB::table('lo_trinh_ca_nhans as ltc')
+            ->leftJoin('chi_tiet_lo_trinhs as ctl', 'ctl.lo_trinh_id', '=', 'ltc.id')
+            ->where('ltc.hoc_vien_id', $student->id)
+            ->selectRaw('ltc.id, COUNT(ctl.bai_hoc_id) as so_bai_trong_lo_trinh')
+            ->groupBy('ltc.id')
+            ->orderByDesc('ltc.id')
             ->first();
 
         $chatActivity = DB::table('chat_sessions as cs')
@@ -415,8 +422,8 @@ class StudentDatabaseQueryTools
                 ],
                 'learning_path' => [
                     'has_path' => $learningPath !== null,
-                    'current_week' => (int) ($learningPath?->tuan_hien_tai ?? 1),
-                    'total_weeks' => (int) ($learningPath?->tong_tuan ?? 0),
+                    'lo_trinh_id' => $learningPath ? (int) $learningPath->id : null,
+                    'lesson_count' => (int) ($learningPath?->so_bai_trong_lo_trinh ?? 0),
                 ],
                 'chat' => [
                     'total_sessions' => (int) ($chatActivity?->total_chat_sessions ?? 0),
@@ -436,7 +443,7 @@ class StudentDatabaseQueryTools
             ->where('vtq.vai_tro_id', $student->vai_tro_id)
             ->orderBy('q.id')
             ->get(['q.id', 'q.ten_quyen'])
-            ->map(static fn($row): array => [
+            ->map(static fn ($row): array => [
                 'id' => (int) ($row->id ?? 0),
                 'name' => (string) ($row->ten_quyen ?? ''),
             ])
@@ -457,8 +464,7 @@ class StudentDatabaseQueryTools
     /**
      * Build recommendation based on error types
      *
-     * @param array<string,int> $errors
-     * @return string
+     * @param  array<string,int>  $errors
      */
     private function buildErrorRecommendation(array $errors): string
     {
@@ -480,7 +486,7 @@ class StudentDatabaseQueryTools
     /**
      * Search vocabulary by query
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function searchVocabulary(array $args): array
@@ -500,18 +506,18 @@ class StudentDatabaseQueryTools
             ->get(['id', 'tu_chuan', 'phien_am', 'cap_do', 'am_thanh_mau_url', 'hinh_anh_url']);
 
         $lowerQuery = mb_strtolower($query, 'UTF-8');
-        $filtered = $results->filter(function($item) use ($lowerQuery) {
+        $filtered = $results->filter(function ($item) use ($lowerQuery) {
             $tuChuanLower = mb_strtolower($item->tu_chuan, 'UTF-8');
             $phienAmLower = mb_strtolower($item->phien_am, 'UTF-8');
-            
-            return $tuChuanLower === $lowerQuery || 
+
+            return $tuChuanLower === $lowerQuery ||
                    $phienAmLower === $lowerQuery ||
-                   str_contains($tuChuanLower, $lowerQuery) || 
+                   str_contains($tuChuanLower, $lowerQuery) ||
                    str_contains($phienAmLower, $lowerQuery);
         })->values();
 
         // Ưu tiên khớp chính xác tuyệt đối
-        $exactMatches = $filtered->filter(function($item) use ($lowerQuery) {
+        $exactMatches = $filtered->filter(function ($item) use ($lowerQuery) {
             return mb_strtolower($item->tu_chuan, 'UTF-8') === $lowerQuery;
         })->values();
 
@@ -532,7 +538,7 @@ class StudentDatabaseQueryTools
             'data' => [
                 'found' => true,
                 'query' => $query,
-                'results' => $finalResults->take(5)->map(fn($item) => [
+                'results' => $finalResults->take(5)->map(fn ($item) => [
                     'tu_chuan' => $item->tu_chuan,
                     'phien_am' => $item->phien_am,
                     'cap_do' => $item->cap_do,

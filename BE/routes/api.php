@@ -13,6 +13,7 @@ use App\Http\Controllers\DanhMucBaiHocController;
 use App\Http\Controllers\DepositController;
 use App\Http\Controllers\ErrorHistoryController;
 use App\Http\Controllers\GoiPremiumController;
+use App\Http\Controllers\HocVienLoTrinhController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HoSoGiaoVienController;
 use App\Http\Controllers\KiemDuyetBaiHocConTroller;
@@ -22,6 +23,7 @@ use App\Http\Controllers\PhienLuyenTapController;
 use App\Http\Controllers\QuanHeGvHvController;
 use App\Http\Controllers\StudentChatController;
 use App\Http\Controllers\TeacherBaiKiemTraController;
+use App\Http\Controllers\TeacherLoTrinhController;
 use App\Http\Controllers\TeacherQuanLyBaiHocController;
 use App\Http\Controllers\TeacherTuVungController;
 use App\Http\Controllers\ThongTinHocVienController;
@@ -197,8 +199,19 @@ Route::prefix('/teacher')->middleware(['auth:sanctum', 'role:2'])->group(functio
         Route::get('/dashboard', [QuanHeGvHvController::class, 'dashboardTongQuan']);
         Route::get('/hoc-vien', [QuanHeGvHvController::class, 'danhSachHocVien']);
         Route::get('/hoc-vien/{id}', [QuanHeGvHvController::class, 'chiTietHocVien']);
+        Route::get('/loi-phat-am-lich-su', [QuanHeGvHvController::class, 'thongKeLichSuLoiPhatAmTheoHocVien']);
         Route::get('/bai-hoc-goi-y', [QuanHeGvHvController::class, 'danhSachBaiHocGoiY']);
         Route::post('/goi-y', [QuanHeGvHvController::class, 'guiGoiY']);
+    });
+
+    Route::prefix('/lo-trinh')->group(function () {
+        Route::get('/', [TeacherLoTrinhController::class, 'index']);
+        Route::post('/', [TeacherLoTrinhController::class, 'store']);
+        Route::get('/{loTrinh}', [TeacherLoTrinhController::class, 'show']);
+        Route::put('/{loTrinh}', [TeacherLoTrinhController::class, 'update']);
+        Route::delete('/{loTrinh}', [TeacherLoTrinhController::class, 'destroy']);
+        Route::put('/{loTrinh}/chi-tiet', [TeacherLoTrinhController::class, 'syncChiTiet']);
+        Route::put('/{loTrinh}/tra-phi', [TeacherLoTrinhController::class, 'upsertTraPhi']);
     });
 
     Route::prefix('/chat')->group(function () {
@@ -265,6 +278,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('/tien-do-bai-hoc')->group(function () {
         Route::get('/tong-quan', [TienDoBaiHocController::class, 'tongQuan']);
+    });
+
+    Route::prefix('/hoc-vien/lo-trinh-ca-nhan')->group(function () {
+        Route::get('/', [HocVienLoTrinhController::class, 'index']);
+        Route::post('/{loTrinh}/mua', [HocVienLoTrinhController::class, 'mua']);
+        Route::get('/{loTrinh}', [HocVienLoTrinhController::class, 'show']);
     });
 
     Route::post('/cham-diem-phat-am', [ChiTietLuyenTapController::class, 'chamDiemPhatAm']);
