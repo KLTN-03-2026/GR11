@@ -75,6 +75,13 @@ $cases = [
         'expect_source' => 'db_direct',
     ],
     [
+        'label' => 'Student teacher practice suggestions',
+        'email' => 'phamlananh@gmail.com',
+        'message' => 'Gợi ý luyện tập dành cho tôi?',
+        'expected_tool' => 'student_get_teacher_suggestions',
+        'expect_source' => 'db_direct',
+    ],
+    [
         'label' => 'Student teacher lesson count',
         'email' => 'phamlananh@gmail.com',
         'message' => 'Cô giáo Thu Hà có bao nhiêu bài học?',

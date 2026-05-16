@@ -733,20 +733,31 @@
           </p>
         </div>
 
-        <div class="row g-4">
-          <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+        <div v-if="dangTaiHocSinh" class="text-center py-4 text-muted">
+          Đang tải học sinh nổi bật…
+        </div>
+        <div v-else-if="!danhSachHocSinhNoiBat.length" class="text-center py-4 text-muted">
+          Chưa có học sinh nổi bật.
+        </div>
+        <div v-else class="row g-4">
+          <div
+            v-for="(hv, index) in danhSachHocSinhNoiBat"
+            :key="hv.id"
+            class="col-lg-4 col-md-6 wow fadeInUp"
+            :data-wow-delay="`${0.1 + index * 0.2}s`"
+          >
             <div class="classes-item">
               <div class="bg-light rounded-circle w-75 mx-auto p-3">
                 <img
                   class="img-fluid rounded-circle"
-                  src="/Client/images/classes-1.jpg"
-                  alt=""
+                  :src="hv.hinhAnh"
+                  :alt="hv.hoTen"
                 />
               </div>
 
               <div class="bg-light rounded p-4 pt-5 mt-n5">
                 <a class="d-block text-center h3 mt-3 mb-4" href="">
-                  Bé Minh Anh
+                  {{ hv.hoTen }}
                 </a>
 
                 <div
@@ -755,19 +766,19 @@
                   <div class="d-flex align-items-center">
                     <img
                       class="rounded-circle flex-shrink-0"
-                      src="/Client/images/user.jpg"
+                      :src="hv.giaoVienAnh"
                       alt=""
                       style="width: 45px; height: 45px"
                     />
 
                     <div class="ms-3">
-                      <h6 class="text-primary mb-1">Cô Nguyễn Thảo</h6>
-                      <small>Phát âm rõ hơn sau 2 tuần luyện tập</small>
+                      <h6 class="text-primary mb-1">{{ hv.giaoVienTen }}</h6>
+                      <small>{{ hv.moTa }}</small>
                     </div>
                   </div>
 
                   <span class="bg-primary text-white rounded-pill py-2 px-3">
-                    95%
+                    #{{ hv.thuHang }}
                   </span>
                 </div>
 
@@ -775,147 +786,21 @@
                   <div class="col-4">
                     <div class="border-top border-3 border-primary pt-2">
                       <h6 class="text-primary mb-1">Streak:</h6>
-                      <small>12 Ngày</small>
+                      <small>{{ hv.streak }} Ngày</small>
                     </div>
                   </div>
 
                   <div class="col-4">
                     <div class="border-top border-3 border-success pt-2">
                       <h6 class="text-success mb-1">Bài Học:</h6>
-                      <small>15 Bài</small>
+                      <small>{{ hv.soBai }} Bài</small>
                     </div>
                   </div>
 
                   <div class="col-4">
                     <div class="border-top border-3 border-warning pt-2">
                       <h6 class="text-warning mb-1">Điểm:</h6>
-                      <small>9.5/10</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-            <div class="classes-item">
-              <div class="bg-light rounded-circle w-75 mx-auto p-3">
-                <img
-                  class="img-fluid rounded-circle"
-                  src="/Client/images/classes-2.jpg"
-                  alt=""
-                />
-              </div>
-
-              <div class="bg-light rounded p-4 pt-5 mt-n5">
-                <a class="d-block text-center h3 mt-3 mb-4" href="">
-                  Bé Gia Hân
-                </a>
-
-                <div
-                  class="d-flex align-items-center justify-content-between mb-4"
-                >
-                  <div class="d-flex align-items-center">
-                    <img
-                      class="rounded-circle flex-shrink-0"
-                      src="/Client/images/user.jpg"
-                      alt=""
-                      style="width: 45px; height: 45px"
-                    />
-
-                    <div class="ms-3">
-                      <h6 class="text-primary mb-1">Thầy Minh Quân</h6>
-                      <small>Hoàn thành tốt khóa luyện âm cơ bản</small>
-                    </div>
-                  </div>
-
-                  <span class="bg-primary text-white rounded-pill py-2 px-3">
-                    98%
-                  </span>
-                </div>
-
-                <div class="row g-1">
-                  <div class="col-4">
-                    <div class="border-top border-3 border-primary pt-2">
-                      <h6 class="text-primary mb-1">Streak:</h6>
-                      <small>20 Ngày</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-success pt-2">
-                      <h6 class="text-success mb-1">Bài Học:</h6>
-                      <small>24 Bài</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-warning pt-2">
-                      <h6 class="text-warning mb-1">Điểm:</h6>
-                      <small>9.8/10</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-            <div class="classes-item">
-              <div class="bg-light rounded-circle w-75 mx-auto p-3">
-                <img
-                  class="img-fluid rounded-circle"
-                  src="/Client/images/classes-3.jpg"
-                  alt=""
-                />
-              </div>
-
-              <div class="bg-light rounded p-4 pt-5 mt-n5">
-                <a class="d-block text-center h3 mt-3 mb-4" href="">
-                  Bé Quốc Bảo
-                </a>
-
-                <div
-                  class="d-flex align-items-center justify-content-between mb-4"
-                >
-                  <div class="d-flex align-items-center">
-                    <img
-                      class="rounded-circle flex-shrink-0"
-                      src="/Client/images/user.jpg"
-                      alt=""
-                      style="width: 45px; height: 45px"
-                    />
-
-                    <div class="ms-3">
-                      <h6 class="text-primary mb-1">Cô Thu Hà</h6>
-                      <small>Đã cải thiện rõ lỗi phát âm âm “s” và “x”</small>
-                    </div>
-                  </div>
-
-                  <span class="bg-primary text-white rounded-pill py-2 px-3">
-                    90%
-                  </span>
-                </div>
-
-                <div class="row g-1">
-                  <div class="col-4">
-                    <div class="border-top border-3 border-primary pt-2">
-                      <h6 class="text-primary mb-1">Streak:</h6>
-                      <small>10 Ngày</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-success pt-2">
-                      <h6 class="text-success mb-1">Bài Học:</h6>
-                      <small>12 Bài</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-warning pt-2">
-                      <h6 class="text-warning mb-1">Điểm:</h6>
-                      <small>9.0/10</small>
+                      <small>{{ hv.diemHienThi }}</small>
                     </div>
                   </div>
                 </div>
@@ -964,7 +849,9 @@ export default {
     return {
       danhSachChuDeYeuThich: [],
       danhSachBaiHocYeuThich: [],
+      danhSachHocSinhNoiBat: [],
       dangTai: false,
+      dangTaiHocSinh: false,
     };
   },
   mounted() {
@@ -1008,13 +895,17 @@ export default {
 
     async layDuLieuTrangChu() {
       this.dangTai = true;
+      this.dangTaiHocSinh = true;
       try {
-        const res = await api.get("/homepage/data-open");
-        const categories = Array.isArray(res.data?.featured_categories)
-          ? res.data.featured_categories
+        const [homeRes, trangChuRes] = await Promise.all([
+          api.get("/homepage/data-open"),
+          api.get("/trang-chu"),
+        ]);
+        const categories = Array.isArray(homeRes.data?.featured_categories)
+          ? homeRes.data.featured_categories
           : [];
-        const lessons = Array.isArray(res.data?.featured_lessons)
-          ? res.data.featured_lessons
+        const lessons = Array.isArray(homeRes.data?.featured_lessons)
+          ? homeRes.data.featured_lessons
           : [];
 
         this.danhSachChuDeYeuThich = categories.map((item, index) =>
@@ -1024,16 +915,42 @@ export default {
           this.anhXaBaiHoc(item, index)
         );
 
+        const hocSinh = trangChuRes.data?.status
+          ? trangChuRes.data?.data?.hoc_sinh_noi_bat || []
+          : [];
+        this.danhSachHocSinhNoiBat = hocSinh
+          .slice(0, 3)
+          .map((item, index) => this.anhXaHocSinhNoiBat(item, index));
+
         this.$nextTick(() => {
           this.capNhatTheGiaoDien();
         });
       } catch (err) {
         this.danhSachChuDeYeuThich = [];
         this.danhSachBaiHocYeuThich = [];
+        this.danhSachHocSinhNoiBat = [];
         this.xuLyLoiApi(err);
       } finally {
         this.dangTai = false;
+        this.dangTaiHocSinh = false;
       }
+    },
+
+    anhXaHocSinhNoiBat(item, index) {
+      const style = MAU_HINH_CHU_DE[index % MAU_HINH_CHU_DE.length];
+      return {
+        id: item.id,
+        thuHang: item.thu_hang ?? index + 1,
+        hoTen: item.ho_ten || "Học viên",
+        hinhAnh: item.anh_dai_dien || style.image,
+        giaoVienTen: item.giao_vien_ten || "Giáo viên phụ trách",
+        giaoVienAnh: item.giao_vien_anh || "/Client/images/user.jpg",
+        moTa: item.mo_ta || "",
+        diemTichLuy: item.diem_tich_luy ?? 0,
+        streak: item.streak_hien_tai ?? 0,
+        soBai: item.so_bai_hoc ?? 0,
+        diemHienThi: item.diem_hien_thi || "0/10",
+      };
     },
 
     anhXaChuDe(item, index) {

@@ -131,17 +131,17 @@ class StudentChatController extends Controller
         }
 
         if ($teacherId > 0) {
-            // Auto-create the teacher-student relationship if it doesn't exist
-            QuanHeGvHv::firstOrCreate(
-                [
-                    'hoc_vien_id' => $user->id,
-                    'giao_vien_id' => $teacherId,
-                ],
-                [
-                    'trang_thai' => 1,
-                    'ngay_ket_noi' => now(),
-                ]
-            );
+            $coQuanHe = QuanHeGvHv::query()
+                ->where('hoc_vien_id', $user->id)
+                ->where('giao_vien_id', $teacherId)
+                ->where('trang_thai', QuanHeGvHv::TRANG_THAI_DANG_KET_NOI)
+                ->exists();
+
+            if (! $coQuanHe) {
+                return response()->json([
+                    'error' => 'Bạn chưa đăng ký với giáo viên này. Vui lòng vào trang bài học và bấm đăng ký với giáo viên trước.',
+                ], 403);
+            }
         }
 
         $session = ChatSession::firstOrCreate([

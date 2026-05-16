@@ -210,21 +210,104 @@ class LearningAnalyticsRepository
     public function teacherSuggestions(NguoiDung $student, int $limit = 10): array
     {
         $rows = GoiYLuyenTap::query()
-            ->where('hoc_vien_id', $student->id)
-            ->orderByDesc('created_at')
+            ->from('goi_y_luyen_taps as gy')
+            ->join('nguoi_dungs as gv', 'gv.id', '=', 'gy.giao_vien_id')
+            ->where('gy.hoc_vien_id', $student->id)
+            ->orderByDesc('gy.created_at')
             ->limit($limit)
-            ->get(['id', 'giao_vien_id', 'noi_dung', 'da_doc', 'created_at']);
+            ->get([
+                'gy.id',
+                'gy.giao_vien_id',
+                'gy.noi_dung',
+                'gy.da_doc',
+                'gy.created_at',
+                'gv.ho_ten as giao_vien_ten',
+            ]);
+
+        $suggestions = $rows->map(function ($r): array {
+            $parsed = $this->parsePracticeSuggestionContent((string) $r->noi_dung);
+
+            return [
+                'id' => (int) $r->id,
+                'teacher_id' => (int) $r->giao_vien_id,
+                'teacher_name' => (string) ($r->giao_vien_ten ?? ''),
+                'read' => (int) ($r->da_doc ?? 0) === 1,
+                'created_at' => $r->created_at ? Carbon::parse((string) $r->created_at)->format('Y-m-d H:i') : null,
+                'type' => $parsed['type'],
+                'bai_hoc_id' => $parsed['bai_hoc_id'],
+                'lesson_title' => $parsed['lesson_title'],
+                'priority' => $parsed['priority'],
+                'message' => $parsed['message'],
+                'summary' => $parsed['summary'],
+            ];
+        })->values()->all();
 
         return [
-            'unread_count' => $rows->where('da_doc', false)->count(),
-            'total_count' => $rows->count(),
-            'suggestions' => $rows->map(static fn (GoiYLuyenTap $r): array => [
-                'id' => $r->id,
-                'teacher_id' => (int) $r->giao_vien_id,
-                'content' => (string) $r->noi_dung,
-                'read' => (bool) $r->da_doc,
-                'created_at' => optional($r->created_at)->format('Y-m-d H:i'),
-            ])->values()->all(),
+            'unread_count' => collect($suggestions)->where('read', false)->count(),
+            'total_count' => count($suggestions),
+            'suggestions' => $suggestions,
+        ];
+    }
+
+    /**
+     * @return array{
+     *   type:string,
+     *   bai_hoc_id:?int,
+     *   lesson_title:?string,
+     *   priority:?string,
+     *   message:string,
+     *   summary:string
+     * }
+     */
+    private function parsePracticeSuggestionContent(string $raw): array
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return [
+                'type' => 'text',
+                'bai_hoc_id' => null,
+                'lesson_title' => null,
+                'priority' => null,
+                'message' => '',
+                'summary' => '',
+            ];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded) && ($decoded['type'] ?? '') === 'goi_y_bai_hoc') {
+            $title = trim((string) ($decoded['tieu_de'] ?? ''));
+            $priority = trim((string) ($decoded['uu_tien'] ?? ''));
+            $note = trim((string) ($decoded['loi_nhan'] ?? ''));
+            $priorityLabel = match ($priority) {
+                'cao' => 'ưu tiên cao',
+                'binh_thuong' => 'ưu tiên bình thường',
+                default => $priority !== '' ? $priority : null,
+            };
+            $summary = $title !== '' ? "Luyện bài «{$title}»" : 'Gợi ý luyện bài';
+            if ($priorityLabel !== null) {
+                $summary .= " ({$priorityLabel})";
+            }
+            if ($note !== '') {
+                $summary .= ': ' . $note;
+            }
+
+            return [
+                'type' => 'lesson',
+                'bai_hoc_id' => isset($decoded['bai_hoc_id']) ? (int) $decoded['bai_hoc_id'] : null,
+                'lesson_title' => $title !== '' ? $title : null,
+                'priority' => $priorityLabel,
+                'message' => $note,
+                'summary' => $summary,
+            ];
+        }
+
+        return [
+            'type' => 'text',
+            'bai_hoc_id' => null,
+            'lesson_title' => null,
+            'priority' => null,
+            'message' => $raw,
+            'summary' => $raw,
         ];
     }
 

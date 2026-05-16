@@ -18,7 +18,7 @@
               <option :value="null" disabled>— Chọn học viên —</option>
               <option v-for="s in students" :key="s.id" :value="s.id">{{ s.name }}</option>
             </select>
-            <button type="button" class="btn btn-primary w-100 rounded-3 mb-2" :disabled="!hocVienId || saving" @click="taoLoTrinhMoi">
+            <button type="button" class="btn btn-primary w-100 rounded-3 mb-2" :disabled="!hocVienId || saving" @click="moModalTaoLoTrinh">
               <i class="fa-solid fa-plus me-1"></i> Tạo lộ trình mới
             </button>
             <div v-if="loadingList" class="text-muted small text-center py-2">Đang tải...</div>
@@ -36,6 +36,17 @@
                   <span v-if="lt.la_tra_phi">Trả phí: {{ formatVnd(lt.tra_phi?.gia) }}</span>
                   <span v-else>Miễn phí</span>
                 </small>
+                <div v-if="lt.la_tra_phi" class="mt-1">
+                  <span
+                    class="badge rounded-pill small"
+                    :class="lt.da_mua ? (lt.id === selectedLoTrinhId ? 'bg-success' : 'bg-success bg-opacity-75') : (lt.id === selectedLoTrinhId ? 'bg-warning text-dark' : 'bg-secondary')"
+                  >
+                    {{ lt.da_mua ? 'Học viên đã thanh toán' : 'Chưa thanh toán' }}
+                  </span>
+                  <span v-if="lt.da_mua && lt.thu_nhap_gv_sau_khau_tru != null" class="d-block mt-1 small" :class="lt.id === selectedLoTrinhId ? 'text-white-50' : 'text-muted'">
+                    Thu nhập GV: {{ formatVnd(lt.thu_nhap_gv_sau_khau_tru) }}
+                  </span>
+                </div>
               </li>
             </ul>
           </div>
@@ -55,6 +66,31 @@
 
             <h6 class="fw-bold mb-2">Giá & mô tả bán</h6>
             <p class="text-muted small mb-2">Đặt 0 để miễn phí. Giá &gt; 0: học viên phải thanh toán từ ví để mở nội dung.</p>
+
+            <div
+              v-if="thanhToanThu.hienThi"
+              class="rounded-3 border p-3 mb-3 bg-light-subtle small"
+              style="background: #f8fafc;"
+            >
+              <div class="fw-semibold mb-2 text-secondary">Thanh toán từ phía học viên</div>
+              <template v-if="thanhToanThu.la_tra_phi">
+                <template v-if="thanhToanThu.da_mua">
+                  <p class="mb-1"><span class="text-muted">Trạng thái:</span> <span class="text-success fw-semibold">Đã thanh toán</span></p>
+                  <p class="mb-1"><span class="text-muted">Học viên đã trả:</span> {{ formatVnd(thanhToanThu.gia_hoc_vien_da_tra) }}</p>
+                  <p class="mb-1"><span class="text-muted">Thu nhập GV (sau trừ hoa hồng):</span> <span class="fw-bold text-success">{{ formatVnd(thanhToanThu.thu_nhap_gv_sau_khau_tru) }}</span></p>
+                  <p class="mb-1" v-if="thanhToanThu.phi_nen_tang != null"><span class="text-muted">Phí nền tảng (giữ lại):</span> {{ formatVnd(thanhToanThu.phi_nen_tang) }}</p>
+                  <p class="mb-0 text-muted" v-if="thanhToanThu.ti_le_hoa_hong_platform != null">
+                    % hoa hồng nền tảng đã áp: {{ Number(thanhToanThu.ti_le_hoa_hong_platform).toFixed(2) }}%
+                  </p>
+                  <p class="mb-0 mt-1 text-muted" v-if="thanhToanThu.ngay_mua">Ngày giao dịch: {{ formatNgayIso(thanhToanThu.ngay_mua) }}</p>
+                </template>
+                <template v-else>
+                  <p class="mb-0"><span class="text-muted">Trạng thái:</span> <span class="text-warning fw-semibold">Học viên chưa thanh toán</span></p>
+                  <p class="mb-0 text-muted mt-1">Thu nhập giáo viên chỉ được ghi nhận sau khi học viên thanh toán từ ví.</p>
+                </template>
+              </template>
+              <p v-else class="mb-0 text-muted">Lộ trình miễn phí — không có giao dịch thanh toán.</p>
+            </div>
             <div class="row g-2 align-items-end mb-2">
               <div class="col-md-4">
                 <label class="form-label small mb-0">Giá (VNĐ)</label>
@@ -143,6 +179,32 @@
         <div class="alert alert-light border rounded-4 shadow-sm">Chọn học viên và một lộ trình để chỉnh sửa.</div>
       </div>
     </div>
+
+    <!-- Modal xác nhận tạo lộ trình mới -->
+    <div
+      v-if="modalTaoLoTrinh"
+      class="modal-backdrop-qt d-flex align-items-center justify-content-center p-3"
+      tabindex="-1"
+      @click.self="dongModalTaoLoTrinh"
+    >
+      <div class="card border-0 shadow rounded-4 modal-tao-lo-trinh" role="dialog" aria-modal="true" aria-labelledby="modalTaoLoTrinhTi">
+        <div class="card-body p-4">
+          <h5 id="modalTaoLoTrinhTi" class="fw-bold mb-2">Tạo lộ trình mới?</h5>
+          <p class="text-muted small mb-3">
+            Bạn sẽ thêm một lộ trình cá nhân cho học viên đã chọn.
+            <template v-if="tenHocVienDaChon">({{ tenHocVienDaChon }})</template>
+          </p>
+          <label class="form-label small fw-semibold mb-1">Tên lộ trình</label>
+          <input v-model.trim="tenLoTrinhMoi" type="text" class="form-control rounded-3 mb-3" maxlength="255" placeholder="Lộ trình cá nhân" @keyup.enter="xacNhanTaoLoTrinh" />
+          <div class="d-flex gap-2 justify-content-end flex-wrap">
+            <button type="button" class="btn btn-outline-secondary rounded-3" :disabled="saving" @click="dongModalTaoLoTrinh">Hủy</button>
+            <button type="button" class="btn btn-primary rounded-3" :disabled="saving || !tenLoTrinhMoi" @click="xacNhanTaoLoTrinh">
+              {{ saving ? 'Đang tạo...' : 'Xác nhận tạo' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -170,7 +232,25 @@ export default {
       savingTraPhi: false,
       savingChiTiet: false,
       dragIndex: null,
+      modalTaoLoTrinh: false,
+      tenLoTrinhMoi: 'Lộ trình cá nhân',
+      thanhToanThu: {
+        hienThi: false,
+        la_tra_phi: false,
+        da_mua: false,
+        gia_hoc_vien_da_tra: null,
+        thu_nhap_gv_sau_khau_tru: null,
+        phi_nen_tang: null,
+        ti_le_hoa_hong_platform: null,
+        ngay_mua: null,
+      },
     };
+  },
+  computed: {
+    tenHocVienDaChon() {
+      const hv = this.students.find((s) => s.id === this.hocVienId);
+      return hv?.name || '';
+    },
   },
   mounted() {
     this.taiHocVien();
@@ -183,6 +263,14 @@ export default {
     formatVnd(n) {
       if (!n) return '0 đ';
       return Number(n).toLocaleString('vi-VN') + ' đ';
+    },
+    formatNgayIso(iso) {
+      if (!iso) return '';
+      try {
+        return new Date(iso).toLocaleString('vi-VN', { dateStyle: 'medium', timeStyle: 'short' });
+      } catch (e) {
+        return iso;
+      }
     },
     taiHocVien() {
       axios
@@ -209,6 +297,7 @@ export default {
     onDoiHocVien() {
       this.selectedLoTrinhId = null;
       this.chiTietRows = [];
+      this.thanhToanThu = this.trangThaiThanhToanRong();
       this.taiDanhSachLoTrinh();
     },
     taiDanhSachLoTrinh() {
@@ -241,6 +330,7 @@ export default {
     taiChiTiet() {
       if (!this.selectedLoTrinhId) return;
       this.loadingDetail = true;
+      this.thanhToanThu = this.trangThaiThanhToanRong();
       axios
         .get(this.apiBase + '/api/teacher/lo-trinh/' + this.selectedLoTrinhId, { headers: this.authHeaders() })
         .then((res) => {
@@ -257,24 +347,57 @@ export default {
             tieu_de: r.tieu_de,
             ghi_chu_gv: r.ghi_chu_gv || '',
           }));
+          const laTraPhi = Boolean(d.la_tra_phi);
+          this.thanhToanThu = {
+            hienThi: true,
+            la_tra_phi: laTraPhi,
+            da_mua: Boolean(d.da_mua),
+            gia_hoc_vien_da_tra: d.gia_hoc_vien_da_tra ?? null,
+            thu_nhap_gv_sau_khau_tru: d.thu_nhap_gv_sau_khau_tru ?? null,
+            phi_nen_tang: d.phi_nen_tang ?? null,
+            ti_le_hoa_hong_platform: d.ti_le_hoa_hong_platform ?? null,
+            ngay_mua: d.ngay_mua ?? null,
+          };
         })
         .finally(() => {
           this.loadingDetail = false;
         });
     },
-    taoLoTrinhMoi() {
-      const ten = window.prompt('Tên lộ trình mới?', 'Lộ trình cá nhân');
-      if (!ten || !ten.trim()) return;
+    trangThaiThanhToanRong() {
+      return {
+        hienThi: false,
+        la_tra_phi: false,
+        da_mua: false,
+        gia_hoc_vien_da_tra: null,
+        thu_nhap_gv_sau_khau_tru: null,
+        phi_nen_tang: null,
+        ti_le_hoa_hong_platform: null,
+        ngay_mua: null,
+      };
+    },
+    moModalTaoLoTrinh() {
+      if (!this.hocVienId) return;
+      this.tenLoTrinhMoi = 'Lộ trình cá nhân';
+      this.modalTaoLoTrinh = true;
+    },
+    dongModalTaoLoTrinh() {
+      if (this.saving) return;
+      this.modalTaoLoTrinh = false;
+    },
+    xacNhanTaoLoTrinh() {
+      const ten = (this.tenLoTrinhMoi || '').trim();
+      if (!ten || !this.hocVienId) return;
       this.saving = true;
       axios
         .post(
           this.apiBase + '/api/teacher/lo-trinh',
-          { hoc_vien_id: this.hocVienId, ten_lo_trinh: ten.trim() },
+          { hoc_vien_id: this.hocVienId, ten_lo_trinh: ten },
           { headers: this.authHeaders() }
         )
         .then((res) => {
           if (res.data.status) {
             this.$toast.success('Đã tạo lộ trình.');
+            this.modalTaoLoTrinh = false;
             const id = res.data.data?.id;
             this.taiDanhSachLoTrinh().then(() => {
               if (id) this.chonLoTrinh(id);
@@ -322,7 +445,9 @@ export default {
           if (res.data.status) {
             this.$toast.success(res.data.message || 'Đã lưu.');
             this.taiDanhSachLoTrinh();
-          } else this.$toast.error(res.data.message);
+            return this.selectedLoTrinhId && this.chonLoTrinh(this.selectedLoTrinhId);
+          }
+          this.$toast.error(res.data.message);
         })
         .finally(() => {
           this.savingTraPhi = false;
@@ -397,6 +522,7 @@ export default {
             this.$toast.success('Đã xóa.');
             this.selectedLoTrinhId = null;
             this.chiTietRows = [];
+            this.thanhToanThu = this.trangThaiThanhToanRong();
             this.taiDanhSachLoTrinh();
           } else this.$toast.error(res.data.message);
         })
@@ -411,5 +537,17 @@ export default {
 <style scoped>
 .table-light:hover {
   background-color: #eef6ff !important;
+}
+
+.modal-backdrop-qt {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modal-tao-lo-trinh {
+  width: 100%;
+  max-width: 420px;
 }
 </style>

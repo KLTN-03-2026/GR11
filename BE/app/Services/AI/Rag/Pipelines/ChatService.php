@@ -29,6 +29,7 @@ Bạn là trợ lý học tập của EchoKids. Xưng "cô", gọi user là "con
 - KHÔNG được bịa số liệu. Nếu function trả ok=false, nói thật là chưa có dữ liệu.
 - KHÔNG in suy nghĩ/kế hoạch bằng tiếng Anh. Chỉ trả lời trực tiếp cho học viên bằng tiếng Việt (tối đa 3 câu).
 - Khi hỏi mua/nâng cấp Premium: dùng function hướng dẫn mua gói, hướng dẫn qua trang Hồ sơ và ví EchoKids.
+- Khi hỏi gợi ý luyện tập từ giáo viên: dùng student_get_teacher_suggestions (KHÔNG dùng student_get_suggested_lessons_by_level).
 TXT;
 
     private const SYSTEM_PROMPT_TEACHER = <<<'TXT'
@@ -133,6 +134,28 @@ TXT;
                     'message' => (string) $direct['message'],
                     'action_url' => null,
                     'action_label' => null,
+                    'meta' => [
+                        'assistant_role' => $role,
+                        'source' => 'db_direct',
+                        'llm_provider' => $this->llmProvider(),
+                        'input_type' => $inputType,
+                        'tools_used' => (array) ($direct['tools_used'] ?? []),
+                        'error_detail' => null,
+                    ],
+                ];
+            }
+        }
+
+        if ($role === 'student' && $this->isTeacherPracticeSuggestionQuestion($normalizedMessage, $rawLowerMessage)) {
+            $direct = $this->tryTeacherPracticeSuggestionFallback($user, $english);
+            if ($direct !== null) {
+                $this->saveTurn($session->id, $message, (string) $direct['message']);
+
+                return [
+                    'session_id' => $session->id,
+                    'message' => (string) $direct['message'],
+                    'action_url' => '/bai-hoc',
+                    'action_label' => $english ? 'here' : 'tại đây',
                     'meta' => [
                         'assistant_role' => $role,
                         'source' => 'db_direct',
@@ -691,6 +714,16 @@ TXT;
                     ]);
                 }
             }
+
+            if ($this->isTeacherPracticeSuggestionQuestion($normalized, $rawLower)) {
+                $suggestionFallback = $this->tryTeacherPracticeSuggestionFallback($user, $english);
+                if ($suggestionFallback !== null) {
+                    return array_merge($suggestionFallback, [
+                        'action_url' => '/bai-hoc',
+                        'action_label' => $english ? 'here' : 'tại đây',
+                    ]);
+                }
+            }
         }
 
         if ($role === 'teacher' && $this->isTeacherStudentListQuestion($normalized, $rawLower)) {
@@ -798,6 +831,84 @@ TXT;
         return (str_contains($normalized, 'bao nhieu') || str_contains($normalized, 'co may'))
             && str_contains($normalized, 'bai hoc')
             && (str_contains($normalized, 'giao vien') || str_contains($normalized, 'thay') || str_contains($normalized, 'co'));
+    }
+
+    private function isTeacherPracticeSuggestionQuestion(string $normalized, string $rawLower): bool
+    {
+        if (preg_match('/\b(practice suggestion|teacher suggestion)\b/i', $rawLower) === 1) {
+            return true;
+        }
+
+        if (str_contains($normalized, 'goi y') || str_contains($normalized, 'goi y luyen tap')) {
+            return true;
+        }
+
+        return (str_contains($normalized, 'luyen tap') || str_contains($normalized, 'bai hoc'))
+            && (
+                str_contains($normalized, 'goi y')
+                || str_contains($normalized, 'giao vien')
+                || str_contains($normalized, 'co goi y')
+            );
+    }
+
+    /**
+     * @return array{message:string,source:string,tools_used:list<array{name:string,args:array<string,mixed>}>}|null
+     */
+    private function tryTeacherPracticeSuggestionFallback(NguoiDung $user, bool $english): ?array
+    {
+        $result = $this->studentCatalog->execute($user, 'student_get_teacher_suggestions', ['limit' => 10]);
+        if (($result['ok'] ?? false) !== true) {
+            return null;
+        }
+
+        return [
+            'message' => $this->formatTeacherPracticeSuggestionsAnswer((array) ($result['data'] ?? []), $english),
+            'source' => 'db_fallback',
+            'tools_used' => [['name' => 'student_get_teacher_suggestions', 'args' => ['limit' => 10]]],
+        ];
+    }
+
+    private function formatTeacherPracticeSuggestionsAnswer(array $data, bool $english): string
+    {
+        $total = (int) ($data['total_count'] ?? 0);
+        $unread = (int) ($data['unread_count'] ?? 0);
+        /** @var list<array<string, mixed>> $items */
+        $items = (array) ($data['suggestions'] ?? []);
+
+        if ($total === 0) {
+            return $english
+                ? 'Your teachers have not sent practice suggestions yet. Check the Lessons page or chat with your teacher.'
+                : 'Giáo viên chưa gửi gợi ý luyện tập nào cho con. Con xem thêm ở mục Bài học hoặc nhắn cô trong chat nhé.';
+        }
+
+        $lines = [];
+        foreach (array_slice($items, 0, 5) as $item) {
+            $teacher = trim((string) ($item['teacher_name'] ?? ''));
+            $summary = rtrim(trim((string) ($item['summary'] ?? $item['message'] ?? '')), '.');
+            if ($summary === '') {
+                continue;
+            }
+            $prefix = $teacher !== '' ? "Cô {$teacher}: " : '';
+            $lines[] = $prefix . $summary;
+        }
+
+        if ($english) {
+            $header = $unread > 0
+                ? "You have {$total} practice suggestion(s) from your teacher(s) ({$unread} new)."
+                : "You have {$total} practice suggestion(s) from your teacher(s).";
+
+            return $header . ' ' . implode(' ', $lines);
+        }
+
+        $header = $unread > 0
+            ? "Cô có {$total} gợi ý luyện tập từ giáo viên ({$unread} gợi ý mới):"
+            : "Cô có {$total} gợi ý luyện tập từ giáo viên:";
+
+        if (count($lines) === 1) {
+            return $header . ' ' . $lines[0] . '.';
+        }
+
+        return $header . ' ' . implode('; ', $lines) . '.';
     }
 
     private function isStudentLearningPathQuestion(string $normalized, string $rawLower): bool

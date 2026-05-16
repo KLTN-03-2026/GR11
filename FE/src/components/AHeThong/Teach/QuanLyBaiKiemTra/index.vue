@@ -104,6 +104,12 @@
                                   Sửa đề
                                 </a>
                               </li>
+                              <li>
+                                <a class="dropdown-item py-2 fw-medium" href="#" @click.prevent="moModalKetQua(q)">
+                                  <i class="fa-solid fa-chart-line me-2 text-center" style="color: #0d6efd; width: 20px"></i>
+                                  Xem kết quả học viên
+                                </a>
+                              </li>
                               <li><hr class="dropdown-divider opacity-25 my-1" /></li>
                               <li>
                                 <a
@@ -262,6 +268,63 @@
         </div>
       </div>
     </div>
+
+    <div id="modalKetQuaBaiKiemTra" class="modal fade" tabindex="-1" aria-labelledby="modalKetQuaBaiKiemTraLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow rounded-3">
+          <div class="modal-header bg-light border-bottom-0">
+            <h5 id="modalKetQuaBaiKiemTraLabel" class="modal-title fw-bold">
+              <i class="fa-solid fa-square-poll-vertical text-primary me-2"></i>
+              Kết quả học viên
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+          </div>
+          <div class="modal-body p-4">
+            <p class="text-muted mb-3">
+              Đề: <strong>{{ quizDangXemKetQua?.tieu_de || "—" }}</strong>
+            </p>
+            <div v-if="loadingKetQua" class="text-center py-4 text-muted">
+              <span class="spinner-border spinner-border-sm me-2"></span>Đang tải kết quả...
+            </div>
+            <div v-else-if="loiKetQua" class="alert alert-warning mb-0">{{ loiKetQua }}</div>
+            <div v-else-if="!danhSachKetQua.length" class="text-muted small">Chưa có học viên nào nộp bài kiểm tra này.</div>
+            <div v-else class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Học viên</th>
+                    <th style="width: 150px">Điểm</th>
+                    <th style="width: 180px">Kết quả</th>
+                    <th style="width: 220px">Thời gian nộp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="r in danhSachKetQua" :key="r.phien_kiem_tra_id">
+                    <td>
+                      <div class="fw-semibold">{{ r.hoc_vien?.ho_ten || "—" }}</div>
+                      <div class="small text-muted">{{ r.hoc_vien?.email || "" }}</div>
+                    </td>
+                    <td class="fw-semibold">{{ r.tong_diem ?? 0 }}</td>
+                    <td>
+                      <span
+                        class="badge rounded-pill px-3 py-2"
+                        :class="r.dat ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'"
+                      >
+                        {{ r.dat ? "Đạt" : "Chưa đạt" }}
+                      </span>
+                    </td>
+                    <td>{{ dinhDangThoiGian(r.thoi_gian_ket_thuc) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer bg-light border-top-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -293,6 +356,10 @@ export default {
       loi_tao: "",
       tao_dang_chay: false,
       xoa_dang_chay: null,
+      quizDangXemKetQua: null,
+      loadingKetQua: false,
+      loiKetQua: "",
+      danhSachKetQua: [],
     };
   },
   mounted() {
@@ -302,6 +369,50 @@ export default {
     authHeaders() {
       const t = localStorage.getItem("token_teacher");
       return { Authorization: "Bearer " + (t || "") };
+    },
+    dinhDangThoiGian(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "—";
+      return d.toLocaleString("vi-VN");
+    },
+    moModalKetQua(quiz) {
+      this.quizDangXemKetQua = quiz || null;
+      this.loiKetQua = "";
+      this.danhSachKetQua = [];
+      this.loadingKetQua = false;
+      const el = document.getElementById("modalKetQuaBaiKiemTra");
+      if (el && window.bootstrap?.Modal) {
+        const M = window.bootstrap.Modal;
+        const inst = M.getInstance(el) || new M(el);
+        inst.show();
+      }
+      if (quiz?.id) {
+        this.taiKetQuaHocVien(quiz.id);
+      }
+    },
+    taiKetQuaHocVien(baiKiemTraId) {
+      this.loadingKetQua = true;
+      this.loiKetQua = "";
+      axios
+        .get(this.apiBase + "/api/teacher/bai-kiem-tra/" + baiKiemTraId + "/ket-qua", {
+          headers: this.authHeaders(),
+        })
+        .then((res) => {
+          if (res.data?.status) {
+            this.danhSachKetQua = Array.isArray(res.data.data) ? res.data.data : [];
+          } else {
+            this.danhSachKetQua = [];
+            this.loiKetQua = res.data?.message || "Không tải được dữ liệu kết quả.";
+          }
+        })
+        .catch((err) => {
+          this.danhSachKetQua = [];
+          this.loiKetQua = err.response?.data?.message || "Không tải được dữ liệu kết quả.";
+        })
+        .finally(() => {
+          this.loadingKetQua = false;
+        });
     },
     suaQuiz(q) {
       this.$router.push("/teacher/quan-ly-bai-kiem-tra/chinh-sua/" + q.id);

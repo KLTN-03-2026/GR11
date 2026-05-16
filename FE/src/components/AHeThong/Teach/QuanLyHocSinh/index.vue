@@ -19,6 +19,9 @@
           <button type="button" class="btn bg-white border-0 shadow-sm text-primary fw-medium rounded-pill px-4 py-2" style="transition: all 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='#ffffff'" title="Tải lại danh sách" @click="taiDanhSach" :disabled="loading">
             <i class="fa-solid fa-rotate-right me-1" :class="{'fa-spin': loading}"></i> Làm mới
           </button>
+          <small v-if="silentRefreshing && !loading" class="text-muted">
+            <i class="fa-solid fa-rotate-right fa-spin me-1"></i>Đang đồng bộ...
+          </small>
         </div>
       </div>
   
@@ -71,12 +74,12 @@
                     <div class="d-flex align-items-center mb-1">
                       <span class="text-muted small me-2" style="width: 60px;">Điểm TB:</span>
                       <span class="badge rounded-pill fw-bold" :class="getScoreColor(student.score)">
-                        {{ student.score }}%
+                        {{ student.score }}/100
                       </span>
                     </div>
                     <div class="d-flex align-items-center">
                       <span class="text-muted small me-2" style="width: 60px;">Số bài:</span>
-                      <span class="fw-medium text-dark small">{{ student.sessions }} phiên</span>
+                      <span class="fw-medium text-dark small">{{ student.so_bai ?? 0 }} bài</span>
                     </div>
                   </td>
   
@@ -160,7 +163,7 @@
                       </div>
                       <div>
                         <h6 class="text-muted mb-1 small fw-semibold text-uppercase">Điểm Trung Bình</h6>
-                        <h4 class="fw-bold mb-0" :class="getScoreColor(selectedStudent.score)">{{ selectedStudent.score }}%</h4>
+                        <h4 class="fw-bold mb-0" :class="getScoreColor(selectedStudent.score)">{{ selectedStudent.score }}/100</h4>
                       </div>
                     </div>
                   </div>
@@ -353,7 +356,9 @@ export default {
         uu_tien: 'cao',
         loi_nhan: '',
       },
-      autoRefreshTimer: null,
+      silentRefreshing: false,
+      lastFetchedAt: 0,
+      minRefreshGapMs: 12000,
     };
   },
   computed: {
@@ -372,15 +377,12 @@ export default {
   mounted() {
     this.taiDanhSach();
     this.taiNhomBaiHoc();
-    this.autoRefreshTimer = setInterval(() => {
-      this.taiDanhSach();
-    }, 20000);
+    window.addEventListener('focus', this.onWindowFocusRefresh);
+    document.addEventListener('visibilitychange', this.onVisibilityChangeRefresh);
   },
   beforeUnmount() {
-    if (this.autoRefreshTimer) {
-      clearInterval(this.autoRefreshTimer);
-      this.autoRefreshTimer = null;
-    }
+    window.removeEventListener('focus', this.onWindowFocusRefresh);
+    document.removeEventListener('visibilitychange', this.onVisibilityChangeRefresh);
   },
   methods: {
     getAuthToken() {
@@ -417,8 +419,16 @@ export default {
       const n = encodeURIComponent((student && student.name) || 'HV');
       return `https://ui-avatars.com/api/?name=${n}&background=random`;
     },
-    taiDanhSach() {
-      this.loading = true;
+    taiDanhSach(options = {}) {
+      const silent = Boolean(options.silent);
+      const now = Date.now();
+      if (silent && now - this.lastFetchedAt < this.minRefreshGapMs) {
+        return;
+      }
+
+      if (silent) this.silentRefreshing = true;
+      else this.loading = true;
+
       Promise.all([
         axios.get(this.apiBase + '/api/teacher/gv-hv/hoc-vien', { headers: this.authHeaders() }),
         axios.get(this.apiBase + '/api/teacher/gv-hv/loi-phat-am-lich-su', { headers: this.authHeaders() }),
@@ -430,6 +440,7 @@ export default {
               ...s,
               loiPhatAmLichSu: map[s.id] || [],
             }));
+            this.lastFetchedAt = Date.now();
           } else {
             this.$toast.error(res1.data.message || 'Không tải được danh sách.');
           }
@@ -447,8 +458,17 @@ export default {
           this.toastLoiAxios(err);
         })
         .finally(() => {
-          this.loading = false;
+          if (silent) this.silentRefreshing = false;
+          else this.loading = false;
         });
+    },
+    onWindowFocusRefresh() {
+      this.taiDanhSach({ silent: true });
+    },
+    onVisibilityChangeRefresh() {
+      if (document.visibilityState === 'visible') {
+        this.taiDanhSach({ silent: true });
+      }
     },
     taiNhomBaiHoc() {
       this.loadingBaiHoc = true;

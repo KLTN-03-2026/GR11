@@ -156,6 +156,9 @@ final class SmokeGeminiClient extends GeminiClient
         if (str_contains($userText, 'bài kế') || str_contains($userText, 'bài tiếp')) {
             return 'student_get_next_lesson_recommendation';
         }
+        if (str_contains($userText, 'goi y') && str_contains($userText, 'luyen tap')) {
+            return 'student_get_teacher_suggestions';
+        }
         if (str_contains($userText, 'lỗi phát âm') || str_contains($userText, 'phát âm')) {
             return 'student_get_detailed_pronunciation_errors';
         }

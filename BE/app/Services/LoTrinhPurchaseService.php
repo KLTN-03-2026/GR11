@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\DB;
 
 class LoTrinhPurchaseService
 {
-    public const LOAI_GIAO_DICH = 'mua_lo_trinh';
+    public const LOAI_GIAO_DICH_MUA = 'mua_lo_trinh';
+
+    public const LOAI_GIAO_DICH_NHAN_GV = 'nhan_thanh_toan_lo_trinh';
 
     /**
-     * @return array{quyen: QuyenLoTrinh, so_du_sau: int}
+     * @return array{quyen: QuyenLoTrinh, so_du_sau: int, tien_giao_vien_nhan: int, so_du_giao_vien_sau: int|null, tien_phi_nen_tang: int}
      *
      * @throws \RuntimeException NOT_OWNER | NOT_PAID_ROADMAP | ALREADY_PURCHASED | INSUFFICIENT_BALANCE
      */
@@ -87,7 +89,7 @@ class LoTrinhPurchaseService
 
             GiaoDichVi::query()->create([
                 'vi_id' => $vi->id,
-                'loai_giao_dich' => self::LOAI_GIAO_DICH,
+                'loai_giao_dich' => self::LOAI_GIAO_DICH_MUA,
                 'chieu_giao_dich' => 'out',
                 'so_tien' => $gia,
                 'so_du_truoc' => $truoc,
@@ -97,9 +99,51 @@ class LoTrinhPurchaseService
                 'ghi_chu' => 'Mua lộ trình: '.$loTrinh->ten_lo_trinh,
             ]);
 
+            $tienPhiNenTang = $gia - $tienGiaoVien;
+            $soDuGvSau = null;
+
+            $giaoVienId = (int) $loTrinh->giao_vien_id;
+            if ($tienGiaoVien > 0 && $giaoVienId > 0 && $giaoVienId !== (int) $user->id) {
+                $viGv = Vi::query()
+                    ->where('nguoi_dung_id', $giaoVienId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $viGv) {
+                    Vi::query()->create([
+                        'nguoi_dung_id' => $giaoVienId,
+                        'so_du' => 0,
+                    ]);
+                    $viGv = Vi::query()
+                        ->where('nguoi_dung_id', $giaoVienId)
+                        ->lockForUpdate()
+                        ->firstOrFail();
+                }
+
+                $truocGv = (int) $viGv->so_du;
+                $soDuGvSau = $truocGv + $tienGiaoVien;
+                $viGv->so_du = $soDuGvSau;
+                $viGv->save();
+
+                GiaoDichVi::query()->create([
+                    'vi_id' => $viGv->id,
+                    'loai_giao_dich' => self::LOAI_GIAO_DICH_NHAN_GV,
+                    'chieu_giao_dich' => 'in',
+                    'so_tien' => $tienGiaoVien,
+                    'so_du_truoc' => $truocGv,
+                    'so_du_sau' => $soDuGvSau,
+                    'tham_chieu_type' => QuyenLoTrinh::class,
+                    'tham_chieu_id' => $quyen->id,
+                    'ghi_chu' => 'Nhận thanh toán lộ trình (sau khấu hoa hồng): '.$loTrinh->ten_lo_trinh,
+                ]);
+            }
+
             return [
                 'quyen' => $quyen,
                 'so_du_sau' => $sau,
+                'tien_giao_vien_nhan' => $tienGiaoVien,
+                'so_du_giao_vien_sau' => $soDuGvSau,
+                'tien_phi_nen_tang' => max(0, $tienPhiNenTang),
             ];
         });
     }

@@ -167,7 +167,15 @@ class HocVienLoTrinhController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Đã thanh toán và mở quyền học lộ trình.',
-            'data' => $result,
+            'data' => [
+                'so_du_hoc_vien_sau' => $result['so_du_sau'],
+                'quyen_id' => $result['quyen']->id,
+                'gia' => $result['quyen']->gia_da_mua,
+                'ti_le_hoa_hong_platform_percent' => $result['quyen']->ti_le_hoa_hong_da_ap,
+                'tien_giao_vien_nhan' => $result['tien_giao_vien_nhan'],
+                'so_du_giao_vien_sau' => $result['so_du_giao_vien_sau'],
+                'tien_phi_nen_tang_giu_lai' => $result['tien_phi_nen_tang'],
+            ],
         ]);
     }
 }

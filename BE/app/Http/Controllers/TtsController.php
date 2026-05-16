@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CauHinhHeThong;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -65,6 +68,8 @@ class TtsController extends Controller
         if ($audioBody === null) {
             abort(504);
         }
+
+        $this->recordTtsUsage();
 
         return response($audioBody, 200, [
             'Content-Type' => 'audio/mpeg',
@@ -137,5 +142,40 @@ class TtsController extends Controller
         $b1 = ord($body[1]);
 
         return $b0 === 0xFF && ($b1 & 0xE0) === 0xE0;
+    }
+
+    private function recordTtsUsage(): void
+    {
+        try {
+            $currentMonth = Carbon::now()->format('Y-m');
+
+            DB::transaction(function () use ($currentMonth): void {
+                $config = CauHinhHeThong::query()
+                    ->where('ma_cau_hinh', 'ai')
+                    ->lockForUpdate()
+                    ->first();
+
+                $data = is_array($config?->du_lieu) ? $config->du_lieu : [];
+                $quota = is_array($data['speech_to_text'] ?? null) ? $data['speech_to_text'] : [];
+
+                $usageMonth = (string) ($quota['usage_month'] ?? '');
+                $currentUsage = (int) ($quota['current_usage'] ?? 0);
+
+                if ($usageMonth !== $currentMonth) {
+                    $currentUsage = 0;
+                }
+
+                $quota['current_usage'] = $currentUsage + 1;
+                $quota['usage_month'] = $currentMonth;
+                $data['speech_to_text'] = $quota;
+
+                CauHinhHeThong::query()->updateOrCreate(
+                    ['ma_cau_hinh' => 'ai'],
+                    ['du_lieu' => $data]
+                );
+            });
+        } catch (\Throwable $e) {
+            Log::warning('TTS usage tracking failed', ['message' => $e->getMessage()]);
+        }
     }
 }

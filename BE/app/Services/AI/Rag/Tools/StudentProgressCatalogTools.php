@@ -45,7 +45,7 @@ class StudentProgressCatalogTools
             ],
             [
                 'name' => 'student_get_teacher_suggestions',
-                'description' => 'Practice suggestions sent by assigned teachers',
+                'description' => 'Gợi ý luyện tập giáo viên đã gửi cho học viên (bảng goi_y_luyen_tap: bài học, lời nhắn, ưu tiên). Dùng khi hỏi "gợi ý luyện tập", "giáo viên gợi ý gì". KHÔNG dùng student_get_suggested_lessons_by_level cho câu này.',
                 'args' => [
                     'limit' => 'integer, max items (default 10)',
                 ],

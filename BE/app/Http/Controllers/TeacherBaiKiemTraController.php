@@ -219,6 +219,54 @@ class TeacherBaiKiemTraController extends Controller
         ]);
     }
 
+    public function ketQuaHocVien(Request $request, int $baiKiemTraId): JsonResponse
+    {
+        $quiz = BaiKiemTra::query()
+            ->where('id', $baiKiemTraId)
+            ->where('nguoi_tao_id', $request->user()->id)
+            ->first();
+
+        if (! $quiz) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy bài kiểm tra hoặc bạn không có quyền.',
+            ], 404);
+        }
+
+        $rows = PhienKiemTra::query()
+            ->where('bai_kiem_tra_id', $quiz->id)
+            ->whereIn('trang_thai', [PhienKiemTra::TRANG_THAI_NOP, PhienKiemTra::TRANG_THAI_HET_GIO])
+            ->with(['nguoiDung:id,ho_ten,email'])
+            ->orderByDesc('thoi_gian_ket_thuc')
+            ->orderByDesc('id')
+            ->get();
+
+        $data = $rows->map(function (PhienKiemTra $phien) use ($quiz): array {
+            $batDau = $phien->thoi_gian_bat_dau;
+            $ketThuc = $phien->thoi_gian_ket_thuc;
+
+            return [
+                'phien_kiem_tra_id' => $phien->id,
+                'hoc_vien' => $phien->nguoiDung ? [
+                    'id' => $phien->nguoiDung->id,
+                    'ho_ten' => $phien->nguoiDung->ho_ten,
+                    'email' => $phien->nguoiDung->email,
+                ] : null,
+                'tong_diem' => (int) ($phien->tong_diem ?? 0),
+                'dat' => (int) ($phien->tong_diem ?? 0) >= (int) $quiz->diem_toi_thieu,
+                'trang_thai' => (int) $phien->trang_thai,
+                'thoi_gian_bat_dau' => $batDau ? $batDau->format('c') : null,
+                'thoi_gian_ket_thuc' => $ketThuc ? $ketThuc->format('c') : null,
+                'thoi_gian_lam_giay' => ($batDau && $ketThuc) ? $ketThuc->diffInSeconds($batDau) : null,
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => true,
+            'data' => $data,
+        ]);
+    }
+
     public function destroy(Request $request, int $baiKiemTraId): JsonResponse
     {
         $quiz = BaiKiemTra::query()

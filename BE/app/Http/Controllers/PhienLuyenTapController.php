@@ -8,9 +8,9 @@ use App\Http\Requests\EndPhienRequest;
 use App\Models\PhienLuyenTap;
 use App\Models\ThongTinHocVien;
 use App\Models\TienDoBaiHoc;
+use App\Services\StreakRewardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class PhienLuyenTapController extends Controller
 {
@@ -93,6 +93,15 @@ class PhienLuyenTapController extends Controller
         $phien = $resolved['phien'];
 
         $tongDiem = (int) $request->input('tong_diem', 0);
+        if ($tongDiem <= 0) {
+            $tongDiem = (int) round((float) (DB::table('chi_tiet_luyen_taps')
+                ->where('phien_id', $phien->id)
+                ->whereNotNull('diem_chinh_xac')
+                ->avg('diem_chinh_xac') ?? 0));
+        }
+        if ($tongDiem <= 0 && $phien->tong_diem !== null) {
+            $tongDiem = (int) $phien->tong_diem;
+        }
 
         if ($phien->tong_diem !== null) {
             $tt = ThongTinHocVien::where('nguoi_dung_id', $phien->nguoi_dung_id)->first();
@@ -114,29 +123,10 @@ class PhienLuyenTapController extends Controller
             $phien->tong_diem = $tongDiem;
             $phien->save();
 
-            $tt = ThongTinHocVien::firstOrCreate(
-                ['nguoi_dung_id' => $phien->nguoi_dung_id],
-                ['diem_tich_luy' => 0, 'streak_hien_tai' => 0, 'ngay_hoc_cuoi_cung' => null]
+            $streakData = app(StreakRewardService::class)->capNhatSauHoatDongHoc(
+                (int) $phien->nguoi_dung_id,
+                $tongDiem
             );
-
-            $today = Carbon::today()->toDateString();
-            $last = $tt->ngay_hoc_cuoi_cung ? Carbon::parse($tt->ngay_hoc_cuoi_cung)->toDateString() : null;
-
-            if ($last === $today) {
-                // Đã ghi nhận hôm nay => chỉ cộng điểm
-                $tt->diem_tich_luy = (int) $tt->diem_tich_luy + $tongDiem;
-            } elseif ($last && Carbon::parse($last)->addDay()->toDateString() === $today) {
-                // Học liên tiếp
-                $tt->streak_hien_tai = (int) $tt->streak_hien_tai + 1;
-                $tt->diem_tich_luy = (int) $tt->diem_tich_luy + $tongDiem;
-            } else {
-                // Reset streak
-                $tt->streak_hien_tai = 1;
-                $tt->diem_tich_luy = (int) $tt->diem_tich_luy + $tongDiem;
-            }
-
-            $tt->ngay_hoc_cuoi_cung = $today;
-            $tt->save();
 
             // --- Upsert tiến độ bài học ---
             $baiHocId  = $phien->bai_hoc_id;
@@ -186,12 +176,10 @@ class PhienLuyenTapController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Cập nhật streak và điểm thành công.',
-                'data' => [
-                    'streak_hien_tai' => $tt->streak_hien_tai,
-                    'diem_tich_luy' => $tt->diem_tich_luy,
-                    'ngay_hoc_cuoi_cung' => $tt->ngay_hoc_cuoi_cung,
-                ],
+                'message' => ! empty($streakData['da_diem_danh_truoc_do'])
+                    ? 'Đã cộng điểm phiên luyện tập hôm nay.'
+                    : 'Cập nhật streak và điểm thưởng ngày thành công.',
+                'data' => $streakData,
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();

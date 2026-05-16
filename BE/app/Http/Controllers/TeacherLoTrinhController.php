@@ -7,6 +7,7 @@ use App\Models\ChiTietLoTrinh;
 use App\Models\LoTrinhCaNhan;
 use App\Models\LoTrinhTraPhi;
 use App\Models\QuanHeGvHv;
+use App\Models\QuyenLoTrinh;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,11 +47,20 @@ class TeacherLoTrinhController extends Controller
             $q->where('hoc_vien_id', $hvId);
         }
 
-        $items = $q->get()->map(function (LoTrinhCaNhan $lt) {
+        $items = $q->get();
+
+        $quyenByLoTrinhId = $items->isEmpty()
+            ? collect()
+            : QuyenLoTrinh::query()
+                ->whereIn('lo_trinh_id', $items->pluck('id'))
+                ->get()
+                ->keyBy('lo_trinh_id');
+
+        $data = $items->map(function (LoTrinhCaNhan $lt) use ($quyenByLoTrinhId): array {
             $tp = $lt->traPhi;
             $gia = $tp ? (int) $tp->gia : 0;
 
-            return [
+            return array_merge([
                 'id' => $lt->id,
                 'hoc_vien_id' => $lt->hoc_vien_id,
                 'ten_lo_trinh' => $lt->ten_lo_trinh,
@@ -60,13 +70,48 @@ class TeacherLoTrinhController extends Controller
                     'trang_thai' => (int) $tp->trang_thai,
                 ] : null,
                 'la_tra_phi' => $gia > 0 && $tp && (int) $tp->trang_thai === LoTrinhTraPhi::TRANG_THAI_DA_DUYET,
-            ];
+            ], $this->thongKeThanhToanHocVien($lt->id, (int) $lt->hoc_vien_id, $tp, $quyenByLoTrinhId->get($lt->id)));
         });
 
         return response()->json([
             'status' => true,
-            'data' => $items,
+            'data' => $data->values(),
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function thongKeThanhToanHocVien(int $loTrinhId, int $hocVienId, ?LoTrinhTraPhi $tp, ?QuyenLoTrinh $quyen): array
+    {
+        $gia = $tp ? (int) $tp->gia : 0;
+        $laTraPhi = $gia > 0 && $tp && (int) $tp->trang_thai === LoTrinhTraPhi::TRANG_THAI_DA_DUYET;
+
+        if ($quyen !== null && ((int) $quyen->hoc_vien_id !== $hocVienId || (int) $quyen->lo_trinh_id !== $loTrinhId)) {
+            $quyen = null;
+        }
+
+        if (! $laTraPhi) {
+            return [
+                'da_mua' => false,
+                'gia_hoc_vien_da_tra' => null,
+                'thu_nhap_gv_sau_khau_tru' => null,
+                'phi_nen_tang' => null,
+                'ti_le_hoa_hong_platform' => null,
+                'ngay_mua' => null,
+            ];
+        }
+
+        $daMua = $quyen !== null;
+
+        return [
+            'da_mua' => $daMua,
+            'gia_hoc_vien_da_tra' => $daMua ? (int) $quyen->gia_da_mua : null,
+            'thu_nhap_gv_sau_khau_tru' => $daMua ? (int) $quyen->so_tien_giao_vien_nhan : null,
+            'phi_nen_tang' => $daMua ? max(0, (int) $quyen->gia_da_mua - (int) $quyen->so_tien_giao_vien_nhan) : null,
+            'ti_le_hoa_hong_platform' => $daMua ? (float) $quyen->ti_le_hoa_hong_da_ap : null,
+            'ngay_mua' => $daMua && $quyen->ngay_mua ? $quyen->ngay_mua->format('c') : null,
+        ];
     }
 
     public function store(Request $request): JsonResponse
@@ -122,20 +167,28 @@ class TeacherLoTrinhController extends Controller
         })->values();
 
         $tp = $loTrinh->traPhi;
+        $quyen = QuyenLoTrinh::query()
+            ->where('lo_trinh_id', $loTrinh->id)
+            ->where('hoc_vien_id', $loTrinh->hoc_vien_id)
+            ->first();
+
+        $giaTp = $tp ? (int) $tp->gia : 0;
+        $laTraPhi = $giaTp > 0 && $tp && (int) $tp->trang_thai === LoTrinhTraPhi::TRANG_THAI_DA_DUYET;
 
         return response()->json([
             'status' => true,
-            'data' => [
+            'data' => array_merge([
                 'id' => $loTrinh->id,
                 'hoc_vien_id' => $loTrinh->hoc_vien_id,
                 'ten_lo_trinh' => $loTrinh->ten_lo_trinh,
                 'chi_tiet' => $chiTiet,
                 'tra_phi' => $tp ? [
-                    'gia' => (int) $tp->gia,
+                    'gia' => $giaTp,
                     'mo_ta_ban' => $tp->mo_ta_ban,
                     'trang_thai' => (int) $tp->trang_thai,
                 ] : null,
-            ],
+                'la_tra_phi' => $laTraPhi,
+            ], $this->thongKeThanhToanHocVien((int) $loTrinh->id, (int) $loTrinh->hoc_vien_id, $tp, $quyen)),
         ]);
     }
 
