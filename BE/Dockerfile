@@ -23,10 +23,10 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 COPY . .
 
-# Cài đặt Composer (Đoạn này đã được sửa để giới hạn bộ nhớ RAM tối đa)
+# Cài đặt Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_MEMORY_LIMIT=-1
-RUN php -d memory_limit=256M /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts
+RUN php -d memory_limit=256M /usr/bin/composer install --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts
 
 # Phân quyền cho thư mục storage và bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
