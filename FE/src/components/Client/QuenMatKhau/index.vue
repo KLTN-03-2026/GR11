@@ -135,6 +135,8 @@
   </template>
   
   <script>
+import { API_BASE } from '../../../api/http.js';
+
   import axios from 'axios';
   
   /** Khớp rule backend: chữ thường (a-z), chữ in hoa (A-Z), số, tối thiểu 6 ký tự */
@@ -215,7 +217,7 @@
   
         this.isSendingOTP = true;
         axios
-          .post("http://127.0.0.1:8000/api/quen-mat-khau", { email: this.payload.email })
+          .post(`${API_BASE}/api/quen-mat-khau`, { email: this.payload.email })
           .then((res) => {
             if (res.data.status) {
               this.$toast.success(res.data.message);
@@ -273,7 +275,7 @@
         };
   
         axios
-          .post("http://127.0.0.1:8000/api/dat-lai-mat-khau", dataToSend)
+          .post(`${API_BASE}/api/dat-lai-mat-khau`, dataToSend)
           .then((res) => {
             if (res.data.status) {
               this.clearOtpCountdown();

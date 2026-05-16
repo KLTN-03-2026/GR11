@@ -102,6 +102,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from 'axios'
 
 const PROFILE_LS_KEYS = ['ho_ten', 'email', 'check_token', 'ten_vai_tro', 'anh_dai_dien', 'anh_dai_dien_url', 'anh_dai_dien_local', 'nguoi_dung_id']
@@ -125,7 +126,7 @@ export default {
   methods: {
     taiCauHinhChung() {
       axios
-        .get("http://127.0.0.1:8000/api/admin/cau-hinh/chung/data", {
+        .get(`${API_BASE}/api/admin/cau-hinh/chung/data`, {
           headers: {
             Authorization: "Bearer " + (localStorage.getItem("token_admin") || "")
           }
@@ -148,7 +149,7 @@ export default {
       const token = localStorage.getItem('token_admin')
       axios
         .post(
-          'http://127.0.0.1:8000/api/dang-xuat',
+          `${API_BASE}/api/dang-xuat`,
           {},
           {
             headers: {

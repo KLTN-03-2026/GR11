@@ -419,6 +419,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from "axios";
 
 export default {
@@ -495,7 +496,7 @@ export default {
         fetchDanhMuc() {
             this.isLoadingDanhMuc = true;
             axios
-                .get("http://127.0.0.1:8000/api/admin/danh-muc-bai-hoc", {
+                .get(`${API_BASE}/api/admin/danh-muc-bai-hoc`, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -516,7 +517,7 @@ export default {
         fetchTatCaBaiHoc() {
             this.isLoadingBaiHoc = true;
             axios
-                .get("http://127.0.0.1:8000/api/admin/kiem-duyet-bai-hoc", {
+                .get(`${API_BASE}/api/admin/kiem-duyet-bai-hoc`, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -579,8 +580,8 @@ export default {
             const isUpdate = !!this.mau_danh_muc.id;
             const method = isUpdate ? "put" : "post";
             const url = isUpdate
-                ? `http://127.0.0.1:8000/api/admin/danh-muc-bai-hoc/${this.mau_danh_muc.id}`
-                : "http://127.0.0.1:8000/api/admin/danh-muc-bai-hoc";
+                ? `${API_BASE}/api/admin/danh-muc-bai-hoc/${this.mau_danh_muc.id}`
+                : `${API_BASE}/api/admin/danh-muc-bai-hoc`;
 
             axios({
                 method,
@@ -611,7 +612,7 @@ export default {
             if (!this.danh_muc_can_xoa) return;
 
             axios
-                .delete(`http://127.0.0.1:8000/api/admin/danh-muc-bai-hoc/${this.danh_muc_can_xoa.id}`, {
+                .delete(`${API_BASE}/api/admin/danh-muc-bai-hoc/${this.danh_muc_can_xoa.id}`, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -632,7 +633,7 @@ export default {
         daoTrangThaiDanhMuc(dm) {
             this.isUpdatingTrangThai = true;
             axios
-                .patch(`http://127.0.0.1:8000/api/admin/danh-muc-bai-hoc/${dm.id}/trang-thai`, {}, {
+                .patch(`${API_BASE}/api/admin/danh-muc-bai-hoc/${dm.id}/trang-thai`, {}, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -654,7 +655,7 @@ export default {
         xemBaiHocTheoDanhMuc(dm) {
             this.danh_muc_duoc_chon = dm;
             axios
-                .get(`http://127.0.0.1:8000/api/admin/danh-muc-bai-hoc/${dm.id}/bai-hoc`, {
+                .get(`${API_BASE}/api/admin/danh-muc-bai-hoc/${dm.id}/bai-hoc`, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -683,7 +684,7 @@ export default {
         chuanBiXemTruocNoiDung(bh) {
             this.bai_hoc_xem_truoc = bh;
             axios
-                .get(`http://127.0.0.1:8000/api/admin/kiem-duyet-bai-hoc/${bh.id}/tu-vung`, {
+                .get(`${API_BASE}/api/admin/kiem-duyet-bai-hoc/${bh.id}/tu-vung`, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -717,7 +718,7 @@ export default {
 
             this.isUpdatingTrangThai = true;
             axios
-                .patch(`http://127.0.0.1:8000/api/admin/kiem-duyet-bai-hoc/${bh.id}/trang-thai`, {
+                .patch(`${API_BASE}/api/admin/kiem-duyet-bai-hoc/${bh.id}/trang-thai`, {
                     trang_thai: trangThaiSo
                 }, {
                     headers: this.authHeaders()

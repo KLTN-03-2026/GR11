@@ -133,13 +133,14 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from "axios";
 
 export default {
   name: "ChinhSuaBaiKiemTra",
   data() {
     return {
-      apiBase: (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, ""),
+      apiBase: (API_BASE).replace(/\/$/, ""),
       loading: true,
       loi_tai: "",
       quiz: null,

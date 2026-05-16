@@ -211,12 +211,13 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from "axios";
 
 export default {
     data() {
         return {
-            apiBase: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+            apiBase: API_BASE,
             // Data cấu hình chung
             general: {
                 logo_url: null,
@@ -482,7 +483,7 @@ export default {
             formData.append('logo', file);
 
             axios
-                .post("http://127.0.0.1:8000/api/admin/cau-hinh/chung/update-logo", formData, {
+                .post(`${API_BASE}/api/admin/cau-hinh/chung/update-logo`, formData, {
                     headers: {
                         ...this.authHeaders(),
                         'Content-Type': 'multipart/form-data',

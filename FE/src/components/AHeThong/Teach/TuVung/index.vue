@@ -383,13 +383,14 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from 'axios';
 
 export default {
     name: 'TeachTuVung',
     data() {
         return {
-            apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
+            apiBase: (API_BASE).replace(/\/$/, ''),
             bai_hoc_id: null,
             tieu_de_bai_hoc: '',
             danh_sach_tu_vung: [],

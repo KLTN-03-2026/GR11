@@ -24,6 +24,8 @@
   </div>
   </template>
   <script>
+import { API_BASE } from '../../../api/http.js';
+
   import axios from "axios";
   
   export default {
@@ -40,7 +42,7 @@
     methods: {
       taiCauHinhFooter() {
         axios
-          .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
+          .get(`${API_BASE}/api/cau-hinh/footer/data`)
           .then((res) => {
             if (res.data?.status && res.data?.data) {
               this.footer.site_name = res.data.data.site_name || this.footer.site_name;

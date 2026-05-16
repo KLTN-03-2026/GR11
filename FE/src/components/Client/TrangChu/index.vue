@@ -814,34 +814,21 @@
   </div>
 </template>
 <script>
-import axios from "axios";
+import { http as api } from '../../../api/http.js';
 
 const MAU_HINH_CHU_DE = [
-  { image: "/Client/images/classes-1.jpg" },
-  { image: "/Client/images/classes-2.jpg" },
-  { image: "/Client/images/classes-3.jpg" },
-  { image: "/Client/images/classes-4.jpg" },
+  { image: "https://ecdn.teacherspayteachers.com/cdn-cgi/image/format=avif,quality=70,onerror=redirect/thumbitem/VIETNAMESE-Alphabet-CHART-with-Words-and-English-Translations-Printable-Art-9518334-1683647649/750f-9518334-1.jpg" },
+  { image: "https://nannyz.com/wp-content/uploads/2024/11/familyexercising.jpg" },
+  { image: "https://thuocdantoc.vn/wp-content/uploads/2019/01/do-an-thuc-uong-nen-dung-khi-bi-viem-hong.jpg" },
+  { image: "https://kendotoy.com/wp-content/uploads/2023/07/lo-to-dong-vat-1.jpg" },
 ];
 
 const MAU_HINH_BAI_HOC = [
-  { image: "/Client/images/classes-5.jpg" },
-  { image: "/Client/images/classes-6.jpg" },
-  { image: "/Client/images/about-1.jpg" },
-  { image: "/Client/images/about-2.jpg" },
+  { image: "https://media.istockphoto.com/id/1473080999/vi/vec-to/nguy%C3%AAn-%C3%A2m-nh%C3%A2n-v%E1%BA%ADt-linh-v%E1%BA%ADt-c%C3%A1c-y%E1%BA%BFu-t%E1%BB%91-gi%C3%A1o-d%E1%BB%A5c.jpg?s=612x612&w=0&k=20&c=SH5Czo-RdNyEAycNNenn-1FnXWCntvmuHO27Uky7GSE=" },
+  { image: "https://vnmedia2.monkeyuni.net/upload/web/storage_web/10-04-2023_11:54:31_6-cach-phat-am-chu-p.jpg" },
+  { image: "https://res.hailinhquehuong.com/media/images/Article/2010/39/luyen_21.gif" },
+  { image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvFpwGPWq5uPgkB2uDv2GielgDa5auldnu1jlQ7AGd0pw0OgUu" },
 ];
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api",
-  timeout: 10000,
-});
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token_nguoi_dung");
-  if (token) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 export default {
   name: "TrangChu",

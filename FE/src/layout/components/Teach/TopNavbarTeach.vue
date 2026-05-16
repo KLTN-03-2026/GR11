@@ -121,6 +121,7 @@
   </div>
 </template>
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from "axios";
 
 const ANH_MAC_DINH = "/Admin/images/user/1.jpg";
@@ -177,7 +178,7 @@ export default {
         return source;
       }
       const base = (
-        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+        API_BASE
       ).replace(/\/$/, "");
       if (source.startsWith("/storage/")) {
         return `${base}${source}`;
@@ -204,7 +205,7 @@ export default {
         this.premiumActive = false;
         return;
       }
-      const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(
+      const base = (API_BASE).replace(
         /\/$/,
         "",
       );
@@ -229,7 +230,7 @@ export default {
         return;
       }
       axios
-        .get("http://127.0.0.1:8000/api/teacher/chat/unread-count", {
+        .get(`${API_BASE}/api/teacher/chat/unread-count`, {
           headers: { Authorization: "Bearer " + token },
         })
         .then((res) => {
@@ -246,7 +247,7 @@ export default {
       }
 
       axios
-        .get("http://127.0.0.1:8000/api/user", {
+        .get(`${API_BASE}/api/user`, {
           headers: { Authorization: "Bearer " + token },
         })
         .then((res) => {

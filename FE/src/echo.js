@@ -1,3 +1,4 @@
+import { API_BASE } from './api/http.js';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
@@ -19,7 +20,7 @@ if (hasPusherConfig) {
       key: import.meta.env.VITE_PUSHER_KEY,
       cluster: import.meta.env.VITE_PUSHER_CLUSTER,
       forceTLS: useTLS,
-      authEndpoint: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '') + '/api/broadcasting/auth',
+      authEndpoint: (API_BASE).replace(/\/$/, '') + '/api/broadcasting/auth',
       auth: {
         headers: {
           Authorization: 'Bearer ' + (

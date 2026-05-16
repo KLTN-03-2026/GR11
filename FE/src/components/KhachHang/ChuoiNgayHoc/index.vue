@@ -187,6 +187,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from 'axios';
 
 export default {
@@ -194,7 +195,7 @@ export default {
 
   data() {
     return {
-      apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
+      apiBase: (API_BASE).replace(/\/$/, ''),
       phien_id : localStorage.getItem("last_phien_id"),
       thong_tin : {},
       leaderboard : [],

@@ -326,9 +326,10 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from 'axios'
 
-const API_URL = 'http://127.0.0.1:8000/api/admin/quan-ly-tai-khoan'
+const API_URL = `${API_BASE}/api/admin/quan-ly-tai-khoan`
 
 export default {
   data() {
@@ -401,7 +402,7 @@ export default {
     resolveAvatarUrl(raw) {
       if (!raw) return '';
       if (String(raw).startsWith('http://') || String(raw).startsWith('https://')) return raw;
-      const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+      const base = (API_BASE).replace(/\/$/, '');
       return `${base}/storage/${String(raw).replace(/^\/+/, '')}`;
     },
     authHeaders() {

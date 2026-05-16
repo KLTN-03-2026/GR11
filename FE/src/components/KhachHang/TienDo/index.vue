@@ -351,7 +351,7 @@
           <span class="fw-bold ms-1" :class="(!modalThanhToanLoTrinh.item || soDuViHienTai < Number(modalThanhToanLoTrinh.item.gia)) ? 'text-danger' : ''">
             {{ formatVnd(soDuViHienTai) }}
           </span>
-          <router-link v-if="modalThanhToanLoTrinh.item && soDuViHienTai < Number(modalThanhToanLoTrinh.item.gia)" to="/profile" class="ms-2 d-inline-block">
+          <router-link v-if="modalThanhToanLoTrinh.item && soDuViHienTai < Number(modalThanhToanLoTrinh.item.gia)" to="/thong-tin-ca-nhan" class="ms-2 d-inline-block">
             Nạp tiền
           </router-link>
         </div>
@@ -378,6 +378,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from "axios";
 
 const TOPIC_PRESETS = [
@@ -424,7 +425,7 @@ export default {
       aiSuggestions: [],
       loadingMore: false,
       muaLoTrinhId: null,
-      apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
+      apiBase: (API_BASE).replace(/\/$/, ''),
       modalThanhToanLoTrinh: { mo: false, item: null },
       soDuViHienTai: null,
     };

@@ -1234,6 +1234,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from "axios";
 
 export default {
@@ -1397,7 +1398,7 @@ export default {
         return source;
       }
       const base = (
-        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+        API_BASE
       ).replace(/\/$/, "");
       if (source.startsWith("/storage/")) {
         return `${base}${source}`;
@@ -1490,7 +1491,7 @@ export default {
     },
     loadProfile() {
       axios
-        .get("http://127.0.0.1:8000/api/profile", {
+        .get(`${API_BASE}/api/profile`, {
           headers: {
             Authorization: "Bearer " + this.getAuthToken(),
           },
@@ -1531,7 +1532,7 @@ export default {
     updateProfile() {
       this.isUpdatingProfile = true;
       axios
-        .post("http://127.0.0.1:8000/api/profile/update", this.profileData, {
+        .post(`${API_BASE}/api/profile/update`, this.profileData, {
           headers: {
             Authorization: "Bearer " + this.getAuthToken(),
           },
@@ -1626,7 +1627,7 @@ export default {
       formData.append("anh_dai_dien", file);
 
       axios
-        .post("http://127.0.0.1:8000/api/profile/update-avatar", formData, {
+        .post(`${API_BASE}/api/profile/update-avatar`, formData, {
           headers: {
             Authorization: "Bearer " + this.getAuthToken(),
             "Content-Type": "multipart/form-data",
@@ -1687,7 +1688,7 @@ export default {
       this.isChangingPassword = true;
       axios
         .post(
-          "http://127.0.0.1:8000/api/profile/change-password",
+          `${API_BASE}/api/profile/change-password`,
           this.passwordData,
           {
             headers: {
@@ -1731,7 +1732,7 @@ export default {
       try {
         const axios = (await import("axios")).default;
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/homepage/ho-so-giao-vien/my-status",
+          `${API_BASE}/api/homepage/ho-so-giao-vien/my-status`,
           {
             headers: { Authorization: "Bearer " + this.getAuthToken() },
           },
@@ -1752,7 +1753,7 @@ export default {
       this.isFetchingHoSo = true;
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/homepage/ho-so-giao-vien/my-status",
+          `${API_BASE}/api/homepage/ho-so-giao-vien/my-status`,
           {
             headers: { Authorization: "Bearer " + this.getAuthToken() },
           },
@@ -1802,7 +1803,7 @@ export default {
     },
     beApi(path) {
       const base = (
-        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+        API_BASE
       ).replace(/\/$/, "");
       const p = path.startsWith("/") ? path : `/${path}`;
       return `${base}${p}`;
@@ -1812,7 +1813,7 @@ export default {
       if (!s) return "";
       if (s.startsWith("http://") || s.startsWith("https://")) return s;
       const base = (
-        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+        API_BASE
       ).replace(/\/$/, "");
       if (s.startsWith("/")) return `${base}${s}`;
       return `${base}/${s.replace(/^\//, "")}`;
