@@ -257,11 +257,9 @@
                 v-if="!bm.da_hoan_thanh"
                 type="button"
                 class="btn-action btn-mark-completed"
-                :disabled="bookmarkRowUpdatingId === bm.id"
-                @click="markBookmarkCompleted(bm)"
+                @click="startBookmarkReview(bm)"
               >
-                <span v-if="bookmarkRowUpdatingId !== bm.id">✓ Hoàn Thành Ôn Tập</span>
-                <span v-else>Đang xử lý...</span>
+                Ôn Tập Ngay
               </button>
               <button
                 v-else
@@ -416,7 +414,6 @@ export default {
         muc_do_uu_tien: 'binh_thuong',
         ghi_chu: '',
       },
-      bookmarkRowUpdatingId: null,
       bookmarkRowDeletingId: null,
       showBookmarkEditModal: false,
       editBookmarkTarget: null,
@@ -585,7 +582,12 @@ export default {
     },
     async updateErrorStatus(err, newStatus) {
       this.statusUpdatingErrorId = err.id;
+      const reviewContext = { from: 'error', errorId: err.id };
       try {
+        if (newStatus === 'da_phat_hien_on_tap') {
+          this.goToVocabularyReview(err.tu_vung?.id, err.bai_hoc?.id, reviewContext);
+          return;
+        }
         const { data: body } = await axios.patch(
           `${API_BASE}/api/error-history/${err.id}/status`,
           { trang_thai: newStatus },
@@ -597,6 +599,9 @@ export default {
             this.errors.splice(idx, 1);
           }
           await this.loadStatistics();
+          if (newStatus === 'dang_on_tap') {
+            this.goToVocabularyReview(err.tu_vung?.id, err.bai_hoc?.id, reviewContext);
+          }
         } else {
           alert(body.message || 'Lỗi khi cập nhật trạng thái');
         }
@@ -706,6 +711,31 @@ export default {
         new Audio(url).play();
       }
     },
+    goToVocabularyReview(tuVungId, baiHocId, reviewContext = {}) {
+      const vocabId = Number(tuVungId);
+      const lessonId = Number(baiHocId);
+      if (!vocabId || !lessonId) {
+        alert('Không tìm thấy bài học hoặc từ vựng để ôn tập.');
+        return;
+      }
+      const query = {
+        tu_vung_id: String(vocabId),
+        section: 'tu-vung',
+      };
+      if (reviewContext.from) {
+        query.review_from = reviewContext.from;
+      }
+      if (reviewContext.errorId) {
+        query.error_id = String(reviewContext.errorId);
+      }
+      if (reviewContext.bookmarkId) {
+        query.bookmark_id = String(reviewContext.bookmarkId);
+      }
+      this.$router.push({
+        path: `/chi-tiet-bai-hoc/${lessonId}`,
+        query,
+      });
+    },
     statusLabel(status) {
       const labels = {
         chua_on_tap: 'Chưa Ôn Tập',
@@ -757,26 +787,11 @@ export default {
       };
       return map[priority] || '';
     },
-    async markBookmarkCompleted(bm) {
-      this.bookmarkRowUpdatingId = bm.id;
-      try {
-        const { data: body } = await axios.patch(
-          `${API_BASE}/api/bookmarks/${bm.id}/mark-completed`,
-          {},
-          { headers: this.authHeaders() },
-        );
-        if (body.status) {
-          await this.loadBookmarks();
-          await this.loadBookmarkStats();
-        } else {
-          alert(body.message || 'Lỗi khi cập nhật');
-        }
-      } catch (e) {
-        console.error(e);
-        alert('Lỗi khi cập nhật');
-      } finally {
-        this.bookmarkRowUpdatingId = null;
-      }
+    startBookmarkReview(bm) {
+      this.goToVocabularyReview(bm.tu_vung?.id, bm.bai_hoc?.id, {
+        from: 'bookmark',
+        bookmarkId: bm.id,
+      });
     },
     async deleteBookmarkRow(bm) {
       if (!confirm('Bạn chắc chắn muốn xóa bookmark này?')) {

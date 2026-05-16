@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('gia');
             $table->unsignedInteger('thoi_han_ngay');
             $table->json('tinh_nang');
-            $table->boolean('trang_thai')->default(true);
+            $table->integer('trang_thai')->default(1); // 0 = tam_ngung, 1 = dang_hoat_dong
             $table->timestamps();
 
             $table->index('doi_tuong');

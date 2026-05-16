@@ -9,8 +9,6 @@ class ChatMessage extends Model
 {
     protected $table = 'chat_messages';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'session_id',
         'role',
@@ -19,16 +17,17 @@ class ChatMessage extends Model
         'is_read_by_teacher',
         'is_delivered_to_student',
         'is_read_by_student',
-        'created_at',
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'is_delivered_to_teacher' => 'boolean',
-        'is_read_by_teacher' => 'boolean',
-        'is_delivered_to_student' => 'boolean',
-        'is_read_by_student' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_delivered_to_teacher' => 'boolean',
+            'is_read_by_teacher' => 'boolean',
+            'is_delivered_to_student' => 'boolean',
+            'is_read_by_student' => 'boolean',
+        ];
+    }
 
     public function session(): BelongsTo
     {

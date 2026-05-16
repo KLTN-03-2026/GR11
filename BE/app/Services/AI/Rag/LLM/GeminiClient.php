@@ -2,12 +2,18 @@
 
 namespace App\Services\AI\Rag\LLM;
 
+use App\Services\AI\Rag\Support\LlmResponseSanitizer;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class GeminiClient
+class GeminiClient implements LlmClientInterface
 {
+    public function __construct(
+        private readonly LlmResponseSanitizer $sanitizer = new LlmResponseSanitizer(),
+    ) {}
+
     /**
      * @throws RuntimeException
      */
@@ -28,28 +34,82 @@ class GeminiClient
     }
 
     /**
+     * Gemini native function calling.
+     *
+     * @param list<array<string, mixed>> $contents Gemini-format conversation turns
+     * @param list<array<string, mixed>> $functionDeclarations Gemini functionDeclarations entries
+     * @return array{text:?string, functionCall:?array{name:string, args:array<string, mixed>}}
+     * @throws RuntimeException
+     */
+    public function generateWithTools(
+        string $systemPrompt,
+        array $contents,
+        array $functionDeclarations,
+        int $maxOutputTokens = 1500,
+    ): array {
+        $prepared = $this->prependSystemPrompt($contents, $systemPrompt);
+        $payload = [
+            'contents' => $prepared,
+            'generationConfig' => [
+                'temperature' => 0.7,
+                'maxOutputTokens' => $maxOutputTokens,
+                'topP' => 0.9,
+            ],
+        ];
+
+        if ($functionDeclarations !== []) {
+            $payload['tools'] = [
+                ['functionDeclarations' => $functionDeclarations],
+            ];
+        }
+
+        $response = $this->postGenerateContent($payload);
+        $parts = (array) data_get($response->json(), 'candidates.0.content.parts', []);
+
+        $text = '';
+        $functionCall = null;
+
+        foreach ($parts as $part) {
+            if (! is_array($part)) {
+                continue;
+            }
+            if (($part['thought'] ?? false) === true) {
+                continue;
+            }
+            if (isset($part['functionCall']) && is_array($part['functionCall'])) {
+                $functionCall = [
+                    'name' => (string) ($part['functionCall']['name'] ?? ''),
+                    'args' => (array) ($part['functionCall']['args'] ?? []),
+                ];
+            }
+            if (isset($part['text']) && is_string($part['text'])) {
+                $chunk = $part['text'];
+                if (str_starts_with(ltrim($chunk), 'THOUGHT:')) {
+                    continue;
+                }
+                $text .= $chunk;
+            }
+        }
+
+        $text = $this->sanitizer->sanitize(trim($text));
+
+        if ($functionCall !== null && $functionCall['name'] !== '') {
+            return ['text' => null, 'functionCall' => $functionCall];
+        }
+
+        if ($text === '') {
+            throw new RuntimeException('llm_empty_response');
+        }
+
+        return ['text' => $text, 'functionCall' => null];
+    }
+
+    /**
      * @param list<array{role:string, content:string}> $conversation
      * @throws RuntimeException
      */
     private function requestGemini(string $systemPrompt, array $conversation): string
     {
-        $primaryKey = (string) config('services.gemini.api_key', '');
-        $backupKeysRaw = (string) config('services.gemini.api_keys', '');
-        $primaryModel = (string) config('services.gemini.model', 'gemini-2.0-flash');
-        $timeout = (int) config('services.gemini.timeout', 20);
-        $baseUrl = rtrim((string) config('services.gemini.base_url', 'https://generativelanguage.googleapis.com/v1beta'), '/');
-        $baseUrls = $this->resolveBaseUrls($baseUrl);
-
-        $backupKeys = array_values(array_filter(array_map(
-            static fn(string $x): string => trim($x),
-            explode(',', $backupKeysRaw)
-        )));
-        $apiKeys = array_values(array_unique(array_filter([$primaryKey, ...$backupKeys])));
-
-        if ($apiKeys === []) {
-            throw new RuntimeException('llm_missing_api_key');
-        }
-
         $contents = [];
         foreach ($conversation as $turn) {
             $role = ($turn['role'] ?? 'user') === 'model' ? 'model' : 'user';
@@ -59,26 +119,77 @@ class GeminiClient
             }
             $contents[] = [
                 'role' => $role,
-                'parts' => [
-                    ['text' => $content],
-                ],
+                'parts' => [['text' => $content]],
             ];
         }
         if ($contents === []) {
             $contents[] = [
                 'role' => 'user',
-                'parts' => [
-                    ['text' => 'Xin chào'],
+                'parts' => [['text' => 'Xin chào']],
+            ];
+        }
+
+        $result = $this->generateWithTools($systemPrompt, $contents, [], 1500);
+
+        return (string) ($result['text'] ?? '');
+    }
+
+    /**
+     * @param list<array<string, mixed>> $contents
+     * @return list<array<string, mixed>>
+     */
+    private function prependSystemPrompt(array $contents, string $systemPrompt): array
+    {
+        if ($contents === []) {
+            return [
+                [
+                    'role' => 'user',
+                    'parts' => [['text' => 'Xin chào']],
                 ],
             ];
         }
 
-        // Put system prompt into the first user message for wider API compatibility.
+        $contents = array_values($contents);
         $firstText = (string) data_get($contents, '0.parts.0.text', '');
         $contents[0]['parts'][0]['text'] = trim(
             "Hướng dẫn hệ thống:\n{$systemPrompt}\n\n" .
             "Bắt đầu hội thoại:\n{$firstText}"
         );
+
+        return $contents;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @throws RuntimeException
+     */
+    private function postGenerateContent(array $payload): Response
+    {
+        $primaryKey = (string) config('services.gemini.api_key', '');
+        $backupKeysRaw = (string) config('services.gemini.api_keys', '');
+        $primaryModel = (string) config('services.gemini.model', 'gemini-2.0-flash');
+        $timeout = (int) config('services.gemini.timeout', 20);
+        $baseUrl = rtrim((string) config('services.gemini.base_url', 'https://generativelanguage.googleapis.com/v1beta'), '/');
+        $baseUrls = $this->resolveBaseUrls($baseUrl);
+        if (isset($payload['tools'])) {
+            $baseUrls = array_values(array_filter(
+                $baseUrls,
+                static fn (string $url): bool => str_contains($url, 'v1beta'),
+            ));
+            if ($baseUrls === []) {
+                $baseUrls = ['https://generativelanguage.googleapis.com/v1beta'];
+            }
+        }
+
+        $backupKeys = array_values(array_filter(array_map(
+            static fn (string $x): string => trim($x),
+            explode(',', $backupKeysRaw)
+        )));
+        $apiKeys = array_values(array_unique(array_filter([$primaryKey, ...$backupKeys])));
+
+        if ($apiKeys === []) {
+            throw new RuntimeException('llm_missing_api_key');
+        }
 
         $models = array_values(array_unique(array_filter([
             $primaryModel,
@@ -98,14 +209,7 @@ class GeminiClient
                     $response = Http::timeout($timeout)
                         ->acceptJson()
                         ->withQueryParameters(['key' => $apiKey])
-                        ->post($url, [
-                            'contents' => $contents,
-                            'generationConfig' => [
-                                'temperature' => 0.7,
-                                'maxOutputTokens' => 500,
-                                'topP' => 0.9,
-                            ],
-                        ]);
+                        ->post($url, $payload);
 
                     if ($response->successful()) {
                         $hasSuccessfulResponse = true;
@@ -125,7 +229,6 @@ class GeminiClient
                         'body' => $apiMessage !== '' ? $apiMessage : $response->body(),
                     ]);
 
-                    // Try next model only when model is not found.
                     if ($response->status() !== 404 && $response->status() !== 429) {
                         break;
                     }
@@ -133,19 +236,14 @@ class GeminiClient
             }
         }
 
-        if (!$hasSuccessfulResponse || !$response || !$response->successful()) {
+        if (! $hasSuccessfulResponse || ! $response || ! $response->successful()) {
             if ($allQuotaExceeded) {
                 throw new RuntimeException('llm_quota_exceeded');
             }
             throw new RuntimeException($lastError);
         }
 
-        $text = (string) data_get($response->json(), 'candidates.0.content.parts.0.text', '');
-        if (trim($text) === '') {
-            throw new RuntimeException('llm_empty_response');
-        }
-
-        return trim($text);
+        return $response;
     }
 
     /**
@@ -175,7 +273,7 @@ class GeminiClient
             ->withQueryParameters(['key' => $apiKey])
             ->get($listUrl);
 
-        if (!$res->successful()) {
+        if (! $res->successful()) {
             return $preferredModels;
         }
 
@@ -184,7 +282,7 @@ class GeminiClient
         foreach ($models as $model) {
             $name = (string) data_get($model, 'name', '');
             $methods = (array) data_get($model, 'supportedGenerationMethods', []);
-            if ($name === '' || !in_array('generateContent', $methods, true)) {
+            if ($name === '' || ! in_array('generateContent', $methods, true)) {
                 continue;
             }
 
@@ -207,7 +305,7 @@ class GeminiClient
         }
 
         foreach ($available as $candidate) {
-            if (!in_array($candidate, $prioritized, true)) {
+            if (! in_array($candidate, $prioritized, true)) {
                 $prioritized[] = $candidate;
             }
         }

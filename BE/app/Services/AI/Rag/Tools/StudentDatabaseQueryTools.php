@@ -3,11 +3,9 @@
 namespace App\Services\AI\Rag\Tools;
 
 use App\Models\BaiHoc;
-use App\Models\ChiTietLoTrinh;
-use App\Models\ChiTietLuyenTap;
-use App\Models\LoTrinhCaNhan;
 use App\Models\NguoiDung;
 use App\Models\PhienLuyenTap;
+use App\Services\AI\Rag\Analytics\LearningAnalyticsRepository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +15,9 @@ use Illuminate\Support\Facades\DB;
  */
 class StudentDatabaseQueryTools
 {
+    public function __construct(
+        private readonly LearningAnalyticsRepository $analytics,
+    ) {}
     /**
      * @return list<array{name:string,description:string,args:array<string,string>}>
      */
@@ -41,48 +42,36 @@ class StudentDatabaseQueryTools
             ],
             [
                 'name' => 'student_get_learning_path_progress',
-                'description' => 'Get personal learning path progress and next milestones',
+                'description' => 'Lộ trình học hiện tại của học viên: tên lộ trình, % hoàn thành, bài tiếp theo. Dùng khi hỏi "lộ trình đang theo học", tiến độ lộ trình.',
                 'args' => [],
             ],
             [
                 'name' => 'student_get_session_history_with_details',
-                'description' => 'Get detailed session history with practice time and scores',
+                'description' => 'Danh sách chi tiết từng phiên luyện tập: tên bài học, ngày giờ, điểm mỗi phiên. Dùng khi học viên hỏi "cụ thể từng phiên", "điểm từng buổi", "mỗi phiên được bao nhiêu điểm", "which sessions", "score for each session".',
                 'args' => [
-                    'days' => 'integer, days to retrieve (default 60)',
+                    'days' => 'integer, days to retrieve (default 7)',
                     'limit' => 'integer, max sessions (default 20)',
                 ],
             ],
             [
-                'name' => 'student_get_pronunciation_progress',
-                'description' => 'Get pronunciation improvement trend over time',
-                'args' => [
-                    'days' => 'integer, analyze period in days (default 30)',
-                ],
-            ],
-            [
-                'name' => 'student_get_vocabulary_progress',
-                'description' => 'Get vocabulary learning progress',
-                'args' => [
-                    'days' => 'integer, analyze period (default 30)',
-                ],
-            ],
-            [
                 'name' => 'student_get_personal_dashboard_data',
-                'description' => 'Get personal profile, practice summary, error breakdown and chat activity',
+                'description' => 'Get personal profile, practice summary, error breakdown, pronunciation trend, vocabulary progress and chat activity',
                 'args' => [
                     'days' => 'integer, analyze period in days (default 30)',
                 ],
             ],
             [
-                'name' => 'student_get_access_scope',
-                'description' => 'Get role and permission scope for the current student account',
-                'args' => [],
+                'name' => 'student_search_vocabulary',
+                'description' => 'Tìm kiếm từ vựng, cách phát âm, phiên âm của các từ. Cực kỳ hữu ích khi học viên hỏi cách đọc một từ hoặc âm cụ thể.',
+                'args' => [
+                    'query' => 'string, từ vựng hoặc phiên âm cần tìm',
+                ],
             ],
         ];
     }
 
     /**
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     public function execute(NguoiDung $student, string $toolName, array $args): array
@@ -92,10 +81,8 @@ class StudentDatabaseQueryTools
             'student_get_suggested_lessons_by_level' => $this->getSuggestedLessonsByLevel($student, $args),
             'student_get_learning_path_progress' => $this->getLearningPathProgress($student),
             'student_get_session_history_with_details' => $this->getSessionHistoryWithDetails($student, $args),
-            'student_get_pronunciation_progress' => $this->getPronunciationProgress($student, $args),
-            'student_get_vocabulary_progress' => $this->getVocabularyProgress($student, $args),
             'student_get_personal_dashboard_data' => $this->getPersonalDashboardData($student, $args),
-            'student_get_access_scope' => $this->getAccessScope($student),
+            'student_search_vocabulary' => $this->searchVocabulary($args),
             default => [
                 'ok' => false,
                 'message' => 'Công cụ không được hỗ trợ.',
@@ -106,7 +93,7 @@ class StudentDatabaseQueryTools
     /**
      * Get detailed pronunciation errors by category
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getDetailedPronunciationErrors(NguoiDung $student, array $args): array
@@ -149,7 +136,7 @@ class StudentDatabaseQueryTools
     /**
      * Get suggested lessons based on proficiency level
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getSuggestedLessonsByLevel(NguoiDung $student, array $args): array
@@ -202,55 +189,35 @@ class StudentDatabaseQueryTools
      */
     private function getLearningPathProgress(NguoiDung $student): array
     {
-        $learningPath = LoTrinhCaNhan::where('nguoi_dung_id', $student->id)->first();
-
-        if (!$learningPath) {
-            return [
-                'ok' => true,
-                'data' => [
-                    'has_path' => false,
-                    'message' => 'Chưa có lộ trình cá nhân',
-                ],
-            ];
-        }
-
-        $pathDetails = ChiTietLoTrinh::where('lo_trinh_id', $learningPath->id)
-            ->orderBy('tuan', 'asc')
-            ->get();
-
-        $currentWeek = $learningPath->tuan_hien_tai ?? 1;
-        $completedWeeks = $pathDetails->filter(fn ($d) => $d->tuan < $currentWeek)->count();
-        $totalWeeks = $pathDetails->count();
+        $summary = $this->analytics->learningPathsSummary($student);
+        $primary = $this->analytics->learningPathProgress($student);
 
         return [
             'ok' => true,
-            'data' => [
-                'has_path' => true,
-                'current_week' => $currentWeek,
-                'total_weeks' => $totalWeeks,
-                'progress_percentage' => $totalWeeks > 0 ? round(($completedWeeks / $totalWeeks) * 100) : 0,
-                'next_milestone' => $pathDetails->firstWhere('tuan', '>=', $currentWeek)?->tieu_de,
-            ],
+            'data' => array_merge($summary, [
+                'primary_path' => $primary,
+            ]),
         ];
     }
 
     /**
      * Get session history with detailed statistics
      *
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getSessionHistoryWithDetails(NguoiDung $student, array $args): array
     {
-        $days = max(1, (int) ($args['days'] ?? 60));
+        $days = max(1, (int) ($args['days'] ?? 7));
         $limit = min(50, max(1, (int) ($args['limit'] ?? 20)));
         $from = Carbon::now()->subDays($days);
 
-        $sessions = PhienLuyenTap::where('nguoi_dung_id', $student->id)
+        $sessions = PhienLuyenTap::with('baiHoc:id,tieu_de')
+            ->where('nguoi_dung_id', $student->id)
             ->where('thoi_gian_bat_dau', '>=', $from)
             ->orderByDesc('thoi_gian_bat_dau')
             ->limit($limit)
-            ->get(['id', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'tong_diem']);
+            ->get(['id', 'bai_hoc_id', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'tong_diem']);
 
         return [
             'ok' => true,
@@ -264,9 +231,10 @@ class StudentDatabaseQueryTools
 
                     return [
                         'id' => $session->id,
-                        'start_time' => $session->thoi_gian_bat_dau->format('Y-m-d H:i'),
+                        'lesson_title' => (string) ($session->baiHoc?->tieu_de ?? 'Không rõ'),
+                        'start_time' => $session->thoi_gian_bat_dau->format('d/m/Y H:i'),
                         'duration_minutes' => $duration,
-                        'score' => $session->tong_diem,
+                        'score' => (int) $session->tong_diem,
                     ];
                 })->toArray(),
             ],
@@ -274,15 +242,11 @@ class StudentDatabaseQueryTools
     }
 
     /**
-     * Get pronunciation improvement trend
-     *
-     * @param array<string,mixed> $args
-     * @return array<string,mixed>
+     * @return array{period_days:int,trend:string,weekly_progress:list<array{week_start:string,avg_score:float}>}
      */
-    private function getPronunciationProgress(NguoiDung $student, array $args): array
+    private function buildPronunciationProgress(NguoiDung $student, int $days): array
     {
-        $days = max(7, (int) ($args['days'] ?? 30));
-        $from = Carbon::now()->subDays($days);
+        $days = max(7, $days);
 
         $weeklyScores = [];
         for ($i = 0; $i < $days; $i += 7) {
@@ -307,27 +271,20 @@ class StudentDatabaseQueryTools
         }
 
         return [
-            'ok' => true,
-            'data' => [
-                'period_days' => $days,
-                'trend' => $trend,
-                'weekly_progress' => $weeklyScores,
-            ],
+            'period_days' => $days,
+            'trend' => $trend,
+            'weekly_progress' => $weeklyScores,
         ];
     }
 
     /**
-     * Get vocabulary learning progress
-     *
-     * @param array<string,mixed> $args
-     * @return array<string,mixed>
+     * @return array{period_days:int,vocabulary_items_practiced:int,avg_per_week:float}
      */
-    private function getVocabularyProgress(NguoiDung $student, array $args): array
+    private function buildVocabularyProgress(NguoiDung $student, int $days): array
     {
-        $days = max(1, (int) ($args['days'] ?? 30));
+        $days = max(1, $days);
         $from = Carbon::now()->subDays($days);
 
-        // Count unique vocabulary items practiced
         $vocabCount = DB::table('chi_tiet_luyen_taps as ct')
             ->join('phien_luyen_taps as p', 'p.id', '=', 'ct.phien_id')
             ->where('p.nguoi_dung_id', $student->id)
@@ -336,17 +293,14 @@ class StudentDatabaseQueryTools
             ->count('ct.tu_vung_id');
 
         return [
-            'ok' => true,
-            'data' => [
-                'period_days' => $days,
-                'vocabulary_items_practiced' => $vocabCount,
-                'avg_per_week' => round($vocabCount / max(1, ($days / 7)), 1),
-            ],
+            'period_days' => $days,
+            'vocabulary_items_practiced' => $vocabCount,
+            'avg_per_week' => round($vocabCount / max(1, ($days / 7)), 1),
         ];
     }
 
     /**
-     * @param array<string,mixed> $args
+     * @param  array<string,mixed>  $args
      * @return array<string,mixed>
      */
     private function getPersonalDashboardData(NguoiDung $student, array $args): array
@@ -371,11 +325,12 @@ class StudentDatabaseQueryTools
             ->selectRaw('SUM(CASE WHEN ct.loi_thanh_dieu = 1 THEN 1 ELSE 0 END) as loi_thanh_dieu')
             ->first();
 
-        $learningPath = DB::table('lo_trinh_ca_nhan as ltc')
-            ->leftJoin('chi_tiet_lo_trinh as ctl', 'ctl.lo_trinh_id', '=', 'ltc.id')
-            ->where('ltc.nguoi_dung_id', $student->id)
-            ->selectRaw('ltc.id, COALESCE(ltc.tuan_hien_tai, 1) as tuan_hien_tai, COUNT(ctl.id) as tong_tuan')
-            ->groupBy('ltc.id', 'ltc.tuan_hien_tai')
+        $learningPath = DB::table('lo_trinh_ca_nhans as ltc')
+            ->leftJoin('chi_tiet_lo_trinhs as ctl', 'ctl.lo_trinh_id', '=', 'ltc.id')
+            ->where('ltc.hoc_vien_id', $student->id)
+            ->selectRaw('ltc.id, COUNT(ctl.bai_hoc_id) as so_bai_trong_lo_trinh')
+            ->groupBy('ltc.id')
+            ->orderByDesc('ltc.id')
             ->first();
 
         $chatActivity = DB::table('chat_sessions as cs')
@@ -385,6 +340,9 @@ class StudentDatabaseQueryTools
             ->selectRaw('COUNT(DISTINCT cs.id) as total_chat_sessions')
             ->selectRaw('COUNT(cm.id) as total_chat_messages')
             ->first();
+
+        $pronunciation = $this->buildPronunciationProgress($student, $days);
+        $vocabulary = $this->buildVocabularyProgress($student, $days);
 
         return [
             'ok' => true,
@@ -405,10 +363,12 @@ class StudentDatabaseQueryTools
                     'loi_van' => (int) ($errorSummary?->loi_van ?? 0),
                     'loi_thanh_dieu' => (int) ($errorSummary?->loi_thanh_dieu ?? 0),
                 ],
+                'pronunciation_progress' => $pronunciation,
+                'vocabulary_progress' => $vocabulary,
                 'learning_path' => [
                     'has_path' => $learningPath !== null,
-                    'current_week' => (int) ($learningPath?->tuan_hien_tai ?? 1),
-                    'total_weeks' => (int) ($learningPath?->tong_tuan ?? 0),
+                    'lo_trinh_id' => $learningPath ? (int) $learningPath->id : null,
+                    'lesson_count' => (int) ($learningPath?->so_bai_trong_lo_trinh ?? 0),
                 ],
                 'chat' => [
                     'total_sessions' => (int) ($chatActivity?->total_chat_sessions ?? 0),
@@ -419,38 +379,9 @@ class StudentDatabaseQueryTools
     }
 
     /**
-     * @return array<string,mixed>
-     */
-    private function getAccessScope(NguoiDung $student): array
-    {
-        $permissions = DB::table('vai_tro_quyens as vtq')
-            ->join('quyens as q', 'q.id', '=', 'vtq.quyen_id')
-            ->where('vtq.vai_tro_id', $student->vai_tro_id)
-            ->orderBy('q.id')
-            ->get(['q.id', 'q.ten_quyen'])
-            ->map(static fn($row): array => [
-                'id' => (int) ($row->id ?? 0),
-                'name' => (string) ($row->ten_quyen ?? ''),
-            ])
-            ->values()
-            ->all();
-
-        return [
-            'ok' => true,
-            'data' => [
-                'user_id' => (int) $student->id,
-                'role_id' => (int) $student->vai_tro_id,
-                'permission_count' => count($permissions),
-                'permissions' => $permissions,
-            ],
-        ];
-    }
-
-    /**
      * Build recommendation based on error types
      *
-     * @param array<string,int> $errors
-     * @return string
+     * @param  array<string,int>  $errors
      */
     private function buildErrorRecommendation(array $errors): string
     {
@@ -467,5 +398,69 @@ class StudentDatabaseQueryTools
         }
 
         return implode(', ', $recommendations) ?: 'Tiếp tục duy trì tốc độ học hiện tại';
+    }
+
+    /**
+     * Search vocabulary by query
+     *
+     * @param  array<string,mixed>  $args
+     * @return array<string,mixed>
+     */
+    private function searchVocabulary(array $args): array
+    {
+        $query = (string) ($args['query'] ?? '');
+        if (empty($query)) {
+            return [
+                'ok' => false,
+                'message' => 'Vui lòng cung cấp từ khóa tìm kiếm.',
+            ];
+        }
+
+        $results = DB::table('tu_vungs')
+            ->where('tu_chuan', 'like', "%{$query}%")
+            ->orWhere('phien_am', 'like', "%{$query}%")
+            ->limit(50)
+            ->get(['id', 'tu_chuan', 'phien_am', 'cap_do', 'am_thanh_mau_url', 'hinh_anh_url']);
+
+        $lowerQuery = mb_strtolower($query, 'UTF-8');
+        $filtered = $results->filter(function ($item) use ($lowerQuery) {
+            $tuChuanLower = mb_strtolower($item->tu_chuan, 'UTF-8');
+            $phienAmLower = mb_strtolower($item->phien_am, 'UTF-8');
+
+            return $tuChuanLower === $lowerQuery ||
+                   $phienAmLower === $lowerQuery ||
+                   str_contains($tuChuanLower, $lowerQuery) ||
+                   str_contains($phienAmLower, $lowerQuery);
+        })->values();
+
+        // Ưu tiên khớp chính xác tuyệt đối
+        $exactMatches = $filtered->filter(function ($item) use ($lowerQuery) {
+            return mb_strtolower($item->tu_chuan, 'UTF-8') === $lowerQuery;
+        })->values();
+
+        $finalResults = $exactMatches->isNotEmpty() ? $exactMatches : $filtered;
+
+        if ($finalResults->isEmpty()) {
+            return [
+                'ok' => true,
+                'data' => [
+                    'found' => false,
+                    'message' => "Cô không tìm thấy từ '{$query}' trong hệ thống.",
+                ],
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'data' => [
+                'found' => true,
+                'query' => $query,
+                'results' => $finalResults->take(5)->map(fn ($item) => [
+                    'tu_chuan' => $item->tu_chuan,
+                    'phien_am' => $item->phien_am,
+                    'cap_do' => $item->cap_do,
+                ])->toArray(),
+            ],
+        ];
     }
 }

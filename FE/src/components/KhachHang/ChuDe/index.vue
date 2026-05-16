@@ -204,56 +204,56 @@
   const TOPIC_STYLE_PRESETS = [
       {
           image:
-              'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=800&q=80',
-          icon: '📚',
+              'https://ecdn.teacherspayteachers.com/cdn-cgi/image/format=avif,quality=70,onerror=redirect/thumbitem/VIETNAMESE-Alphabet-CHART-with-Words-and-English-Translations-Printable-Art-9518334-1683647649/750f-9518334-1.jpg',
+          icon: '🔤',
           badgeColor: '#ff6b35',
           iconBg: '#fff1eb',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=800&q=80',
-          icon: '🍎',
+              'https://nannyz.com/wp-content/uploads/2024/11/familyexercising.jpg',
+          icon: '👨‍👩‍👧‍👦',
           badgeColor: '#f4a100',
           iconBg: '#fff8e6',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80',
-          icon: '👨‍👩‍👧',
+              'https://thuocdantoc.vn/wp-content/uploads/2019/01/do-an-thuc-uong-nen-dung-khi-bi-viem-hong.jpg',
+          icon: '🍔',
           badgeColor: '#198754',
           iconBg: '#eaf8f0',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=800&q=80',
-          icon: '🚗',
+              'https://kendotoy.com/wp-content/uploads/2023/07/lo-to-dong-vat-1.jpg',
+          icon: '🐶',
           badgeColor: '#4d96ff',
           iconBg: '#eaf3ff',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&w=800&q=80',
-          icon: '🎨',
+              'https://images8.alphacoders.com/569/569822.jpg',
+          icon: '🌳',
           badgeColor: '#ff4d6d',
           iconBg: '#ffeaf0',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80',
+              'https://baokhanhhoa.vn/file/e7837c02857c8ca30185a8c39b582c03/122024/21-12_20241221081324.jpg',
           icon: '🏫',
           badgeColor: '#6f42c1',
           iconBg: '#f3ebff',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
-          icon: '🍔',
+              'https://bcp.cdnchinhphu.vn/344443456812359680/2023/11/7/halong-16993490769681708126000.jpg',
+          icon: '🌎',
           badgeColor: '#fd7e14',
           iconBg: '#fff1e8',
       },
       {
           image:
-              'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&w=800&q=80',
+              'https://cdn.prod.website-files.com/64ef86fd99a286b447305635/671a6d24ebd5364f3e181142_two%20colleagues%20talking.webp',
           icon: '🖐️',
           badgeColor: '#20c997',
           iconBg: '#e8faf5',

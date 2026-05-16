@@ -576,7 +576,12 @@
               <!-- Sub-tabs -->
               <ul class="nav nav-pills wallet-tabs mb-4">
                 <li class="nav-item">
-                  <a class="nav-link active" data-bs-toggle="pill" href="#tab-nap">
+                  <a
+                    class="nav-link active"
+                    data-bs-toggle="pill"
+                    href="#tab-nap"
+                    @click.once="loadDepositDonList"
+                  >
                     <i class="fa-solid fa-circle-plus me-2"></i>Nạp tiền
                   </a>
                 </li>
@@ -590,6 +595,21 @@
                     <i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử
                   </a>
                 </li>
+                <li v-if="canAccessPremiumTab" class="nav-item">
+                  <a
+                    class="nav-link"
+                    data-bs-toggle="pill"
+                    href="#tab-premium"
+                    @click.once="loadGoiPremium"
+                  >
+                    <i class="fa-solid fa-crown me-2 text-warning"></i>Gói Premium
+                    <i
+                      v-if="premiumGoiDangDung"
+                      class="fa-solid fa-circle-check text-success ms-1"
+                      title="Gói đang hoạt động"
+                    ></i>
+                  </a>
+                </li>
               </ul>
 
               <div class="tab-content">
@@ -598,23 +618,14 @@
                   <div class="card inner-card border-0 shadow-sm">
                     <div class="card-body p-4">
                       <h5 class="fw-bold mb-4"><i class="fa-solid fa-circle-plus me-2 text-success"></i>Nạp tiền vào ví</h5>
-                      <form @submit.prevent="napTien">
+                      <form @submit.prevent="onNapTienSubmit">
                         <div class="row g-3">
-                          <div class="col-md-6">
+                          <div class="col-12">
                             <label class="form-label">Số tiền nạp (VNĐ) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" v-model.number="napData.so_tien" placeholder="Nhập số tiền" min="10000" step="1000" required />
                             <div class="quick-amounts mt-2">
                               <button type="button" class="quick-btn" v-for="amt in quickAmounts" :key="amt" @click="napData.so_tien = amt">{{ formatMoney(amt) }}</button>
                             </div>
-                          </div>
-                          <div class="col-md-6">
-                            <label class="form-label">Phương thức thanh toán <span class="text-danger">*</span></label>
-                            <select class="form-select" v-model="napData.phuong_thuc" required>
-                              <option value="">-- Chọn phương thức --</option>
-                              <option value="vnpay">VNPay</option>
-                              <option value="momo">MoMo</option>
-                              <option value="banking">Chuyển khoản ngân hàng</option>
-                            </select>
                           </div>
                           <div class="col-12">
                             <label class="form-label">Ghi chú</label>
@@ -622,13 +633,85 @@
                           </div>
                         </div>
                         <div class="text-end mt-4 pt-3 border-top">
-                          <button type="button" class="btn btn-light me-2 px-4" @click="napData = { so_tien: '', phuong_thuc: '', ghi_chu: '' }">Huỷ</button>
-                          <button type="submit" class="btn btn-success-custom px-5" :disabled="isNapTien">
-                            <span v-if="isNapTien" class="spinner-border spinner-border-sm me-2"></span>
+                          <button type="button" class="btn btn-light me-2 px-4" @click="napData = { so_tien: '', ghi_chu: '' }">Huỷ</button>
+                          <button type="submit" class="btn btn-success-custom px-5" :disabled="napTienFlowLoading">
+                            <span v-if="napTienFlowLoading" class="spinner-border spinner-border-sm me-2"></span>
                             <i v-else class="fa-solid fa-circle-plus me-2"></i>Nạp tiền
                           </button>
                         </div>
                       </form>
+                    </div>
+                  </div>
+
+                  <div class="card inner-card border-0 shadow-sm mt-4">
+                    <div class="card-body p-4">
+                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                        <h6 class="fw-bold mb-0">
+                          <i class="fa-solid fa-receipt me-2 text-primary"></i>Đơn nạp & chứng từ CK
+                        </h6>
+                        <button
+                          type="button"
+                          class="btn btn-light btn-sm"
+                          :disabled="loadingDepositDon"
+                          @click="loadDepositDonList"
+                        >
+                          <span v-if="loadingDepositDon" class="spinner-border spinner-border-sm"></span>
+                          <i v-else class="fa-solid fa-rotate-right"></i>
+                        </button>
+                      </div>
+                      <p class="small text-muted mb-3">
+                        Đính kèm ảnh biên lai chuyển khoản (tối đa 5 ảnh/lần, tối đa 12 ảnh/đơn) cho đơn
+                        <strong>đang chờ</strong> hoặc <strong>đã từ chối</strong> để admin đối soát / xử lý hoàn tiền ngoài app.
+                      </p>
+                      <div v-if="loadingDepositDon" class="text-center py-3">
+                        <span class="spinner-border spinner-border-sm text-primary"></span>
+                      </div>
+                      <div v-else-if="!depositDonList.length" class="text-muted small">Chưa có đơn nạp.</div>
+                      <div v-else class="deposit-don-list">
+                        <div
+                          v-for="don in depositDonList"
+                          :key="don.id"
+                          class="deposit-don-item border rounded-3 p-3 mb-3"
+                        >
+                          <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                            <div>
+                              <code class="small">{{ don.ma_don }}</code>
+                              <span class="ms-2 fw-semibold">{{ formatMoney(don.so_tien) }}</span>
+                            </div>
+                            <span class="badge rounded-pill" :class="depositStatusBadgeClass(don.trang_thai)">{{
+                              depositStatusLabel(don.trang_thai)
+                            }}</span>
+                          </div>
+                          <p v-if="don.ly_do_tu_choi" class="small text-danger mb-2">
+                            <strong>Lý do từ chối:</strong> {{ don.ly_do_tu_choi }}
+                          </p>
+                          <div v-if="don.chung_tu_ck_urls && don.chung_tu_ck_urls.length" class="d-flex flex-wrap gap-2 mb-2">
+                            <a
+                              v-for="(u, i) in don.chung_tu_ck_urls"
+                              :key="i"
+                              :href="depositProofUrl(u)"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img :src="depositProofUrl(u)" alt="" class="deposit-proof-thumb" />
+                            </a>
+                          </div>
+                          <div
+                            v-if="don.trang_thai === 'cho_thanh_toan' || don.trang_thai === 'that_bai'"
+                            class="mt-2"
+                          >
+                            <input
+                              type="file"
+                              class="form-control form-control-sm"
+                              accept="image/jpeg,image/png,image/webp,image/jpg"
+                              multiple
+                              :disabled="uploadingChungTuDonId === don.id"
+                              @change="onDepositChungTuFiles($event, don)"
+                            />
+                            <span v-if="uploadingChungTuDonId === don.id" class="small text-muted ms-2">Đang tải…</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -677,6 +760,90 @@
                   </div>
                 </div>
 
+                <!-- Gói Premium -->
+                <div v-if="canAccessPremiumTab" class="tab-pane fade" id="tab-premium">
+                  <div class="card inner-card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+                        <h5 class="fw-bold mb-0">
+                          <i class="fa-solid fa-crown me-2 text-warning"></i>Gói Premium
+                        </h5>
+                        <button
+                          type="button"
+                          class="btn btn-light btn-sm"
+                          :disabled="loadingPremium"
+                          @click="loadGoiPremium"
+                        >
+                          <span v-if="loadingPremium" class="spinner-border spinner-border-sm"></span>
+                          <i v-else class="fa-solid fa-rotate-right"></i>
+                        </button>
+                      </div>
+
+                      <div v-if="loadingPremium" class="text-center py-4">
+                        <span class="spinner-border text-primary"></span>
+                      </div>
+
+                      <div v-else-if="premiumError" class="alert alert-warning mb-0">
+                        {{ premiumError }}
+                      </div>
+
+                      <template v-else-if="premiumGoi">
+                        <div
+                          v-if="premiumGoiDangDung"
+                          class="alert alert-success d-flex align-items-center gap-2 mb-4"
+                          role="status"
+                        >
+                          <i class="fa-solid fa-circle-check fa-lg"></i>
+                          <div>
+                            <strong>Gói đang hoạt động</strong>
+                            <div class="small mb-0">
+                              Hết hạn: {{ formatPremiumDate(premiumGoiDangDung.ngay_het_han) }}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="premium-package-card p-4 rounded-3 border position-relative">
+                          <div
+                            v-if="premiumGoiDangDung"
+                            class="premium-active-badge"
+                            title="Gói premium đang hiệu lực"
+                          >
+                            <i class="fa-solid fa-certificate"></i>
+                          </div>
+                          <h6 class="fw-bold text-dark mb-2">{{ premiumGoi.ten_goi }}</h6>
+                          <p class="text-muted small mb-3">{{ premiumGoi.mo_ta || "—" }}</p>
+                          <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+                            <span class="fs-4 fw-bold text-primary">{{ formatMoney(premiumGoi.gia) }}</span>
+                            <span class="text-muted small">/ {{ premiumGoi.thoi_han_ngay }} ngày</span>
+                          </div>
+                          <ul v-if="premiumTinhNangList.length" class="small text-secondary ps-3 mb-4">
+                            <li v-for="(line, idx) in premiumTinhNangList" :key="idx">{{ line }}</li>
+                          </ul>
+
+                          <button
+                            v-if="premiumCoTheMua"
+                            type="button"
+                            class="btn btn-warning text-dark fw-semibold px-4"
+                            :disabled="buyingPremium"
+                            @click="openPremiumConfirmModal"
+                          >
+                            <i class="fa-solid fa-bag-shopping me-2"></i>
+                            Mua bằng số dư ví
+                          </button>
+                          <p v-else-if="premiumGoiDangDung" class="text-muted small mb-0">
+                            Khi hết hạn bạn có thể mua lại tại đây.
+                          </p>
+                          <p v-else class="text-muted small mb-0">
+                            Hiện không mở bán gói cho tài khoản của bạn.
+                          </p>
+                        </div>
+                      </template>
+
+                      <p v-else class="text-muted mb-0">Không có gói premium cho tài khoản của bạn.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Lịch sử giao dịch -->
                 <div class="tab-pane fade" id="tab-lich-su">
                   <div class="card inner-card border-0 shadow-sm">
@@ -696,6 +863,7 @@
                             <option value="">Tất cả loại</option>
                             <option value="nap">Nạp tiền</option>
                             <option value="rut">Rút tiền</option>
+                            <option value="mua_goi">Mua gói premium</option>
                             <option value="thanh_toan">Thanh toán</option>
                             <option value="hoan_tien">Hoàn tiền</option>
                           </select>
@@ -722,8 +890,12 @@
                             <div class="gd-time">{{ gd.created_at }}</div>
                           </div>
                           <div class="gd-right">
-                            <div class="gd-so-tien" :class="gd.loai === 'nap' || gd.loai === 'hoan_tien' ? 'text-success' : 'text-danger'">
-                              {{ gd.loai === 'nap' || gd.loai === 'hoan_tien' ? '+' : '-' }}{{ formatMoney(gd.so_tien) }}
+                            <div
+                              class="gd-so-tien"
+                              :class="gdAmountIsCredit(gd.loai) ? 'text-success' : 'text-danger'"
+                            >
+                              {{ gdAmountIsCredit(gd.loai) ? "+" : "-"
+                              }}{{ formatMoney(gd.so_tien) }}
                             </div>
                             <span class="gd-status" :class="statusClass(gd.trang_thai)">{{ statusLabel(gd.trang_thai) }}</span>
                           </div>
@@ -882,6 +1054,182 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal: mã QR thanh toán nạp tiền -->
+    <div
+      v-if="showNapQrModal"
+      class="modal-overlay"
+      @click.self="closeNapQrModal"
+    >
+      <div class="modal-card nap-qr-modal-card" role="dialog" aria-modal="true" aria-labelledby="napQrModalTitle">
+        <div class="nap-qr-modal-header">
+          <div class="nap-qr-header-main">
+            <div class="nap-qr-header-icon" aria-hidden="true">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <div>
+              <div id="napQrModalTitle" class="nap-qr-header-title">Thanh toán nạp tiền</div>
+              <div class="nap-qr-header-sub">Quét mã và chuyển khoản đúng số tiền</div>
+            </div>
+          </div>
+          <button
+            class="btn-close-modal ms-auto"
+            type="button"
+            aria-label="Đóng"
+            @click="closeNapQrModal"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body-custom nap-qr-modal-body">
+          <div class="nap-qr-amount-card">
+            <div class="nap-qr-amount-label">Số tiền cần chuyển</div>
+            <div class="nap-qr-amount-value">{{ formatMoney(napQrAmount) }}</div>
+          </div>
+
+          <div v-if="napMaDon" class="nap-qr-order-panel">
+            <div class="nap-qr-order-meta">
+              <span class="badge rounded-pill" :class="napTrangThaiBadgeClass">{{
+                statusLabel(napTrangThai)
+              }}</span>
+              <span class="nap-qr-order-hint">Dùng mã này trong nội dung CK</span>
+            </div>
+            <div class="nap-qr-order-code-row">
+              <code class="nap-qr-order-code">{{ napMaDon }}</code>
+              <button
+                type="button"
+                class="btn btn-sm nap-qr-copy-btn"
+                :disabled="!napMaDon"
+                @click="copyNapMaDon"
+              >
+                <i class="fa-regular fa-copy me-1"></i>Sao chép
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="nap-qr-mode-chip"
+            :class="napQrMode === 'vietqr' ? 'nap-qr-mode-live' : 'nap-qr-mode-demo'"
+          >
+            <i
+              class="fa-solid me-2"
+              :class="napQrMode === 'vietqr' ? 'fa-circle-check' : 'fa-triangle-exclamation'"
+            ></i>
+            <span v-if="napQrMode === 'vietqr'">VietQR đang bật — quét bằng app ngân hàng</span>
+            <span v-else>Chế độ mô phỏng — cấu hình <code class="nap-qr-code-inline">VIETQR_*</code> trên API để dùng VietQR thật</span>
+          </div>
+
+          <div v-if="napQrMode === 'vietqr'" class="nap-qr-info-card nap-qr-info-live">
+            <div class="nap-qr-info-icon"><i class="fa-solid fa-building-columns"></i></div>
+            <div class="nap-qr-info-text">
+              Quét mã VietQR để chuyển khoản. Ghi đúng <strong>mã đơn</strong> trong nội dung để admin đối soát.
+              <template v-if="napQrBankHint || vietQrDisplayName">
+                <span class="d-block mt-1 text-muted small">{{ napQrBankHint || vietQrDisplayName }}</span>
+              </template>
+            </div>
+          </div>
+          <div v-else class="nap-qr-info-card nap-qr-info-demo">
+            <div class="nap-qr-info-icon"><i class="fa-solid fa-image"></i></div>
+            <div class="nap-qr-info-text">
+              Hiện hiển thị QR minh họa. Khi máy chủ cấu hình VietQR, mã tại đây sẽ là mã thanh toán thật.
+            </div>
+          </div>
+
+          <ul class="nap-qr-steps" aria-label="Các bước thanh toán">
+            <li>
+              <span class="nap-qr-step-num">1</span>
+              <span>Mở app ngân hàng và chọn quét QR</span>
+            </li>
+            <li>
+              <span class="nap-qr-step-num">2</span>
+              <span>Kiểm tra số tiền, dán <strong>mã đơn</strong> vào nội dung chuyển khoản</span>
+            </li>
+            <li>
+              <span class="nap-qr-step-num">3</span>
+              <span>Xác nhận — trạng thái đơn cập nhật khi được duyệt</span>
+            </li>
+          </ul>
+
+          <div class="nap-qr-frame-outer">
+            <div class="nap-qr-frame-glow" aria-hidden="true"></div>
+            <div class="nap-qr-frame">
+              <img
+                v-if="napQrImageUrl"
+                :src="napQrImageUrl"
+                alt="Mã QR thanh toán"
+                class="nap-qr-img"
+              />
+              <div v-else class="nap-qr-placeholder">
+                <i class="fa-solid fa-qrcode nap-qr-placeholder-icon"></i>
+                <span>Chưa có hình QR</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="nap-qr-method-foot">
+            <i class="fa-solid fa-credit-card me-1 opacity-75"></i>
+            Phương thức: <strong>{{ napQrMethodLabel }}</strong>
+          </p>
+        </div>
+        <div class="modal-footer-custom nap-qr-footer d-flex flex-wrap gap-2 justify-content-end align-items-center">
+          <button type="button" class="btn btn-light px-3" @click="closeNapQrModal">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: xác nhận mua gói Premium -->
+    <div
+      v-if="showPremiumConfirmModal"
+      class="modal-overlay"
+      @click.self="!buyingPremium && closePremiumConfirmModal()"
+    >
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="premiumConfirmTitle">
+        <div class="modal-header-custom info">
+          <span id="premiumConfirmTitle">
+            <i class="fa-solid fa-crown me-2 text-warning"></i>Xác nhận mua gói
+          </span>
+          <button
+            type="button"
+            class="btn-close-modal ms-auto"
+            aria-label="Đóng"
+            :disabled="buyingPremium"
+            @click="closePremiumConfirmModal"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body-custom">
+          <p class="mb-2" v-if="premiumGoi">
+            <strong>{{ premiumGoi.ten_goi }}</strong>
+            — {{ formatMoney(premiumGoi.gia) }} / {{ premiumGoi.thoi_han_ngay }} ngày
+          </p>
+          <p class="text-muted small mb-0">
+            Số tiền sẽ được trừ từ ví. Bạn có chắc muốn tiếp tục?
+          </p>
+        </div>
+        <div class="modal-footer-custom bg-light d-flex flex-wrap gap-2 justify-content-end">
+          <button
+            type="button"
+            class="btn btn-light px-3"
+            :disabled="buyingPremium"
+            @click="closePremiumConfirmModal"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            class="btn btn-warning text-dark fw-semibold px-4"
+            :disabled="buyingPremium"
+            @click="confirmMuaGoiPremium"
+          >
+            <span v-if="buyingPremium" class="spinner-border spinner-border-sm me-2"></span>
+            Xác nhận mua
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -911,6 +1259,61 @@ export default {
     isGiaoVien() {
       const vaiTro = this.thong_tin.vai_tro_id;
       return Number(vaiTro) === 2; // Giả sử ID 2 là Giáo viên trong DB của bạn
+    },
+    canAccessPremiumTab() {
+      return this.isHocVien || this.isGiaoVien;
+    },
+    premiumGoi() {
+      return this.premiumPayload && this.premiumPayload.goi
+        ? this.premiumPayload.goi
+        : null;
+    },
+    premiumGoiDangDung() {
+      return this.premiumPayload && this.premiumPayload.goi_dang_dung
+        ? this.premiumPayload.goi_dang_dung
+        : null;
+    },
+    premiumCoTheMua() {
+      return !!(this.premiumPayload && this.premiumPayload.co_the_mua);
+    },
+    premiumTinhNangList() {
+      const raw = this.premiumGoi && this.premiumGoi.tinh_nang;
+      if (!raw || typeof raw !== "object") return [];
+
+      const boolLabels = {
+        uu_tien_cham_diem: "Ưu tiên xếp hàng chấm điểm phát âm",
+        bao_cao_tuan: "Báo cáo tiến độ học tập theo tuần",
+        bao_cao_lop: "Báo cáo và thống kê lớp học",
+      };
+
+      const lines = [];
+      for (const [key, val] of Object.entries(raw)) {
+        if (typeof val === "boolean") {
+          if (val !== true) continue;
+          const label = boolLabels[key];
+          if (label) lines.push(label);
+        } else if (key === "gioi_han_hoc_vien" && typeof val === "number") {
+          lines.push(`Quản lý tối đa ${val} học viên`);
+        } else if (val != null && val !== "") {
+          lines.push(String(val));
+        }
+      }
+      return lines;
+    },
+    /** Tên chủ TK hiển thị khi dùng VietQR (env VITE_VIETQR_ACCOUNT_NAME) */
+    vietQrDisplayName() {
+      return String(import.meta.env.VITE_VIETQR_ACCOUNT_NAME || "").trim();
+    },
+    napTrangThaiBadgeClass() {
+      const m = {
+        cho_thanh_toan: "text-bg-warning text-dark",
+        cho_quet_ma: "text-bg-warning text-dark",
+        cho_xac_nhan: "text-bg-info",
+        thanh_cong: "text-bg-success",
+        that_bai: "text-bg-danger",
+        cho_xu_ly: "text-bg-secondary",
+      };
+      return m[this.napTrangThai] || "text-bg-secondary";
     },
   },
   data() {
@@ -945,8 +1348,7 @@ export default {
       // Ví & Giao dịch
       soDu: 0,
       loadingSoDu: false,
-      napData: { so_tien: "", phuong_thuc: "", ghi_chu: "" },
-      isNapTien: false,
+      napData: { so_tien: "", ghi_chu: "" },
       rutData: { so_tien: "", ten_ngan_hang: "", so_tai_khoan: "", chu_tai_khoan: "", ghi_chu: "" },
       isRutTien: false,
       lichSuGD: [],
@@ -955,6 +1357,28 @@ export default {
       filterLoai: "",
       currentPage: 1,
       quickAmounts: [50000, 100000, 200000, 500000],
+
+      /** Mã QR nạp tiền: mở sau khi bấm «Nạp tiền» */
+      showNapQrModal: false,
+      napQrImageUrl: "",
+      napQrMode: "demo",
+      napQrAmount: 0,
+      napQrMethodLabel: "",
+      napQrBankHint: "",
+      napMaDon: "",
+      napTrangThai: "",
+      napTienFlowLoading: false,
+      napPollTimerId: null,
+
+      depositDonList: [],
+      loadingDepositDon: false,
+      uploadingChungTuDonId: null,
+
+      premiumPayload: null,
+      loadingPremium: false,
+      buyingPremium: false,
+      premiumError: "",
+      showPremiumConfirmModal: false,
     };
   },
   mounted() {
@@ -1307,7 +1731,7 @@ export default {
       try {
         const axios = (await import("axios")).default;
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/ho-so-giao-vien/my-status",
+          "http://127.0.0.1:8000/api/homepage/ho-so-giao-vien/my-status",
           {
             headers: { Authorization: "Bearer " + this.getAuthToken() },
           },
@@ -1328,7 +1752,7 @@ export default {
       this.isFetchingHoSo = true;
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/ho-so-giao-vien/my-status",
+          "http://127.0.0.1:8000/api/homepage/ho-so-giao-vien/my-status",
           {
             headers: { Authorization: "Bearer " + this.getAuthToken() },
           },
@@ -1366,7 +1790,7 @@ export default {
     async loadSoDu() {
       this.loadingSoDu = true;
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/vi/so-du", {
+        const res = await axios.get(this.beApi("/api/vi/so-du"), {
           headers: { Authorization: "Bearer " + this.getAuthToken() },
         });
         if (res.data.status) this.soDu = res.data.so_du || 0;
@@ -1376,29 +1800,271 @@ export default {
         this.loadingSoDu = false;
       }
     },
-    async napTien() {
+    beApi(path) {
+      const base = (
+        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+      ).replace(/\/$/, "");
+      const p = path.startsWith("/") ? path : `/${path}`;
+      return `${base}${p}`;
+    },
+    depositProofUrl(u) {
+      const s = String(u || "").trim();
+      if (!s) return "";
+      if (s.startsWith("http://") || s.startsWith("https://")) return s;
+      const base = (
+        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+      ).replace(/\/$/, "");
+      if (s.startsWith("/")) return `${base}${s}`;
+      return `${base}/${s.replace(/^\//, "")}`;
+    },
+    depositStatusLabel(tt) {
+      const m = {
+        cho_thanh_toan: "Chờ duyệt",
+        thanh_cong: "Thành công",
+        that_bai: "Từ chối",
+        cho_quet_ma: "Chờ quét mã",
+        cho_xac_nhan: "Chờ xác nhận",
+        cho_xu_ly: "Chờ xử lý",
+      };
+      return m[tt] || tt || "—";
+    },
+    depositStatusBadgeClass(tt) {
+      const m = {
+        cho_thanh_toan: "text-bg-warning text-dark",
+        thanh_cong: "text-bg-success",
+        that_bai: "text-bg-danger",
+        cho_quet_ma: "text-bg-secondary",
+        cho_xac_nhan: "text-bg-secondary",
+        cho_xu_ly: "text-bg-secondary",
+      };
+      return m[tt] || "text-bg-secondary";
+    },
+    async loadDepositDonList() {
+      this.loadingDepositDon = true;
+      try {
+        const res = await axios.get(this.beApi("/api/deposit/history"), {
+          params: { per_page: 30, page: 1 },
+          headers: { Authorization: "Bearer " + this.getAuthToken() },
+        });
+        if (res.data.status) {
+          this.depositDonList = res.data.data || [];
+        } else {
+          this.depositDonList = [];
+        }
+      } catch {
+        this.depositDonList = [];
+      } finally {
+        this.loadingDepositDon = false;
+      }
+    },
+    async onDepositChungTuFiles(event, don) {
+      const input = event.target;
+      const files = input.files;
+      if (!files || !files.length) return;
+      this.uploadingChungTuDonId = don.id;
+      try {
+        const fd = new FormData();
+        for (let i = 0; i < files.length; i += 1) {
+          fd.append("files[]", files[i]);
+        }
+        const res = await axios.post(
+          this.beApi(`/api/deposit/don/${don.id}/chung-tu`),
+          fd,
+          {
+            headers: {
+              Authorization: "Bearer " + this.getAuthToken(),
+            },
+          },
+        );
+        if (res.data.status) {
+          this.$toast.success(res.data.message || "Đã tải chứng từ.");
+          await this.loadDepositDonList();
+        } else {
+          this.$toast.error(res.data.message || "Không tải được chứng từ.");
+        }
+      } catch (e) {
+        this.$toast.error(
+          e.response?.data?.message || "Không tải được chứng từ.",
+        );
+      } finally {
+        this.uploadingChungTuDonId = null;
+        input.value = "";
+      }
+    },
+    formatPremiumDate(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return String(iso);
+      return d.toLocaleString("vi-VN");
+    },
+    gdAmountIsCredit(loai) {
+      return loai === "nap" || loai === "hoan_tien";
+    },
+    async loadGoiPremium() {
+      this.loadingPremium = true;
+      this.premiumError = "";
+      try {
+        const res = await axios.get(this.beApi("/api/goi-premium/goi-hien-tai"), {
+          headers: { Authorization: "Bearer " + this.getAuthToken() },
+        });
+        if (res.data.status) {
+          this.premiumPayload = {
+            goi: res.data.goi || null,
+            goi_dang_dung: res.data.goi_dang_dung || null,
+            co_the_mua: !!res.data.co_the_mua,
+          };
+        } else {
+          this.premiumPayload = null;
+          this.premiumError = res.data.message || "Không tải được gói premium.";
+        }
+      } catch (e) {
+        this.premiumPayload = null;
+        this.premiumError =
+          e.response?.data?.message || "Không tải được gói premium.";
+      } finally {
+        this.loadingPremium = false;
+      }
+    },
+    openPremiumConfirmModal() {
+      if (!this.premiumCoTheMua || !this.premiumGoi) return;
+      this.showPremiumConfirmModal = true;
+    },
+    closePremiumConfirmModal() {
+      if (this.buyingPremium) return;
+      this.showPremiumConfirmModal = false;
+    },
+    async confirmMuaGoiPremium() {
+      this.buyingPremium = true;
+      try {
+        const res = await axios.post(
+          this.beApi("/api/goi-premium/mua"),
+          {},
+          { headers: { Authorization: "Bearer " + this.getAuthToken() } },
+        );
+        if (res.data.status) {
+          this.$toast.success(res.data.message || "Mua gói thành công.");
+          if (typeof res.data.so_du_sau === "number") {
+            this.soDu = res.data.so_du_sau;
+          }
+          this.showPremiumConfirmModal = false;
+          await this.loadGoiPremium();
+          this.loadLichSu();
+          window.dispatchEvent(new CustomEvent("premium-status-changed"));
+        } else {
+          this.$toast.error(res.data.message || "Không thể mua gói.");
+        }
+      } catch (e) {
+        this.$toast.error(
+          e.response?.data?.message || "Không thể mua gói.",
+        );
+      } finally {
+        this.buyingPremium = false;
+      }
+    },
+    clearNapDonTimers() {
+      if (this.napPollTimerId != null) {
+        clearInterval(this.napPollTimerId);
+        this.napPollTimerId = null;
+      }
+    },
+    closeNapQrModal() {
+      this.clearNapDonTimers();
+      this.showNapQrModal = false;
+    },
+    async copyNapMaDon() {
+      if (!this.napMaDon) return;
+      try {
+        await navigator.clipboard.writeText(String(this.napMaDon));
+        this.$toast.success("Đã sao chép mã đơn.");
+      } catch {
+        this.$toast.error("Không thể sao chép tự động — hãy chọn và copy thủ công.");
+      }
+    },
+    startNapDonFlow() {
+      this.clearNapDonTimers();
+      if (!this.napMaDon) return;
+      this.napPollTimerId = setInterval(() => {
+        this.refreshNapTrangThai();
+      }, 4000);
+    },
+    async refreshNapTrangThai() {
+      if (!this.napMaDon || !this.showNapQrModal) return;
+      try {
+        const res = await axios.get(
+          this.beApi(
+            `/api/vi/nap-tien/${encodeURIComponent(this.napMaDon)}/trang-thai`,
+          ),
+          { headers: { Authorization: "Bearer " + this.getAuthToken() } },
+        );
+        if (res.data.status && res.data.trang_thai) {
+          this.napTrangThai = res.data.trang_thai;
+          if (this.napTrangThai === "thanh_cong") {
+            this.finishNapFlowSuccess();
+          }
+          if (this.napTrangThai === "that_bai") {
+            this.clearNapDonTimers();
+            this.$toast.error("Đơn nạp đã bị từ chối.");
+            this.closeNapQrModal();
+            this.loadLichSu();
+          }
+        }
+      } catch {
+        /* bỏ qua lỗi poll */
+      }
+    },
+    finishNapFlowSuccess() {
+      this.clearNapDonTimers();
+      this.showNapQrModal = false;
+      this.napMaDon = "";
+      this.napTrangThai = "";
+      this.napQrImageUrl = "";
+      this.napQrBankHint = "";
+      this.napData = { so_tien: "", ghi_chu: "" };
+      this.$toast.success("Nạp tiền thành công!");
+      this.loadSoDu();
+      this.loadLichSu();
+      this.loadDepositDonList();
+    },
+    async onNapTienSubmit() {
       if (!this.napData.so_tien || this.napData.so_tien < 10000) {
         this.$toast.error("Số tiền nạp tối thiểu là 10.000 ₫");
         return;
       }
-      this.isNapTien = true;
+      const amount = Math.floor(Number(this.napData.so_tien));
+
+      this.napQrAmount = amount;
+      this.napQrMethodLabel = "Chuyển khoản (VietQR)";
+
+      this.napTienFlowLoading = true;
       try {
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/vi/nap-tien",
-          this.napData,
-          { headers: { Authorization: "Bearer " + this.getAuthToken() } }
+          this.beApi("/api/deposit/create"),
+          {
+            so_tien: amount,
+            phuong_thuc: null,
+            ghi_chu: this.napData.ghi_chu || null,
+          },
+          { headers: { Authorization: "Bearer " + this.getAuthToken() } },
         );
-        if (res.data.status) {
-          this.$toast.success(res.data.message || "Yêu cầu nạp tiền đã được ghi nhận!");
-          this.napData = { so_tien: "", phuong_thuc: "", ghi_chu: "" };
-          this.loadSoDu();
-        } else {
-          this.$toast.error(res.data.message || "Không thể thực hiện nạp tiền.");
+        if (!res.data.status || !res.data.ma_don) {
+          this.$toast.error(res.data.message || "Không tạo được đơn nạp.");
+          return;
         }
+        this.napMaDon = res.data.ma_don;
+        this.napTrangThai = res.data.trang_thai || "cho_thanh_toan";
+        this.napQrImageUrl = res.data.qr_url || "";
+        this.napQrMode = res.data.vietqr_configured ? "vietqr" : "demo";
+        this.napQrBankHint = res.data.qr_account_name || "";
+
+        this.showNapQrModal = true;
+        this.startNapDonFlow();
+        this.loadDepositDonList();
       } catch (err) {
-        this.$toast.error(err.response?.data?.message || "Lỗi khi nạp tiền.");
+        this.$toast.error(
+          err.response?.data?.message || "Lỗi khi tạo đơn nạp tiền.",
+        );
       } finally {
-        this.isNapTien = false;
+        this.napTienFlowLoading = false;
       }
     },
     async rutTien() {
@@ -1413,7 +2079,7 @@ export default {
       this.isRutTien = true;
       try {
         const res = await axios.post(
-          "http://127.0.0.1:8000/api/vi/rut-tien",
+          this.beApi("/api/vi/rut-tien"),
           this.rutData,
           { headers: { Authorization: "Bearer " + this.getAuthToken() } }
         );
@@ -1436,7 +2102,7 @@ export default {
     async loadLichSu() {
       this.loadingLichSu = true;
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/vi/lich-su", {
+        const res = await axios.get(this.beApi("/api/vi/lich-su"), {
           params: { loai: this.filterLoai || undefined, page: this.currentPage },
           headers: { Authorization: "Bearer " + this.getAuthToken() },
         });
@@ -1461,6 +2127,7 @@ export default {
       const map = {
         nap: "fa-solid fa-circle-plus",
         rut: "fa-solid fa-circle-minus",
+        mua_goi: "fa-solid fa-crown",
         thanh_toan: "fa-solid fa-cart-shopping",
         hoan_tien: "fa-solid fa-rotate-left",
       };
@@ -1470,6 +2137,7 @@ export default {
       const map = {
         nap: "gd-icon-nap",
         rut: "gd-icon-rut",
+        mua_goi: "gd-icon-mua-goi",
         thanh_toan: "gd-icon-thanh-toan",
         hoan_tien: "gd-icon-hoan",
       };
@@ -1479,6 +2147,7 @@ export default {
       const map = {
         nap: "Nạp tiền",
         rut: "Rút tiền",
+        mua_goi: "Mua gói premium",
         thanh_toan: "Thanh toán",
         hoan_tien: "Hoàn tiền",
       };
@@ -1486,6 +2155,9 @@ export default {
     },
     statusLabel(tt) {
       const map = {
+        cho_thanh_toan: "Chờ thanh toán",
+        cho_quet_ma: "Chờ quét mã / CK",
+        cho_xac_nhan: "Chờ xác nhận",
         cho_xu_ly: "Chờ xử lý",
         thanh_cong: "Thành công",
         that_bai: "Thất bại",
@@ -1495,6 +2167,9 @@ export default {
     },
     statusClass(tt) {
       const map = {
+        cho_thanh_toan: "status-pending",
+        cho_quet_ma: "status-pending",
+        cho_xac_nhan: "status-pending",
         cho_xu_ly: "status-pending",
         thanh_cong: "status-success",
         that_bai: "status-fail",
@@ -1509,6 +2184,7 @@ export default {
     },
   },
   beforeUnmount() {
+    this.clearNapDonTimers();
     this.clearAvatarPreview();
   },
 };
@@ -2071,6 +2747,30 @@ select.form-control {
 .gd-icon-rut    { background: #fee2e2; color: #dc2626; }
 .gd-icon-thanh-toan { background: #ede9fe; color: #7c3aed; }
 .gd-icon-hoan   { background: #dbeafe; color: #2563eb; }
+.gd-icon-mua-goi { background: #fef3c7; color: #b45309; }
+
+.premium-package-card {
+  background: linear-gradient(145deg, #fffef8 0%, #fff 100%);
+}
+.premium-active-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #198754;
+  font-size: 1.35rem;
+}
+
+.deposit-don-item {
+  background: #fafbff;
+  border-color: #e2e8f0 !important;
+}
+.deposit-proof-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
 
 .gd-info { flex: 1; min-width: 0; }
 .gd-mo-ta {
@@ -2103,6 +2803,294 @@ select.form-control {
 .status-success  { background: #dcfce7; color: #166534; }
 .status-fail     { background: #fee2e2; color: #991b1b; }
 .status-cancel   { background: #f1f5f9; color: #475569; }
+
+/* Modal nạp tiền — VietQR */
+.nap-qr-modal-card {
+  max-width: 440px;
+  width: min(440px, 94vw);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+.nap-qr-modal-header {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  gap: 12px;
+}
+.nap-qr-header-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.nap-qr-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+.nap-qr-header-title {
+  font-weight: 800;
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.nap-qr-header-sub {
+  font-size: 0.8rem;
+  opacity: 0.92;
+  margin-top: 4px;
+  font-weight: 500;
+}
+.nap-qr-modal-header .btn-close-modal {
+  color: rgba(255, 255, 255, 0.85);
+}
+.nap-qr-modal-header .btn-close-modal:hover {
+  color: #fff;
+}
+.nap-qr-modal-body {
+  padding: 22px 22px 20px;
+  background: linear-gradient(180deg, #f8fafc 0%, #fff 120px);
+}
+.nap-qr-amount-card {
+  text-align: center;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.12);
+  margin-bottom: 16px;
+}
+.nap-qr-amount-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+.nap-qr-amount-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.nap-qr-order-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.nap-qr-order-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+}
+.nap-qr-order-hint {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+.nap-qr-order-code-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.nap-qr-order-code {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px dashed #cbd5e1;
+  word-break: break-all;
+}
+.nap-qr-copy-btn {
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  flex-shrink: 0;
+}
+.nap-qr-copy-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+.nap-qr-mode-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  line-height: 1.45;
+}
+.nap-qr-mode-live {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.nap-qr-mode-demo {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.nap-qr-code-inline {
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+}
+.nap-qr-info-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  text-align: left;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.nap-qr-info-live {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a5f;
+}
+.nap-qr-info-demo {
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  color: #5b21b6;
+}
+.nap-qr-info-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.nap-qr-info-live .nap-qr-info-icon {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.nap-qr-info-demo .nap-qr-info-icon {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.nap-qr-info-text {
+  min-width: 0;
+}
+.nap-qr-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+  text-align: left;
+}
+.nap-qr-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: #475569;
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.nap-qr-steps li:last-child {
+  margin-bottom: 0;
+}
+.nap-qr-step-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.nap-qr-frame-outer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.nap-qr-frame-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(102, 126, 234, 0.25) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.nap-qr-frame {
+  position: relative;
+  background: #fff;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+}
+.nap-qr-img {
+  display: block;
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.nap-qr-placeholder {
+  width: 220px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px dashed #e2e8f0;
+}
+.nap-qr-placeholder-icon {
+  font-size: 2.5rem;
+  opacity: 0.45;
+}
+.nap-qr-method-foot {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+.nap-qr-footer {
+  background: #f8fafc !important;
+  border-top-color: #e2e8f0 !important;
+}
 
 /* Empty state */
 .empty-state {

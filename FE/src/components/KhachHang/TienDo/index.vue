@@ -199,8 +199,14 @@
                       <div>
                        
                         <h5 class="fw-bold mb-1" style="color:#0d3b66;">{{ item.ten_lo_trinh }}</h5>
-                        <small class="text-muted">
+                        <small class="text-muted" v-if="item.can_hoc">
                           {{ item.so_tu_da_hoc }}/{{ item.tong_tu_vung }} từ vựng
+                        </small>
+                        <small class="text-danger d-block mt-1" v-else-if="item.can_mua">
+                          Lộ trình trả phí — {{ formatVnd(item.gia) }}. Thanh toán từ ví để xem bài theo thứ tự.
+                        </small>
+                        <small class="text-warning d-block mt-1" v-else-if="item.la_tra_phi && !item.tra_phi_da_duyet">
+                          Giá lộ trình đang chờ duyệt. Vui lòng quay lại sau.
                         </small>
                       </div>
                     </div>
@@ -219,6 +225,18 @@
                       role="progressbar"
                       :style="{ width: `${Number(item.tien_do || 0)}%`, background: topicPreset(idx).progressGradient }"
                     ></div>
+                  </div>
+                  <div v-if="item.can_mua" class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+                    <button
+                      type="button"
+                      class="btn rounded-pill px-4 py-2 fw-bold text-white"
+                      :disabled="muaLoTrinhId === item.id"
+                      style="background: linear-gradient(135deg,#10b981,#059669);"
+                      @click="moModalThanhToanLoTrinh(item)"
+                    >
+                      {{ muaLoTrinhId === item.id ? 'Đang xử lý...' : 'Thanh toán & mở lộ trình' }}
+                    </button>
+                    <router-link to="/profile" class="btn btn-outline-secondary rounded-pill btn-sm">Nạp tiền ví</router-link>
                   </div>
                 </div>
               </div>
@@ -311,6 +329,51 @@
       </template>
 
     </div>
+
+    <!-- Modal xác nhận thanh toán phí lộ trình -->
+    <div
+      v-if="modalThanhToanLoTrinh.mo"
+      class="modal-thanhtoan-backdrop position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3"
+      style="z-index:1050;background:rgba(15,23,42,0.45);"
+      tabindex="-1"
+      @click.self="dongModalThanhToanLoTrinh"
+    >
+      <div class="bg-white rounded-5 shadow-lg p-4 modal-thanhtoan-card" role="dialog" aria-modal="true" @click.stop>
+        <h5 class="fw-bold mb-2" style="color:#0d3b66;">Xác nhận thanh toán</h5>
+        <p class="text-muted mb-3 small" v-if="modalThanhToanLoTrinh.item">
+          Bạn sẽ thanh toán <strong>{{ formatVnd(modalThanhToanLoTrinh.item.gia) }}</strong>
+          để mở lộ trình
+          « <strong>{{ modalThanhToanLoTrinh.item.ten_lo_trinh }}</strong> »
+          từ ví EchoKids của bạn.
+        </p>
+        <div v-if="soDuViHienTai !== null" class="mb-3 p-3 rounded-4 bg-light small">
+          <span class="text-muted">Số dư ví hiện tại:</span>
+          <span class="fw-bold ms-1" :class="(!modalThanhToanLoTrinh.item || soDuViHienTai < Number(modalThanhToanLoTrinh.item.gia)) ? 'text-danger' : ''">
+            {{ formatVnd(soDuViHienTai) }}
+          </span>
+          <router-link v-if="modalThanhToanLoTrinh.item && soDuViHienTai < Number(modalThanhToanLoTrinh.item.gia)" to="/profile" class="ms-2 d-inline-block">
+            Nạp tiền
+          </router-link>
+        </div>
+        <p class="small text-muted mb-3">
+          Giảng viên nhận phần chia sau khi trừ hoa hồng nền tảng (theo cấu hình). Phần còn lại là phí vận hành EchoKids.
+        </p>
+        <div class="d-flex gap-2 justify-content-end flex-wrap">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" :disabled="muaLoTrinhId" @click="dongModalThanhToanLoTrinh">
+            Hủy
+          </button>
+          <button
+            type="button"
+            class="btn rounded-pill px-4 fw-bold text-white"
+            style="background: linear-gradient(135deg,#10b981,#059669);"
+            :disabled="!!muaLoTrinhId || !modalThanhToanLoTrinh.item || (soDuViHienTai !== null && modalThanhToanLoTrinh.item && soDuViHienTai < Number(modalThanhToanLoTrinh.item.gia))"
+            @click="xacNhanThanhToanLoTrinh"
+          >
+            {{ muaLoTrinhId === modalThanhToanLoTrinh.item?.id ? 'Đang xử lý...' : 'Đồng ý thanh toán' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -360,6 +423,10 @@ export default {
       baiHocLimit: 5,
       aiSuggestions: [],
       loadingMore: false,
+      muaLoTrinhId: null,
+      apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
+      modalThanhToanLoTrinh: { mo: false, item: null },
+      soDuViHienTai: null,
     };
   },
   mounted() {
@@ -376,7 +443,7 @@ export default {
       this.errorMessage = "";
       try {
         const { data: res } = await axios.get(
-          "http://127.0.0.1:8000/api/tien-do-bai-hoc/tong-quan",
+          this.apiBase + "/api/tien-do-bai-hoc/tong-quan",
           {
             headers: this.authHeaders(),
             params: {
@@ -434,7 +501,7 @@ export default {
       this.loadingMore = true;
       try {
         const { data: res } = await axios.get(
-          "http://127.0.0.1:8000/api/tien-do-bai-hoc/tong-quan",
+          this.apiBase + "/api/tien-do-bai-hoc/tong-quan",
           {
             headers: this.authHeaders(),
             params: {
@@ -482,6 +549,69 @@ export default {
 
     goToPractice(item) {
       this.goToLessonDetail(item?.bai_hoc_id);
+    },
+
+    formatVnd(n) {
+      if (!n) return "0 đ";
+      return Number(n).toLocaleString("vi-VN") + " đ";
+    },
+
+    moModalThanhToanLoTrinh(item) {
+      if (!item?.id) return;
+      this.modalThanhToanLoTrinh = { mo: true, item };
+      this.taiSoDuViChoModal();
+    },
+    dongModalThanhToanLoTrinh() {
+      if (this.muaLoTrinhId) return;
+      this.modalThanhToanLoTrinh = { mo: false, item: null };
+      this.soDuViHienTai = null;
+    },
+    async taiSoDuViChoModal() {
+      this.soDuViHienTai = null;
+      try {
+        const { data } = await axios.get(this.apiBase + "/api/vi/so-du", {
+          headers: this.authHeaders(),
+        });
+        if (data.status) {
+          this.soDuViHienTai = typeof data.so_du === "number" ? data.so_du : parseInt(data.so_du, 10) || 0;
+        }
+      } catch (_) {
+        this.soDuViHienTai = null;
+      }
+    },
+    async xacNhanThanhToanLoTrinh() {
+      const item = this.modalThanhToanLoTrinh.item;
+      if (!item) return;
+      const ok = await this.thucHienMuaLoTrinh(item);
+      if (ok) {
+        this.modalThanhToanLoTrinh = { mo: false, item: null };
+        this.soDuViHienTai = null;
+      }
+    },
+
+    async thucHienMuaLoTrinh(item) {
+      if (!item?.id) return false;
+      this.muaLoTrinhId = item.id;
+      try {
+        const { data: res } = await axios.post(
+          this.apiBase + "/api/hoc-vien/lo-trinh-ca-nhan/" + item.id + "/mua",
+          {},
+          { headers: this.authHeaders() }
+        );
+        if (res.status) {
+          if (this.$toast) this.$toast.success(res.message || "Đã mở lộ trình.");
+          await this.loadProgress();
+          return true;
+        }
+        if (this.$toast) this.$toast.error(res.message || "Không thanh toán được.");
+        return false;
+      } catch (e) {
+        const msg = e.response?.data?.message || "Không thanh toán được.";
+        if (this.$toast) this.$toast.error(msg);
+        return false;
+      } finally {
+        this.muaLoTrinhId = null;
+      }
     },
   },
 };
@@ -557,5 +687,10 @@ export default {
 @media (max-width: 768px) {
   .progress-top-box { min-width: unset; }
   .stat-icon-box { width: 52px; height: 52px; }
+}
+
+.modal-thanhtoan-card {
+  max-width: 440px;
+  width: 100%;
 }
 </style>

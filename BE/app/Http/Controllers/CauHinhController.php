@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateAiSettingsRequest;
 use App\Http\Requests\UpdateAlertSettingsRequest;
 use App\Http\Requests\UpdateBannerRequest;
 use App\Http\Requests\UpdateGeneralSettingsRequest;
+use App\Http\Requests\UpdateGeneralLogoRequest;
 use App\Models\Banner;
 use App\Models\CauHinhHeThong;
 use Illuminate\Http\JsonResponse;
@@ -58,6 +59,30 @@ class CauHinhController extends Controller
             'status' => true,
             'message' => 'Đã cập nhật cấu hình chung.',
             'data' => $settings,
+        ]);
+    }
+
+    public function updateGeneralLogo(UpdateGeneralLogoRequest $request): JsonResponse
+    {
+        $settings = $this->getSettingValue('general', $this->defaultSettings()['general']);
+
+        $uploadedFile = cloudinary()->uploadApi()->upload(
+            $request->file('logo')->getRealPath(),
+            ['folder' => 'system-logos']
+        );
+
+        $settings['logo_url'] = $uploadedFile['secure_url'];
+        $settings['logo_icon'] = '';
+
+        $this->setSettingValue('general', $settings);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Đã cập nhật logo hệ thống.',
+            'data' => [
+                'ma_cau_hinh' => 'general',
+                'du_lieu' => $settings,
+            ],
         ]);
     }
 

@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('tu_chuan', 100);
             $table->string('phien_am', 100)->nullable();
             $table->string('cap_do', 20)->nullable();
-            $table->string('hinh_anh_url', 255)->nullable();
-            $table->string('am_thanh_mau_url', 255)->nullable();
+            $table->text('hinh_anh_url')->nullable();
+            $table->text('am_thanh_mau_url')->nullable();
             $table->integer('thu_tu')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
+            $table->timestamps();
         });
     }
 

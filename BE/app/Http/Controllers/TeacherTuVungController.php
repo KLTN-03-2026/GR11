@@ -2,22 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\ResolvesTeacherMediaUrl;
 use App\Http\Requests\DestroyTeacherTuVungRequest;
 use App\Http\Requests\ImportTeacherTuVungExcelRequest;
 use App\Http\Requests\ListTeacherTuVungRequest;
 use App\Http\Requests\StoreTeacherTuVungRequest;
 use App\Http\Requests\UpdateTeacherTuVungRequest;
+use App\Http\Requests\UploadTeacherTuVungMediaRequest;
 use App\Models\BaiHoc;
 use App\Models\ChiTietLuyenTap;
 use App\Models\TuVung;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\UploadedFile;
 use Throwable;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class TeacherTuVungController extends Controller
 {
+    use ResolvesTeacherMediaUrl;
+
     public function index(ListTeacherTuVungRequest $request, int $id): JsonResponse
     {
         $baiHoc = BaiHoc::query()->find($id);
@@ -71,6 +77,96 @@ class TeacherTuVungController extends Controller
             'message' => 'Đã thêm từ vựng thành công.',
             'data' => $this->mapTuVungRow($tuVung),
         ], 201);
+    }
+
+    public function uploadMedia(UploadTeacherTuVungMediaRequest $request, int $id): JsonResponse
+    {
+        if (! function_exists('cloudinary')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Upload chưa được cấu hình trên máy chủ (Cloudinary).',
+            ], 503);
+        }
+
+        $file = $request->file('file');
+        if (! $file instanceof UploadedFile || ! $file->isValid()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Tệp tải lên không hợp lệ.',
+            ], 422);
+        }
+
+        $kind = $request->input('kind');
+        $validator = Validator::make(
+            ['file' => $file],
+            [
+                'file' => $kind === 'image'
+                    ? ['max:6144', 'mimes:jpeg,jpg,png,gif,webp']
+                    : ['max:15360', 'mimes:mp3,mpeg,wav,ogg,m4a'],
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $kind === 'image'
+                    ? 'Ảnh không hợp lệ (JPEG/PNG/GIF/WebP, tối đa ~6 MB).'
+                    : 'Âm thanh không hợp lệ (MP3/WAV/OGG/M4A, tối đa ~15 MB).',
+                'errors' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $path = $file->getRealPath();
+        if ($path === false) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không đọc được tệp tạm.',
+            ], 422);
+        }
+
+        try {
+            if ($kind === 'image') {
+                $uploaded = cloudinary()->uploadApi()->upload($path, [
+                    'folder' => 'teacher-tu-vung/'.$id.'/images',
+                ]);
+            } else {
+                $uploaded = cloudinary()->uploadApi()->upload($path, [
+                    'folder' => 'teacher-tu-vung/'.$id.'/audio',
+                    'resource_type' => 'raw',
+                ]);
+            }
+
+            $url = (string) ($uploaded['secure_url'] ?? '');
+            if ($url === '') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Dịch vụ lưu trữ không trả về địa chỉ file.',
+                ], 502);
+            }
+
+            if (strlen($url) > 255) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'URL file vượt quá 255 ký tự (giới hạn cơ sở dữ liệu). Vui lòng liên hệ quản trị để nới cột.',
+                ], 422);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Đã tải file lên Cloudinary.',
+                'data' => [
+                    'url' => $url,
+                    'kind' => $kind,
+                ],
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tải lên được. Kiểm tra cấu hình Cloudinary hoặc thử lại sau.',
+            ], 502);
+        }
     }
 
     public function importFromExcel(ImportTeacherTuVungExcelRequest $request, int $id): JsonResponse
@@ -186,6 +282,7 @@ class TeacherTuVungController extends Controller
                     'line' => $line,
                     'tu_chuan' => $tuChuan,
                 ];
+
                 continue;
             }
 
@@ -211,6 +308,7 @@ class TeacherTuVungController extends Controller
                     ],
                 ]);
             }
+
             return response()->json([
                 'status' => false,
                 'message' => $rowErrors === []
@@ -346,23 +444,10 @@ class TeacherTuVungController extends Controller
             'tu_chuan' => $tv->tu_chuan,
             'phien_am' => $tv->phien_am,
             'cap_do' => $tv->cap_do,
-            'hinh_anh_url' => $this->resolveMediaUrl($tv->hinh_anh_url),
-            'am_thanh_mau_url' => $this->resolveMediaUrl($tv->am_thanh_mau_url),
+            'hinh_anh_url' => $this->resolveTeacherMediaUrl($tv->hinh_anh_url),
+            'am_thanh_mau_url' => $this->resolveTeacherMediaUrl($tv->am_thanh_mau_url),
             'thu_tu' => $tv->thu_tu,
         ];
-    }
-
-    private function resolveMediaUrl(?string $path): ?string
-    {
-        if ($path === null || $path === '') {
-            return null;
-        }
-
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
-        }
-
-        return asset($path);
     }
 
     private function insertTuVungRow(

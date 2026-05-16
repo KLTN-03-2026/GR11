@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\GoiPremium\GoiPremiumDoiTuong;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -11,31 +12,50 @@ class GoiPremiumSeeder extends Seeder
     {
         $now = now();
 
-        DB::table('goi_premiums')->insertOrIgnore([
+        $packages = [
             [
-                'ten_goi' => 'Premium Học Viên',
-                'doi_tuong' => 'hoc_vien',
-                'mo_ta' => 'Mở khóa gợi ý AI nâng cao và báo cáo tiến độ hàng tuần cho học viên.',
-                'gia' => 149000,
-                'thoi_han_ngay' => 30,
-                'tinh_nang' => json_encode([]),
-                'trang_thai' => true,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'ten_goi' => 'Premium Giáo Viên',
-                'doi_tuong' => 'giao_vien',
-                'mo_ta' => 'Tăng giới hạn học viên lên 80, mở khóa gợi ý AI nâng cấp và báo cáo hiệu suất từng học viên.',
+                'doi_tuong' => GoiPremiumDoiTuong::HocVien->value,
+                'ten_goi' => 'Premium Học viên',
+                'mo_ta' => 'Gợi ý AI chi tiết sau mỗi lượt ghi âm, báo cáo tiến độ theo tuần và ưu tiên hàng đợi chấm phát âm.',
                 'gia' => 149000,
                 'thoi_han_ngay' => 30,
                 'tinh_nang' => json_encode([
-                    'gioi_han_hoc_vien' => 80,
-                ]),
-                'trang_thai' => true,
-                'created_at' => $now,
-                'updated_at' => $now,
+                    'uu_tien_cham_diem' => true,
+                    'bao_cao_tuan' => true,
+                    'bao_cao_thang' => true,
+                    'bieu_do_phat_am' => true,
+                ], JSON_UNESCAPED_UNICODE),
+                'trang_thai' => 1,
             ],
-        ]);
+            [
+                'doi_tuong' => GoiPremiumDoiTuong::GiaoVien->value,
+                'ten_goi' => 'Premium Giáo viên',
+                'mo_ta' => 'Mở rộng lớp học, thống kê lỗi phát âm theo học viên và gói gợi ý soạn bài luyện tập nhanh.',
+                'gia' => 199000,
+                'thoi_han_ngay' => 30,
+                'tinh_nang' => json_encode(['gioi_han_hoc_vien' => 80, 'bao_cao_lop' => true], JSON_UNESCAPED_UNICODE),
+                'trang_thai' => 1,
+            ],
+        ];
+
+        foreach ($packages as $p) {
+            $exists = DB::table('goi_premiums')->where('doi_tuong', $p['doi_tuong'])->exists();
+            if ($exists) {
+                DB::table('goi_premiums')->where('doi_tuong', $p['doi_tuong'])->update([
+                    'ten_goi' => $p['ten_goi'],
+                    'mo_ta' => $p['mo_ta'],
+                    'gia' => $p['gia'],
+                    'thoi_han_ngay' => $p['thoi_han_ngay'],
+                    'tinh_nang' => $p['tinh_nang'],
+                    'trang_thai' => $p['trang_thai'],
+                    'updated_at' => $now,
+                ]);
+            } else {
+                DB::table('goi_premiums')->insert(array_merge($p, [
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]));
+            }
+        }
     }
 }

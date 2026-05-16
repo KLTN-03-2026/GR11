@@ -41,7 +41,7 @@ const routes = [
     meta: { layout: "blank" },
   },
   {
-    path: "/profile",
+    path: "/thong-tin-ca-nhan",
     component: () => import("../components/Client/Profile/index.vue"),
     meta: { layout: "client" },
   },
@@ -49,12 +49,6 @@ const routes = [
     path: "/chat-box",
     component: () => import("../components/Client/ChatBox/index.vue"),
     meta: { layout: "client" },
-    beforeEnter: checkClient,
-  },
-  {
-    path: "/on-tap-loi",
-    component: () => import("../components/Client/OnTapLoiSai/index.vue"),
-    meta: { layout: "blank" },
     beforeEnter: checkClient,
   },
   {
@@ -86,7 +80,7 @@ const routes = [
   {
     path: "/bai-kiem-tra",
     component: () => import("../components/KhachHang/BaiKiemTra/index.vue"),
-    meta: { layout: "client" },
+    meta: { layout: "client", quizQueryParam: "bai_kiem_tra_id" },
     beforeEnter: checkClient,
   },
   {
@@ -177,6 +171,12 @@ const routes = [
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,
   },
+  {
+    path: "/admin/don-nap-tien",
+    component: () => import("../components/AHeThong/Admin/QuanLyDonNapTien/index.vue"),
+    meta: { layout: "admin" },
+    beforeEnter: checkAdmin,
+  },
 
   //---------------------------------------------TEACHER--------------------------------------------------------------
   {
@@ -193,9 +193,30 @@ const routes = [
     beforeEnter: checkTeacher,
   },
   {
+    path: "/teacher/quan-ly-lo-trinh",
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyLoTrinh/index.vue"),
+    meta: { layout: "teach" },
+    beforeEnter: checkTeacher,
+  },
+  {
     path: "/teacher/quan-ly-bai-hoc",
     component: () =>
       import("../components/AHeThong/Teach/QuanLyBaiHoc/index.vue"),
+    meta: { layout: "teach" },
+    beforeEnter: checkTeacher,
+  },
+  {
+    path: "/teacher/quan-ly-bai-kiem-tra/chinh-sua/:id",
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyBaiKiemTra/ChinhSua.vue"),
+    meta: { layout: "teach" },
+    beforeEnter: checkTeacher,
+  },
+  {
+    path: "/teacher/quan-ly-bai-kiem-tra",
+    component: () =>
+      import("../components/AHeThong/Teach/QuanLyBaiKiemTra/index.vue"),
     meta: { layout: "teach" },
     beforeEnter: checkTeacher,
   },

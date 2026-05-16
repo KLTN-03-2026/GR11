@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('giao_vien_id')->constrained('nguoi_dungs')->onDelete('cascade');
             $table->foreignId('hoc_vien_id')->constrained('nguoi_dungs')->onDelete('cascade');
-            $table->string('trang_thai')->default('dang_theo_doi');
+            $table->integer('trang_thai')->default(1); // 1 = dang_theo_doi
             $table->timestamp('ngay_ket_noi')->useCurrent();
             $table->timestamps();
             $table->unique(['giao_vien_id', 'hoc_vien_id']);

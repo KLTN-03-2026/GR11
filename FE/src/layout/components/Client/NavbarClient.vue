@@ -55,13 +55,6 @@
           </router-link>
 
           <router-link
-            to="/luyen-tap"
-            class="dropdown-item rounded-3 py-2"
-          >
-            🎤 Luyện Tập
-          </router-link>
-
-          <router-link
             to="/bai-kiem-tra"
             class="dropdown-item rounded-3 py-2"
           >
@@ -135,12 +128,28 @@
         :class="{ 'user-toggle--no-avatar': !user.avatarDisplayUrl }"
         @click="showUserMenu = !showUserMenu"
       >
-        <img
-          v-if="user.avatarDisplayUrl"
-          :src="user.avatarDisplayUrl"
-          class="user-avatar"
-          alt=""
-        />
+        <div v-if="user.avatarDisplayUrl" class="user-avatar-wrap">
+          <span
+            v-if="premiumActive"
+            class="user-premium-mark"
+            title="Gói Premium đang hoạt động"
+            aria-label="Premium đang hoạt động"
+          >
+            <i class="fa-solid fa-crown" aria-hidden="true"></i>
+          </span>
+          <img
+            :src="user.avatarDisplayUrl"
+            class="user-avatar"
+            alt=""
+          />
+        </div>
+        <span
+          v-else-if="premiumActive"
+          class="user-premium-chip"
+          title="Gói Premium đang hoạt động"
+        >
+          <i class="fa-solid fa-crown" aria-hidden="true"></i>
+        </span>
 
         <div class="user-info">
           <h6 class="mb-0">{{ user.name }}</h6>
@@ -153,8 +162,13 @@
           v-if="showUserMenu"
           class="user-dropdown-menu"
         >
+          <div v-if="premiumActive" class="premium-dropdown-badge" role="status">
+            <i class="fa-solid fa-crown me-1" aria-hidden="true"></i>
+            <span>Premium</span>
+          </div>
+
           <router-link
-            to="/profile"
+            to="/thong-tin-ca-nhan"
             class="user-menu-item"
           >
             <i class="fa fa-user-circle"></i>
@@ -190,6 +204,7 @@ export default {
       showUserMenu: false,
       user: {},
       daDangNhap: false,
+      premiumActive: false,
       branding: {
         logo_icon: "fa fa-book-reader me-3",
         logo_url: null,
@@ -217,12 +232,14 @@ export default {
     this.taiCauHinhChung();
     window.addEventListener("storage", this.dongBoUserTuLocal);
     window.addEventListener("profile-updated", this.dongBoUserTuLocal);
+    window.addEventListener("premium-status-changed", this.taiTrangThaiPremium);
   },
 
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
     window.removeEventListener("storage", this.dongBoUserTuLocal);
     window.removeEventListener("profile-updated", this.dongBoUserTuLocal);
+    window.removeEventListener("premium-status-changed", this.taiTrangThaiPremium);
   },
 
   methods: {
@@ -278,6 +295,34 @@ export default {
         avatarDisplayUrl:
           daDangNhap && coAnhThat ? this.duongDanAnh(avatarRaw) : null,
       };
+      if (daDangNhap) {
+        this.taiTrangThaiPremium();
+      } else {
+        this.premiumActive = false;
+      }
+    },
+    taiTrangThaiPremium() {
+      const token = localStorage.getItem("token_nguoi_dung");
+      if (!token) {
+        this.premiumActive = false;
+        return;
+      }
+      const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(
+        /\/$/,
+        "",
+      );
+      axios
+        .get(`${base}/api/goi-premium/goi-hien-tai`, {
+          headers: { Authorization: "Bearer " + token },
+        })
+        .then((res) => {
+          this.premiumActive = !!(
+            res.data?.status && res.data?.goi_dang_dung
+          );
+        })
+        .catch(() => {
+          this.premiumActive = false;
+        });
     },
     dangXuat() {
       this.showUserMenu = false;
@@ -461,6 +506,60 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 8px 18px rgba(255, 107, 53, 0.1);
+}
+
+.user-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.user-premium-mark {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #fff;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.45);
+  pointer-events: none;
+}
+
+.user-premium-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #92400e;
+  background: linear-gradient(135deg, #fffbeb, #fde68a);
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.35);
+}
+
+.premium-dropdown-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #92400e;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1px solid rgba(251, 191, 36, 0.45);
 }
 
 .user-toggle--no-avatar {

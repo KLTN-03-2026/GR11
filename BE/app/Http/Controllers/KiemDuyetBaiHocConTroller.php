@@ -69,7 +69,7 @@ class KiemDuyetBaiHocConTroller extends Controller
     public function update(UpdateDanhMucBaiHocRequest $request, int $id): JsonResponse
     {
         $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
+        if (! $danhMuc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy danh mục',
@@ -94,7 +94,7 @@ class KiemDuyetBaiHocConTroller extends Controller
     public function destroy(DestroyDanhMucBaiHocRequest $request, int $id): JsonResponse
     {
         $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
+        if (! $danhMuc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy danh mục',
@@ -113,7 +113,7 @@ class KiemDuyetBaiHocConTroller extends Controller
     {
         if ($this->isKiemDuyetBaiHocRoute($request)) {
             $baiHoc = BaiHoc::find($id);
-            if (!$baiHoc) {
+            if (! $baiHoc) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Không tìm thấy bài học',
@@ -122,37 +122,39 @@ class KiemDuyetBaiHocConTroller extends Controller
 
             $trangThaiMoi = $this->resolveTrangThaiBaiHoc($request->input('trang_thai'));
             if ($trangThaiMoi === null) {
-                $trangThaiMoi = $baiHoc->trang_thai == 0 ? 1 : 0;
+                $trangThaiMoi = $baiHoc->trang_thai == BaiHoc::TRANG_THAI_HOAT_DONG
+                    ? BaiHoc::TRANG_THAI_CHO_DUYET
+                    : BaiHoc::TRANG_THAI_HOAT_DONG;
             }
 
             $baiHoc->trang_thai = $trangThaiMoi;
             $baiHoc->save();
 
             // Broadcast real-time tới giáo viên sở hữu bài học
+            $trangThaiLabel = $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai);
             if ($baiHoc->nguoi_tao_id) {
-                $trangThaiLabel = $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai);
                 broadcast(new AdminDuyetBaiHoc($baiHoc, (int) $baiHoc->nguoi_tao_id, $trangThaiLabel));
             }
 
             return response()->json([
                 'status' => true,
-                'message' => 'Đã cập nhật trạng thái bài học thành công',
+                'message' => 'Đã ' . mb_strtolower($trangThaiLabel) . ' bài học thành công',
                 'data' => [
                     'id' => $baiHoc->id,
-                    'trang_thai' => $this->mapTrangThaiBaiHocToText($baiHoc->trang_thai),
+                    'trang_thai' => $trangThaiLabel,
                 ],
             ]);
         }
 
         $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
+        if (! $danhMuc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy danh mục',
             ], 404);
         }
 
-        $danhMuc->trang_thai = (int) !$danhMuc->trang_thai;
+        $danhMuc->trang_thai = (int) ! $danhMuc->trang_thai;
         $danhMuc->save();
 
         return response()->json([
@@ -165,7 +167,7 @@ class KiemDuyetBaiHocConTroller extends Controller
     public function getBaiHoc(GetBaiHocTheoDanhMucRequest $request, int $id): JsonResponse
     {
         $danhMuc = DanhMucBaiHoc::find($id);
-        if (!$danhMuc) {
+        if (! $danhMuc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy danh mục',
@@ -197,7 +199,7 @@ class KiemDuyetBaiHocConTroller extends Controller
     public function getTuVung(GetTuVungTheoBaiHocRequest $request, int $id): JsonResponse
     {
         $baiHoc = BaiHoc::find($id);
-        if (!$baiHoc) {
+        if (! $baiHoc) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy bài học',
@@ -230,12 +232,16 @@ class KiemDuyetBaiHocConTroller extends Controller
 
     private function mapTrangThaiBaiHocToText(?int $trangThai): string
     {
-        if ((int) $trangThai === 1) {
+        if ((int) $trangThai === BaiHoc::TRANG_THAI_HOAT_DONG) {
             return 'Đã duyệt';
         }
-        if ((int) $trangThai === 2) {
+        if ((int) $trangThai === BaiHoc::TRANG_THAI_TU_CHOI) {
             return 'Từ chối';
         }
+        if ((int) $trangThai === BaiHoc::TRANG_THAI_CHO_DUYET) {
+            return 'Chờ duyệt';
+        }
+
         return 'Chờ duyệt';
     }
 
@@ -251,13 +257,13 @@ class KiemDuyetBaiHocConTroller extends Controller
 
         $value = mb_strtolower(trim((string) $value));
         if ($value === 'đã duyệt' || $value === 'da duyet') {
-            return 1;
+            return BaiHoc::TRANG_THAI_HOAT_DONG;
         }
         if ($value === 'từ chối' || $value === 'tu choi') {
-            return 2;
+            return BaiHoc::TRANG_THAI_TU_CHOI;
         }
         if ($value === 'chờ duyệt' || $value === 'cho duyet') {
-            return 0;
+            return BaiHoc::TRANG_THAI_CHO_DUYET;
         }
 
         return null;

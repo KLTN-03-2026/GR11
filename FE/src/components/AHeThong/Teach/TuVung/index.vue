@@ -24,6 +24,10 @@
                 <input ref="excelTuVungInput" type="file" class="d-none"
                     accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
                     @change="nhapTuVungTuExcel" />
+                <input ref="inputHinhTuVungUpload" type="file" class="d-none" accept="image/jpeg,image/png,image/gif,image/webp"
+                    @change="onDaChonFileHinhTuVung($event)" />
+                <input ref="inputAudioTuVungUpload" type="file" class="d-none" accept=".mp3,.wav,.ogg,.m4a,audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/mp4,audio/x-m4a"
+                    @change="onDaChonFileAudioTuVung($event)" />
                 <button type="button" class="btn btn-outline-primary shadow-sm rounded-pill px-4 py-2 fw-medium"
                     :disabled="!bai_hoc_id || importingExcel" @click="moChonFileExcelTuVung">
                     <span v-if="importingExcel" class="spinner-border spinner-border-sm me-2"></span>
@@ -210,25 +214,50 @@
                             </div>
 
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold text-dark mb-2">Link Hình ảnh minh họa
-                                    (URL)</label>
+                                <label class="form-label fw-semibold text-dark mb-2">Hình ảnh minh họa</label>
+                                <p class="text-muted small mb-2 mb-md-3">Chọn ảnh để đẩy lên Cloudinary, hoặc dán URL nếu bạn có sẵn.</p>
+                                <div class="d-flex flex-wrap align-items-start gap-2 mb-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-3 fw-medium px-3"
+                                        :disabled="!bai_hoc_id || taiLenMedia === 'image'" @click="moChonHinhTuVung">
+                                        <span v-if="taiLenMedia === 'image'" class="spinner-border spinner-border-sm me-2"></span>
+                                        <i v-else class="fa-solid fa-cloud-arrow-up me-2"></i>
+                                        {{ taiLenMedia === 'image' ? 'Đang tải ảnh...' : 'Tải ảnh lên Cloudinary' }}
+                                    </button>
+                                    <div v-if="tuVungForm.hinh_anh_url" class="rounded-3 bg-light border overflow-hidden shadow-sm flex-shrink-0"
+                                        style="width:64px;height:64px;">
+                                        <img :src="tuVungForm.hinh_anh_url" alt="" class="w-100 h-100" style="object-fit:cover;" />
+                                    </div>
+                                </div>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-0"><i
-                                            class="fa-regular fa-image text-muted"></i></span>
+                                            class="fa-regular fa-link text-muted"></i></span>
                                     <input type="text" class="form-control py-2 bg-light border-0 shadow-none"
                                         v-model="tuVungForm.hinh_anh_url"
-                                        placeholder="https://... hoặc đường dẫn file ảnh">
+                                        placeholder="URL ảnh (tự điền sau khi tải lên, hoặc dán thủ công)">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold text-dark mb-2">Link Âm thanh mẫu (URL)</label>
+                                <label class="form-label fw-semibold text-dark mb-2">Âm thanh mẫu</label>
+                                <p class="text-muted small mb-2 mb-md-3">Chọn file MP3/WAV/OGG/M4A để đẩy lên Cloudinary, hoặc dán URL.</p>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-3 fw-medium px-3"
+                                        :disabled="!bai_hoc_id || taiLenMedia === 'audio'" @click="moChonAudioTuVung">
+                                        <span v-if="taiLenMedia === 'audio'" class="spinner-border spinner-border-sm me-2"></span>
+                                        <i v-else class="fa-solid fa-cloud-arrow-up me-2"></i>
+                                        {{ taiLenMedia === 'audio' ? 'Đang tải âm thanh...' : 'Tải âm thanh lên Cloudinary' }}
+                                    </button>
+                                    <button v-if="tuVungForm.am_thanh_mau_url" type="button"
+                                        class="btn btn-sm btn-outline-secondary rounded-3" @click="ngheThuAmThanhForm">
+                                        <i class="fa-solid fa-play me-1"></i> Nghe thử
+                                    </button>
+                                </div>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-0"><i
-                                            class="fa-solid fa-microphone-lines text-muted"></i></span>
+                                            class="fa-regular fa-link text-muted"></i></span>
                                     <input type="text" class="form-control py-2 bg-light border-0 shadow-none"
                                         v-model="tuVungForm.am_thanh_mau_url"
-                                        placeholder="https://... hoặc đường dẫn file MP3/WAV">
+                                        placeholder="URL âm thanh (tự điền sau khi tải lên, hoặc dán thủ công)">
                                 </div>
                             </div>
                         </div>
@@ -381,6 +410,7 @@ export default {
                 thu_tu: 1,
             },
             tuVungXoa: null,
+            taiLenMedia: null,
         };
     },
     watch: {
@@ -422,8 +452,15 @@ export default {
         },
         toastLoiAxios(err) {
             if (err.response && err.response.data) {
-                if (err.response.data.errors) {
-                    Object.values(err.response.data.errors).forEach((errorList) => {
+                const errs = err.response.data.errors;
+                if (errs) {
+                    if (Array.isArray(errs)) {
+                        errs.slice(0, 8).forEach((msg) => {
+                            if (typeof msg === 'string') this.$toast.error(msg);
+                        });
+                        return;
+                    }
+                    Object.values(errs).forEach((errorList) => {
                         if (Array.isArray(errorList)) {
                             errorList.forEach((msg) => this.$toast.error(msg));
                         }
@@ -551,6 +588,71 @@ export default {
             audio.play().catch(() => {
                 this.$toast.error('Không phát được âm thanh (kiểm tra link hoặc CORS).');
             });
+        },
+        ngheThuAmThanhForm() {
+            const url = this.tuVungForm.am_thanh_mau_url;
+            if (!url || !String(url).trim()) {
+                this.$toast.warning('Chưa có URL âm thanh.');
+                return;
+            }
+            const audio = new Audio(String(url).trim());
+            audio.play().catch(() => {
+                this.$toast.error('Không phát được âm thanh (kiểm tra link hoặc CORS).');
+            });
+        },
+        moChonHinhTuVung() {
+            if (!this.bai_hoc_id || this.taiLenMedia) return;
+            const el = this.$refs.inputHinhTuVungUpload;
+            if (el) el.click();
+        },
+        moChonAudioTuVung() {
+            if (!this.bai_hoc_id || this.taiLenMedia) return;
+            const el = this.$refs.inputAudioTuVungUpload;
+            if (el) el.click();
+        },
+        onDaChonFileHinhTuVung(event) {
+            const input = event.target;
+            const file = input.files && input.files[0];
+            if (input) input.value = '';
+            if (file) this.taiLenTuVungMedia('image', file);
+        },
+        onDaChonFileAudioTuVung(event) {
+            const input = event.target;
+            const file = input.files && input.files[0];
+            if (input) input.value = '';
+            if (file) this.taiLenTuVungMedia('audio', file);
+        },
+        taiLenTuVungMedia(kind, file) {
+            if (!this.bai_hoc_id || !file) return;
+            this.taiLenMedia = kind;
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('kind', kind);
+            axios
+                .post(
+                    `${this.apiBase}/api/teacher/bai-hoc/${this.bai_hoc_id}/tu-vung/upload-media`,
+                    fd,
+                    { headers: this.authHeaders() }
+                )
+                .then((res) => {
+                    if (res.data.status && res.data.data?.url) {
+                        const url = res.data.data.url;
+                        if (kind === 'image') {
+                            this.tuVungForm.hinh_anh_url = url;
+                        } else {
+                            this.tuVungForm.am_thanh_mau_url = url;
+                        }
+                        this.$toast.success(res.data.message || 'Đã tải lên Cloudinary.');
+                    } else {
+                        this.$toast.error(res.data.message || 'Tải lên thất bại.');
+                    }
+                })
+                .catch((err) => {
+                    this.toastLoiAxios(err);
+                })
+                .finally(() => {
+                    this.taiLenMedia = null;
+                });
         },
         themTuVung() {
             if (!this.bai_hoc_id) {

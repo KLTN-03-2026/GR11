@@ -34,6 +34,13 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    /*
+    | Chat LLM: gemini (cloud) | ollama (local, no API quota)
+    */
+    'chat_llm' => [
+        'provider' => env('CHAT_LLM_PROVIDER', 'gemini'),
+    ],
+
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
         'api_keys' => env('GEMINI_API_KEYS', ''),
@@ -42,6 +49,13 @@ return [
         'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
         'prompt_profile' => env('GEMINI_PROMPT_PROFILE', 'default'),
         'max_sentences' => (int) env('GEMINI_PROMPT_MAX_SENTENCES', 4),
+    ],
+
+    'ollama' => [
+        'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
+        'model' => env('OLLAMA_MODEL', 'qwen2.5:7b-instruct'),
+        'timeout' => (int) env('OLLAMA_TIMEOUT', 120),
+        'max_output_tokens' => (int) env('OLLAMA_MAX_OUTPUT_TOKENS', 1500),
     ],
 
     'fpt' => [
@@ -54,6 +68,10 @@ return [
     'recaptcha' => [
         'site' => env('RECAPTCHA_SITE_KEY'),
         'secret' => env('RECAPTCHA_SECRET_KEY'),
+    ],
+
+    'python_ai' => [
+        'url' => env('PYTHON_AI_URL', 'http://127.0.0.1:8001'),
     ],
 
 ];

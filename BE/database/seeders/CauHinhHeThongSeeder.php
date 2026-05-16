@@ -7,9 +7,6 @@ use Illuminate\Database\Seeder;
 
 class CauHinhHeThongSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $items = [
@@ -31,7 +28,7 @@ class CauHinhHeThongSeeder extends Seeder
             ],
             'alert' => [
                 'is_active' => false,
-                'message' => 'Hệ thống đang tiến hành nâng cấp AI. Việc chấm điểm phát âm có thể chậm hơn bình thường 1-2 giây.',
+                'message' => 'Hệ thống có thể tạm thời điều chỉnh hàng đợi chấm phát âm trong giờ cao điểm. Vui lòng thử lại sau vài giây nếu phản hồi chậm.',
             ],
             'ti_le_hoa_hong_platform' => [
                 'phan_tram' => 20,

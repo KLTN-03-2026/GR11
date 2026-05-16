@@ -98,7 +98,7 @@
           <div class="card dashboard-card dashboard-card--warning border-0 shadow-sm rounded-3 h-100" :style="{ borderLeft: '5px solid ' + (apiUsagePercentage > 80 ? '#ef4444' : '#10b981') }">
             <div class="card-body card-body-highlight p-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <small class="text-muted fw-semibold">Giới hạn sử dụng API</small>
+                <small class="text-muted fw-semibold">Giới hạn sử dụng TTS API</small>
                 <i class="fa-solid fa-microchip" :style="{ color: apiUsagePercentage > 80 ? '#ef4444' : '#10b981' }"></i>
               </div>
               <div class="d-flex justify-content-between align-items-end mb-1">
@@ -187,7 +187,16 @@
                 <div class="col-6">
                   <div class="p-3 rounded-2" style="background-color: #f3f4f6;">
                     <small class="text-muted d-block mb-1">Lần backup cuối</small>
-                    <h5 class="mb-0 fw-bold text-dark">{{ systemMetrics.lastBackup }}</h5>
+                    <h5 class="mb-2 fw-bold text-dark">{{ systemMetrics.lastBackup }}</h5>
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      @click="taoBackup"
+                      :disabled="isBackingUp"
+                    >
+                      <span class="spinner-border spinner-border-sm me-1" v-if="isBackingUp"></span>
+                      <i class="fa-solid fa-database me-1" v-else></i>
+                      {{ isBackingUp ? 'Đang backup...' : 'Tạo backup' }}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -381,37 +390,33 @@ export default {
       activeTab: 'monitoring',
       bo_loc_thoi_gian: 'thang',
       apiHealth: {
-        status: 'healthy',
-        uptime: 99.9
+        status: 'unknown',
+        uptime: 0
       },
       keyMetrics: {
-        api_used: 35000,
-        api_limit: 50000
+        api_used: 0,
+        api_limit: 0
       },
       systemMetrics: {
-        errorCount: 3,
-        errorTrend: '+2 từ hôm qua',
+        errorCount: 0,
+        errorTrend: 'Chưa có dữ liệu',
         dbStatus: 'connected',
-        dbConnections: 24,
+        dbConnections: 0,
         activeUsers: 0,
         lockedUsers: 0,
         unreadNotices: 0,
-        dbOptimization: 92,
-        slowQueries: 5,
-        dbSize: '8.5 GB',
-        lastBackup: '2 giờ trước',
-        lastUpdatedText: 'Cập nhật vừa xong'
+        dbOptimization: 0,
+        slowQueries: 0,
+        dbSize: '0.00 GB',
+        lastBackup: 'Chưa backup',
+        lastUpdatedText: 'Chưa cập nhật'
       },
       duLieuApiPerformance: {
-        tuan: { labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], data: [450, 520, 480, 650, 580, 720, 890] },
-        thang: { labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'], data: [4500, 5200, 4800, 6500] },
-        nam: { labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'], data: [45000, 52000, 48000, 65000, 58000, 72000] }
+        tuan: { labels: [], data: [] },
+        thang: { labels: [], data: [] },
+        nam: { labels: [], data: [] }
       },
-      danh_sach_canh_bao: [
-        { id: 1, icon: 'fa-solid fa-server', type: 'warning', tieu_de: 'CPU cao', mo_ta: 'Mức sử dụng CPU ở 65%, khuyến nghị tối ưu.', thoi_gian: '5 phút trước' },
-        { id: 2, icon: 'fa-solid fa-database', type: 'info', tieu_de: 'Backup thành công', mo_ta: 'Backup định kỳ hoàn thành lúc 02:00.', thoi_gian: '2 giờ trước' },
-        { id: 3, icon: 'fa-solid fa-exclamation-triangle', type: 'error', tieu_de: 'Lỗi API endpoint', mo_ta: "Service '/api/voice' bị lỗi 3 lần, tự phục hồi.", thoi_gian: '30 phút trước' }
-      ],
+      danh_sach_canh_bao: [],
       reportFilter: {
         startDate: '',
         endDate: '',
@@ -419,6 +424,7 @@ export default {
       },
       isLoading: false,
       isExporting: false,
+      isBackingUp: false,
       chatSupportStats: {
         openSessions: 0,
         unreadByTeacher: 0,
@@ -426,36 +432,23 @@ export default {
         totalPending: 0
       },
       reportSummaryCards: [
-        { title: 'Total Requests', value: '2,543,891', subtitle: 'requests tháng này' },
-        { title: 'Success Rate', value: '99.2%', subtitle: 'request thành công' },
-        { title: 'Errors (24h)', value: '45', subtitle: 'sự kiện lỗi' },
-        { title: 'Avg Response Time', value: '145ms', subtitle: 'thời gian phản hồi' }
+        { title: 'Total Requests', value: '0', subtitle: 'requests trong khoảng lọc' },
+        { title: 'Success Rate', value: '0%', subtitle: 'request thành công' },
+        { title: 'Errors', value: '0', subtitle: 'sự kiện lỗi' },
+        { title: 'Avg Response Time', value: '0ms', subtitle: 'thời gian phản hồi' }
       ],
-      serviceHealth: [
-        { id: 1, name: 'API Server', status: 'online', uptime: 99.8, requestsPerDay: 245000, avgResponse: 145, errorRate: 0.2 },
-        { id: 2, name: 'Database (MySQL)', status: 'online', uptime: 99.9, requestsPerDay: 180000, avgResponse: 230, errorRate: 0.1 },
-        { id: 3, name: 'Redis Cache', status: 'online', uptime: 99.7, requestsPerDay: 520000, avgResponse: 5, errorRate: 0.3 },
-        { id: 4, name: 'Authentication', status: 'online', uptime: 99.95, requestsPerDay: 85000, avgResponse: 180, errorRate: 0.05 },
-        { id: 5, name: 'Message Queue', status: 'online', uptime: 99.6, requestsPerDay: 150000, avgResponse: 250, errorRate: 0.4 }
-      ],
-      incidentSummary: [
-        { type: 'Database Errors (500)', severity: 'critical', count: 23, percent: 45, description: 'Query timeout và connection errors' },
-        { type: 'API Rate Limit (429)', severity: 'warning', count: 18, percent: 35, description: 'Vượt quota giới hạn' },
-        { type: 'Service Warnings', severity: 'info', count: 10, percent: 20, description: 'Response time cao, cảnh báo hệ thống' }
-      ],
-      topErrors: [
-        { id: 1, code: '500', service: 'API Server', count: 23, lastOccurrence: '5 phút trước' },
-        { id: 2, code: '429', service: 'API Server', count: 18, lastOccurrence: '15 phút trước' },
-        { id: 3, code: '503', service: 'Database', count: 12, lastOccurrence: '1 giờ trước' },
-        { id: 4, code: '502', service: 'Gateway', count: 8, lastOccurrence: '2 giờ trước' },
-        { id: 5, code: '504', service: 'Cache', count: 5, lastOccurrence: '3 giờ trước' }
-      ]
+      serviceHealth: [],
+      incidentSummary: [],
+      topErrors: []
     };
 
   },
   computed: {
     apiUsagePercentage() {
-      return Math.round((this.keyMetrics.api_used / this.keyMetrics.api_limit) * 100);
+      const used = Number(this.keyMetrics.api_used || 0);
+      const limit = Number(this.keyMetrics.api_limit || 0);
+      if (limit <= 0) return 0;
+      return Math.round((used / limit) * 100);
     },
     filteredServiceHealth() {
       if (!this.reportFilter.service) {
@@ -518,7 +511,9 @@ export default {
       });
     },
     renderApiPerformanceChart() {
-      const ctx = this.$refs.apiPerformanceChart.getContext('2d');
+      const ctx = this.$refs.apiPerformanceChart?.getContext('2d');
+      if (!ctx) return;
+      if (this.chartInstances.apiPerformance) this.chartInstances.apiPerformance.destroy();
       const dl = this.duLieuApiPerformance[this.bo_loc_thoi_gian];
       this.chartInstances.apiPerformance = new Chart(ctx, {
         type: 'line',
@@ -670,6 +665,24 @@ export default {
       this.reportFilter.service = '';
       this.setReportDefaults();
       this.apDungBoLoc();
+    },
+    async taoBackup() {
+      this.isBackingUp = true;
+      try {
+        const res = await axios.post(this.apiBase + '/api/admin/dashboard/backup', {}, {
+          headers: this.authHeaders(),
+        });
+        if (res?.data?.status) {
+          this.$toast?.success(res?.data?.message || 'Đã tạo backup thành công.');
+          await this.taiDuLieuTongQuan();
+          return;
+        }
+        this.$toast?.error(res?.data?.message || 'Không thể tạo backup.');
+      } catch (err) {
+        this.xuLyLoiAxios(err, 'Không thể tạo backup database.');
+      } finally {
+        this.isBackingUp = false;
+      }
     },
     async xuatBaoCao() {
       if (!this.reportFilter.startDate || !this.reportFilter.endDate) {

@@ -20,10 +20,7 @@ return new class extends Migration
             $table->boolean('da_hoan_thanh')->default(false); // Đã hoàn thành ôn tập chưa
             $table->timestamp('ngay_danh_dau')->useCurrent(); // Ngày đánh dấu
             $table->timestamp('ngay_hoan_thanh')->nullable(); // Ngày hoàn thành ôn tập
-            $table->timestamp('ngay_tao')->useCurrent();
-            $table->timestamp('ngay_cap_nhat')->useCurrent()->useCurrentOnUpdate();
-            
-            // Indexes để tối ưu query
+            $table->timestamps();
             $table->index('nguoi_dung_id');
             $table->index('tu_vung_id');
             $table->index('da_hoan_thanh');

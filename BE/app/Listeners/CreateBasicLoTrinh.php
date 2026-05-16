@@ -42,7 +42,6 @@ class CreateBasicLoTrinh implements ShouldQueue
                 'hoc_vien_id' => $user->id,
                 'giao_vien_id' => $giaoVienId,
                 'ten_lo_trinh' => 'Lộ trình cơ bản',
-                'ngay_tao' => now()->toDateString(),
             ]);
 
             $existingBaiHocIds = DB::table('bai_hocs')
@@ -56,7 +55,6 @@ class CreateBasicLoTrinh implements ShouldQueue
                     'bai_hoc_id' => $baiHocId,
                     'thu_tu_uu_tien' => $index + 1,
                     'ghi_chu_gv' => null,
-                    'ngay_tao' => now(),
                 ]);
             }
 

@@ -9,13 +9,18 @@ class DanhMucBaiHoc extends Model
 {
     protected $table = 'danh_muc_bai_hocs';
 
+    /** Danh mục hiển thị công khai. */
+    public const TRANG_THAI_HIEN_THI = 0;
+
+    /** Danh mục tạm ẩn. */
+    public const TRANG_THAI_TAM_AN = 1;
+
     protected $fillable = [
         'ten_danh_muc',
         'slug_danh_muc',
         'mo_ta',
         'trang_thai',
         'thu_tu',
-        'ngay_tao',
     ];
 
     /**

@@ -71,6 +71,12 @@
                 <span>Hồ sơ Giáo viên</span>
               </router-link>
             </li>
+            <li :class="{ active: $route.path === '/admin/don-nap-tien' }">
+              <router-link to="/admin/don-nap-tien" class="iq-waves-effect mt-1">
+                <i class="ri-wallet-3-line"></i>
+                <span>Đơn nạp tiền ví</span>
+              </router-link>
+            </li>
             <li class="logout-item">
               <a href="#" class="iq-waves-effect logout-link" @click.prevent="showLogoutModal = true">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>

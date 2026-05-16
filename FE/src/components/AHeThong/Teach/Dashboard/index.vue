@@ -191,10 +191,14 @@ export default {
         headers: this.authHeaders(),
         params: { chu_ky: this.chu_ky_chon },
       }).then((res) => {
-        const data = res.data?.data || {};
+        if (!res.data?.status) return;
+        const data = res.data.data || {};
         const tomTat = data.the_tom_tat || {};
         const xuHuong = data.xu_huong_tom_tat || {};
 
+        if (data.ho_ten_giao_vien) {
+          this.ho_ten_giao_vien = data.ho_ten_giao_vien;
+        }
         this.dashboard_meta = data.meta || {};
 
         this.the_tom_tat = [

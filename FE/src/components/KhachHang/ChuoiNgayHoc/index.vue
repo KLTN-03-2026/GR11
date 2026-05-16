@@ -64,6 +64,42 @@
         </div>
       </div>
 
+      <!-- Điểm danh — luôn ở đầu trang -->
+      <div class="bg-white rounded-5 shadow-sm p-4 mb-4 attendance-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h5 class="fw-bold mb-1" style="color: #0d3b66;">Điểm danh hôm nay</h5>
+            <p class="text-muted mb-0 small">
+              <span v-if="daDiemDanhHomNay">Đã ghi nhận — duy trì chuỗi bằng hoạt động học mỗi ngày.</span>
+              <span v-else>Điểm danh để +15 XP và cập nhật chuỗi học.</span>
+            </p>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn rounded-pill px-4 fw-semibold"
+              :class="daDiemDanhHomNay ? 'btn-success' : 'btn-primary'"
+              :disabled="actionLoading || daDiemDanhHomNay"
+              @click="diemDanh"
+            >
+              <span v-if="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+              <i v-else-if="daDiemDanhHomNay" class="fa-solid fa-check me-2"></i>
+              <i v-else class="fa-solid fa-calendar-check me-2"></i>
+              {{ daDiemDanhHomNay ? 'Đã điểm danh' : 'Điểm danh hôm nay' }}
+            </button>
+            <button
+              v-if="phien_id"
+              type="button"
+              class="btn btn-outline-success rounded-pill px-4 fw-semibold"
+              :disabled="actionLoading"
+              @click="markCompleted"
+            >
+              Hoàn thành phiên
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Week Streak -->
       <div class="bg-white rounded-5 shadow-sm p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
@@ -145,11 +181,6 @@
             </div>
           </div>
         </div>
-        <div class="mt-4 text-center">
-          <button class="btn btn-success rounded-pill px-4" @click="markCompleted" :disabled="actionLoading">
-            Hoàn thành phiên
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -163,6 +194,7 @@ export default {
 
   data() {
     return {
+      apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
       phien_id : localStorage.getItem("last_phien_id"),
       thong_tin : {},
       leaderboard : [],
@@ -177,6 +209,13 @@ export default {
     currentRankDisplay() {
       return this.currentUserRank ? `#${this.currentUserRank}` : "—";
     },
+    daDiemDanhHomNay() {
+      if (this.thong_tin?.da_diem_danh_hom_nay === true) return true;
+      const raw = this.thong_tin?.ngay_hoc_cuoi_cung;
+      if (!raw) return false;
+      const today = new Date().toISOString().slice(0, 10);
+      return String(raw).slice(0, 10) === today;
+    },
   },
   mounted() {
     this.buildStreakDays();
@@ -184,6 +223,18 @@ export default {
     this.loadLeaderboard();
   },
   methods: {
+    authHeaders() {
+      const token = localStorage.getItem('token_nguoi_dung');
+      return token ? { Authorization: 'Bearer ' + token } : {};
+    },
+    apDungDuLieuStreak(data) {
+      if (!data) return;
+      this.thong_tin.streak_hien_tai = data.streak_hien_tai;
+      this.thong_tin.diem_tich_luy = data.diem_tich_luy;
+      this.thong_tin.ngay_hoc_cuoi_cung = data.ngay_hoc_cuoi_cung;
+      this.thong_tin.da_diem_danh_hom_nay = data.da_diem_danh_hom_nay;
+      this.buildStreakDays();
+    },
     buildStreakDays() {
       const labels = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
       const now = new Date();
@@ -231,10 +282,8 @@ export default {
         return;
       }
       this.loading = true;
-      axios.get('http://127.0.0.1:8000/api/thong-tin-hoc-vien/me', {
-        headers : {
-          Authorization: 'Bearer ' + token
-        }
+      axios.get(this.apiBase + '/api/thong-tin-hoc-vien/me', {
+        headers: this.authHeaders(),
       })
       .then((res) => {
         if(res.data.status){
@@ -256,7 +305,7 @@ export default {
     },
     loadLeaderboard(){
       this.loadingLeaderboard = true;
-      axios.get('http://127.0.0.1:8000/api/leaderboard?type=points&limit=1000')
+      axios.get(this.apiBase + '/api/leaderboard?type=points&limit=1000')
       .then((res) => {
         if(res.data.status){
           this.leaderboard = res.data.data || [];
@@ -282,6 +331,31 @@ export default {
       const idx = this.leaderboard.findIndex((u) => Number(u.nguoi_dung_id) === userId);
       this.currentUserRank = idx >= 0 ? idx + 1 : null;
     },
+    diemDanh() {
+      const token = localStorage.getItem('token_nguoi_dung');
+      if (!token) {
+        this.$toast.error('Bạn chưa đăng nhập.');
+        return;
+      }
+      this.actionLoading = true;
+      axios
+        .post(this.apiBase + '/api/thong-tin-hoc-vien/diem-danh', {}, { headers: this.authHeaders() })
+        .then((res) => {
+          if (res.data.status) {
+            this.$toast.success(res.data.message || 'Điểm danh thành công.');
+            this.apDungDuLieuStreak(res.data.data);
+            this.loadLeaderboard();
+          } else {
+            this.$toast.error(res.data.message || 'Không thể điểm danh.');
+          }
+        })
+        .catch(() => {
+          this.$toast.error('Lỗi kết nối đến server.');
+        })
+        .finally(() => {
+          this.actionLoading = false;
+        });
+    },
     markCompleted(){
       if(!this.phien_id){
         this.$toast.error('Không có phien_id để đánh dấu hoàn thành.');
@@ -297,18 +371,13 @@ export default {
         phien_id: this.phien_id,
         tong_diem: 0
       };
-      axios.post('http://127.0.0.1:8000/api/phien-luyen-taps/hoan-thanh', payload, {
-        headers : {
-          Authorization: 'Bearer ' + token
-        }
+      axios.post(this.apiBase + '/api/phien-luyen-taps/hoan-thanh', payload, {
+        headers: this.authHeaders(),
       })
       .then((res) => {
         if(res.data.status){
           this.$toast.success(res.data.message || 'Hoàn thành phiên thành công.');
-          this.thong_tin.streak_hien_tai = res.data.data.streak_hien_tai;
-          this.thong_tin.diem_tich_luy = res.data.data.diem_tich_luy;
-          this.thong_tin.ngay_hoc_cuoi_cung = res.data.data.ngay_hoc_cuoi_cung;
-          this.buildStreakDays();
+          this.apDungDuLieuStreak(res.data.data);
           localStorage.removeItem("last_phien_id");
           this.phien_id = null;
           this.loadLeaderboard();

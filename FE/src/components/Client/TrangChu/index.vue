@@ -279,7 +279,7 @@
         <div class="row g-4 mb-5">
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -300,7 +300,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -321,7 +321,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -342,7 +342,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--topic bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -384,7 +384,7 @@
         <div class="row g-4">
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -409,7 +409,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -434,7 +434,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -459,7 +459,7 @@
 
           <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
             <div
-              class="favorite-card bg-white rounded-4 shadow-sm overflow-hidden h-100"
+              class="favorite-card favorite-card--lesson bg-white rounded-4 overflow-hidden h-100"
             >
               <div class="favorite-image-wrapper">
                 <img
@@ -733,20 +733,31 @@
           </p>
         </div>
 
-        <div class="row g-4">
-          <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+        <div v-if="dangTaiHocSinh" class="text-center py-4 text-muted">
+          Đang tải học sinh nổi bật…
+        </div>
+        <div v-else-if="!danhSachHocSinhNoiBat.length" class="text-center py-4 text-muted">
+          Chưa có học sinh nổi bật.
+        </div>
+        <div v-else class="row g-4">
+          <div
+            v-for="(hv, index) in danhSachHocSinhNoiBat"
+            :key="hv.id"
+            class="col-lg-4 col-md-6 wow fadeInUp"
+            :data-wow-delay="`${0.1 + index * 0.2}s`"
+          >
             <div class="classes-item">
               <div class="bg-light rounded-circle w-75 mx-auto p-3">
                 <img
                   class="img-fluid rounded-circle"
-                  src="/Client/images/classes-1.jpg"
-                  alt=""
+                  :src="hv.hinhAnh"
+                  :alt="hv.hoTen"
                 />
               </div>
 
               <div class="bg-light rounded p-4 pt-5 mt-n5">
                 <a class="d-block text-center h3 mt-3 mb-4" href="">
-                  Bé Minh Anh
+                  {{ hv.hoTen }}
                 </a>
 
                 <div
@@ -755,19 +766,19 @@
                   <div class="d-flex align-items-center">
                     <img
                       class="rounded-circle flex-shrink-0"
-                      src="/Client/images/user.jpg"
+                      :src="hv.giaoVienAnh"
                       alt=""
                       style="width: 45px; height: 45px"
                     />
 
                     <div class="ms-3">
-                      <h6 class="text-primary mb-1">Cô Nguyễn Thảo</h6>
-                      <small>Phát âm rõ hơn sau 2 tuần luyện tập</small>
+                      <h6 class="text-primary mb-1">{{ hv.giaoVienTen }}</h6>
+                      <small>{{ hv.moTa }}</small>
                     </div>
                   </div>
 
                   <span class="bg-primary text-white rounded-pill py-2 px-3">
-                    95%
+                    #{{ hv.thuHang }}
                   </span>
                 </div>
 
@@ -775,147 +786,21 @@
                   <div class="col-4">
                     <div class="border-top border-3 border-primary pt-2">
                       <h6 class="text-primary mb-1">Streak:</h6>
-                      <small>12 Ngày</small>
+                      <small>{{ hv.streak }} Ngày</small>
                     </div>
                   </div>
 
                   <div class="col-4">
                     <div class="border-top border-3 border-success pt-2">
                       <h6 class="text-success mb-1">Bài Học:</h6>
-                      <small>15 Bài</small>
+                      <small>{{ hv.soBai }} Bài</small>
                     </div>
                   </div>
 
                   <div class="col-4">
                     <div class="border-top border-3 border-warning pt-2">
                       <h6 class="text-warning mb-1">Điểm:</h6>
-                      <small>9.5/10</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-            <div class="classes-item">
-              <div class="bg-light rounded-circle w-75 mx-auto p-3">
-                <img
-                  class="img-fluid rounded-circle"
-                  src="/Client/images/classes-2.jpg"
-                  alt=""
-                />
-              </div>
-
-              <div class="bg-light rounded p-4 pt-5 mt-n5">
-                <a class="d-block text-center h3 mt-3 mb-4" href="">
-                  Bé Gia Hân
-                </a>
-
-                <div
-                  class="d-flex align-items-center justify-content-between mb-4"
-                >
-                  <div class="d-flex align-items-center">
-                    <img
-                      class="rounded-circle flex-shrink-0"
-                      src="/Client/images/user.jpg"
-                      alt=""
-                      style="width: 45px; height: 45px"
-                    />
-
-                    <div class="ms-3">
-                      <h6 class="text-primary mb-1">Thầy Minh Quân</h6>
-                      <small>Hoàn thành tốt khóa luyện âm cơ bản</small>
-                    </div>
-                  </div>
-
-                  <span class="bg-primary text-white rounded-pill py-2 px-3">
-                    98%
-                  </span>
-                </div>
-
-                <div class="row g-1">
-                  <div class="col-4">
-                    <div class="border-top border-3 border-primary pt-2">
-                      <h6 class="text-primary mb-1">Streak:</h6>
-                      <small>20 Ngày</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-success pt-2">
-                      <h6 class="text-success mb-1">Bài Học:</h6>
-                      <small>24 Bài</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-warning pt-2">
-                      <h6 class="text-warning mb-1">Điểm:</h6>
-                      <small>9.8/10</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-            <div class="classes-item">
-              <div class="bg-light rounded-circle w-75 mx-auto p-3">
-                <img
-                  class="img-fluid rounded-circle"
-                  src="/Client/images/classes-3.jpg"
-                  alt=""
-                />
-              </div>
-
-              <div class="bg-light rounded p-4 pt-5 mt-n5">
-                <a class="d-block text-center h3 mt-3 mb-4" href="">
-                  Bé Quốc Bảo
-                </a>
-
-                <div
-                  class="d-flex align-items-center justify-content-between mb-4"
-                >
-                  <div class="d-flex align-items-center">
-                    <img
-                      class="rounded-circle flex-shrink-0"
-                      src="/Client/images/user.jpg"
-                      alt=""
-                      style="width: 45px; height: 45px"
-                    />
-
-                    <div class="ms-3">
-                      <h6 class="text-primary mb-1">Cô Thu Hà</h6>
-                      <small>Đã cải thiện rõ lỗi phát âm âm “s” và “x”</small>
-                    </div>
-                  </div>
-
-                  <span class="bg-primary text-white rounded-pill py-2 px-3">
-                    90%
-                  </span>
-                </div>
-
-                <div class="row g-1">
-                  <div class="col-4">
-                    <div class="border-top border-3 border-primary pt-2">
-                      <h6 class="text-primary mb-1">Streak:</h6>
-                      <small>10 Ngày</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-success pt-2">
-                      <h6 class="text-success mb-1">Bài Học:</h6>
-                      <small>12 Bài</small>
-                    </div>
-                  </div>
-
-                  <div class="col-4">
-                    <div class="border-top border-3 border-warning pt-2">
-                      <h6 class="text-warning mb-1">Điểm:</h6>
-                      <small>9.0/10</small>
+                      <small>{{ hv.diemHienThi }}</small>
                     </div>
                   </div>
                 </div>
@@ -931,122 +816,178 @@
 <script>
 import axios from "axios";
 
-const TOPIC_STYLE_PRESETS = [
+const MAU_HINH_CHU_DE = [
   { image: "/Client/images/classes-1.jpg" },
   { image: "/Client/images/classes-2.jpg" },
   { image: "/Client/images/classes-3.jpg" },
   { image: "/Client/images/classes-4.jpg" },
 ];
 
-const LESSON_STYLE_PRESETS = [
+const MAU_HINH_BAI_HOC = [
   { image: "/Client/images/classes-5.jpg" },
   { image: "/Client/images/classes-6.jpg" },
   { image: "/Client/images/about-1.jpg" },
   { image: "/Client/images/about-2.jpg" },
 ];
 
-export default {
-  name: "HomePage",
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api",
+  timeout: 10000,
+});
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token_nguoi_dung");
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
+export default {
+  name: "TrangChu",
   data() {
     return {
-      favoriteTopics: [],
-      favoriteLessons: [],
+      danhSachChuDeYeuThich: [],
+      danhSachBaiHocYeuThich: [],
+      danhSachHocSinhNoiBat: [],
+      dangTai: false,
+      dangTaiHocSinh: false,
     };
   },
-
   mounted() {
-    this.fetchHomeData();
-    this.initCarousel();
+    this.khoiTaoTrang();
   },
-
   beforeUnmount() {
-    const $carousel = $(".header-carousel");
-
-    if ($carousel.length && $carousel.hasClass("owl-loaded")) {
-      $carousel.trigger("destroy.owl.carousel");
-    }
+    this.huyCarouselNeuCan();
   },
-
   watch: {
     $route() {
       this.$nextTick(() => {
-        this.initCarousel();
-        this.hydrateHomepageCards();
+        this.huyCarouselNeuCan();
+        this.khoiTaoCarousel();
+        this.capNhatTheGiaoDien();
       });
     },
   },
-
   methods: {
-    fetchHomeData() {
-      axios
-        .get("http://127.0.0.1:8000/api/homepage/data-open")
-        .then((res) => {
-          const categories = Array.isArray(res.data?.featured_categories)
-            ? res.data.featured_categories
-            : [];
-          const lessons = Array.isArray(res.data?.featured_lessons)
-            ? res.data.featured_lessons
-            : [];
+    async khoiTaoTrang() {
+      await this.layDuLieuTrangChu();
+      this.khoiTaoCarousel();
+    },
 
-          this.favoriteTopics = categories.map((item, index) =>
-            this.mapTopic(item, index)
-          );
-          this.favoriteLessons = lessons.map((item, index) =>
-            this.mapLesson(item, index)
-          );
-
-          this.$nextTick(() => {
-            this.hydrateHomepageCards();
+    xuLyLoiApi(err) {
+      try {
+        const errors = err?.response?.data?.errors;
+        if (errors && typeof errors === "object") {
+          Object.values(errors).forEach((arr) => {
+            if (Array.isArray(arr) && arr[0]) {
+              this.$toast?.error(arr[0]);
+            }
           });
-        })
-        .catch((error) => {
-          console.error(error);
-          this.favoriteTopics = [];
-          this.favoriteLessons = [];
-        });
-    },
-
-    mapTopic(item, index) {
-      const style = TOPIC_STYLE_PRESETS[index % TOPIC_STYLE_PRESETS.length];
-
-      return {
-        id: item.id,
-        name: item.ten_danh_muc,
-        description: item.mo_ta || "",
-        totalLesson: item.so_luong_bai_hoc ?? 0,
-        image: style.image,
-      };
-    },
-
-    mapLesson(item, index) {
-      const style = LESSON_STYLE_PRESETS[index % LESSON_STYLE_PRESETS.length];
-
-      return {
-        id: item.id,
-        title: item.tieu_de,
-        description: item.mo_ta || "",
-        categoryId: item.danh_muc_id,
-        image: style.image,
-      };
-    },
-
-    hydrateHomepageCards() {
-      if (!this.$el) {
-        return;
+          return;
+        }
+      } catch (e) {
+        console.warn("Lỗi khi phân tích response:", e);
       }
+      console.error(err);
+      this.$toast?.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+    },
+
+    async layDuLieuTrangChu() {
+      this.dangTai = true;
+      this.dangTaiHocSinh = true;
+      try {
+        const [homeRes, trangChuRes] = await Promise.all([
+          api.get("/homepage/data-open"),
+          api.get("/trang-chu"),
+        ]);
+        const categories = Array.isArray(homeRes.data?.featured_categories)
+          ? homeRes.data.featured_categories
+          : [];
+        const lessons = Array.isArray(homeRes.data?.featured_lessons)
+          ? homeRes.data.featured_lessons
+          : [];
+
+        this.danhSachChuDeYeuThich = categories.map((item, index) =>
+          this.anhXaChuDe(item, index)
+        );
+        this.danhSachBaiHocYeuThich = lessons.map((item, index) =>
+          this.anhXaBaiHoc(item, index)
+        );
+
+        const hocSinh = trangChuRes.data?.status
+          ? trangChuRes.data?.data?.hoc_sinh_noi_bat || []
+          : [];
+        this.danhSachHocSinhNoiBat = hocSinh
+          .slice(0, 3)
+          .map((item, index) => this.anhXaHocSinhNoiBat(item, index));
+
+        this.$nextTick(() => {
+          this.capNhatTheGiaoDien();
+        });
+      } catch (err) {
+        this.danhSachChuDeYeuThich = [];
+        this.danhSachBaiHocYeuThich = [];
+        this.danhSachHocSinhNoiBat = [];
+        this.xuLyLoiApi(err);
+      } finally {
+        this.dangTai = false;
+        this.dangTaiHocSinh = false;
+      }
+    },
+
+    anhXaHocSinhNoiBat(item, index) {
+      const style = MAU_HINH_CHU_DE[index % MAU_HINH_CHU_DE.length];
+      return {
+        id: item.id,
+        thuHang: item.thu_hang ?? index + 1,
+        hoTen: item.ho_ten || "Học viên",
+        hinhAnh: item.anh_dai_dien || style.image,
+        giaoVienTen: item.giao_vien_ten || "Giáo viên phụ trách",
+        giaoVienAnh: item.giao_vien_anh || "/Client/images/user.jpg",
+        moTa: item.mo_ta || "",
+        diemTichLuy: item.diem_tich_luy ?? 0,
+        streak: item.streak_hien_tai ?? 0,
+        soBai: item.so_bai_hoc ?? 0,
+        diemHienThi: item.diem_hien_thi || "0/10",
+      };
+    },
+
+    anhXaChuDe(item, index) {
+      const style = MAU_HINH_CHU_DE[index % MAU_HINH_CHU_DE.length];
+      return {
+        id: item.id,
+        ten: item.ten_danh_muc,
+        moTa: item.mo_ta || "",
+        tongBaiHoc: item.so_luong_bai_hoc ?? 0,
+        hinhAnh: style.image,
+      };
+    },
+
+    anhXaBaiHoc(item, index) {
+      const style = MAU_HINH_BAI_HOC[index % MAU_HINH_BAI_HOC.length];
+      return {
+        id: item.id,
+        tieuDe: item.tieu_de,
+        moTa: item.mo_ta || "",
+        danhMucId: item.danh_muc_id,
+        hinhAnh: style.image,
+      };
+    },
+
+    capNhatTheGiaoDien() {
+      if (!this.$el) return;
 
       const cards = Array.from(this.$el.querySelectorAll(".favorite-card"));
       const topicCards = cards.slice(0, 4);
       const lessonCards = cards.slice(4, 8);
 
-      topicCards.forEach((card, index) => {
-        this.hydrateTopicCard(card, this.favoriteTopics[index]);
-      });
-
-      lessonCards.forEach((card, index) => {
-        this.hydrateLessonCard(card, this.favoriteLessons[index]);
-      });
+      topicCards.forEach((card, index) =>
+        this.capNhatTheChuDe(card, this.danhSachChuDeYeuThich[index])
+      );
+      lessonCards.forEach((card, index) =>
+        this.capNhatTheBaiHoc(card, this.danhSachBaiHocYeuThich[index])
+      );
 
       const primaryButtons = Array.from(
         this.$el.querySelectorAll(
@@ -1054,46 +995,32 @@ export default {
         )
       );
 
-      if (primaryButtons[0]) {
-        primaryButtons[0].onclick = () => this.goToCategoryList();
-      }
-
-      if (primaryButtons[1]) {
-        primaryButtons[1].onclick = () => this.goToLessonList();
-      }
+      if (primaryButtons[0]) primaryButtons[0].onclick = () => this.diDenDanhSachDanhMuc();
+      if (primaryButtons[1]) primaryButtons[1].onclick = () => this.diDenDanhSachBaiHoc();
     },
 
-    hydrateTopicCard(card, topic) {
+    capNhatTheChuDe(card, chuDe) {
       const column = card.closest(".col-lg-3");
-      if (!topic) {
-        if (column) {
-          column.style.display = "none";
-        }
+      if (!chuDe) {
+        if (column) column.style.display = "none";
         return;
       }
-
-      if (column) {
-        column.style.display = "";
-      }
+      if (column) column.style.display = "";
 
       card.style.cursor = "pointer";
-      card.onclick = () => this.goToCategory(topic.id);
+      card.onclick = () => this.diDenDanhMuc(chuDe.id);
 
       const image = card.querySelector("img");
       if (image) {
-        image.src = topic.image;
-        image.alt = topic.name;
+        image.src = chuDe.hinhAnh;
+        image.alt = chuDe.ten;
       }
 
       const title = card.querySelector("h5");
-      if (title) {
-        title.textContent = topic.name;
-      }
+      if (title) title.textContent = chuDe.ten;
 
       const desc = card.querySelector("p");
-      if (desc) {
-        desc.textContent = topic.description || "Chua cap nhat mo ta.";
-      }
+      if (desc) desc.textContent = chuDe.moTa || "Chưa cập nhật mô tả.";
 
       let meta = card.querySelector("small");
       if (!meta) {
@@ -1101,89 +1028,84 @@ export default {
         meta.className = "text-primary fw-semibold d-block mt-2";
         card.querySelector(".p-4")?.appendChild(meta);
       }
-
-      meta.textContent = `${topic.totalLesson} bai hoc`;
+      meta.textContent = `${chuDe.tongBaiHoc} bài học`;
     },
 
-    hydrateLessonCard(card, lesson) {
+    capNhatTheBaiHoc(card, baiHoc) {
       const column = card.closest(".col-lg-3");
-      if (!lesson) {
-        if (column) {
-          column.style.display = "none";
-        }
+      if (!baiHoc) {
+        if (column) column.style.display = "none";
         return;
       }
-
-      if (column) {
-        column.style.display = "";
-      }
+      if (column) column.style.display = "";
 
       card.onclick = null;
 
       const image = card.querySelector("img");
       if (image) {
-        image.src = lesson.image;
-        image.alt = lesson.title;
+        image.src = baiHoc.hinhAnh;
+        image.alt = baiHoc.tieuDe;
       }
 
       const title = card.querySelector("h5");
-      if (title) {
-        title.textContent = lesson.title;
-      }
+      if (title) title.textContent = baiHoc.tieuDe;
 
       const desc = card.querySelector("p");
-      if (desc) {
-        desc.textContent = lesson.description || "San sang cho be luyen tap.";
-      }
+      if (desc) desc.textContent = baiHoc.moTa || "Sẵn sàng cho bé luyện tập.";
 
       const button = card.querySelector("button");
       if (button) {
         button.onclick = (event) => {
           event.stopPropagation();
-          this.goToLesson(lesson.id);
+          this.diDenBaiHoc(baiHoc.id);
         };
       }
     },
 
-    goToCategory(categoryId) {
+    diDenDanhMuc(danhMucId) {
       this.$router.push({
         path: "/bai-hoc",
-        query: { danh_muc_id: String(categoryId) },
+        query: { danh_muc_id: String(danhMucId) },
       });
     },
-
-    goToLesson(lessonId) {
-      this.$router.push(`/chi-tiet-bai-hoc/${lessonId}`);
+    diDenBaiHoc(baiHocId) {
+      this.$router.push(`/chi-tiet-bai-hoc/${baiHocId}`);
     },
-
-    goToCategoryList() {
+    diDenDanhSachDanhMuc() {
       this.$router.push("/chu-de");
     },
-
-    goToLessonList() {
+    diDenDanhSachBaiHoc() {
       this.$router.push("/bai-hoc");
     },
 
-    initCarousel() {
-      this.$nextTick(() => {
-        const $carousel = $(".header-carousel");
+    huyCarouselNeuCan() {
+      try {
+        const $carousel = typeof window !== "undefined" ? $(".header-carousel") : null;
+        if ($carousel && $carousel.length && $carousel.hasClass("owl-loaded")) {
+          $carousel.trigger("destroy.owl.carousel");
+        }
+      } catch (e) {
+        console.warn("Không thể hủy carousel:", e);
+      }
+    },
 
-        if (window.$ && $carousel.length) {
-          // destroy carousel cũ
+    khoiTaoCarousel() {
+      this.$nextTick(() => {
+        try {
+          const $carousel = typeof window !== "undefined" ? $(".header-carousel") : null;
+          if (!window.$ || !$carousel || !$carousel.length) return;
+
           if ($carousel.hasClass("owl-loaded")) {
             $carousel.trigger("destroy.owl.carousel");
-
             $carousel.removeClass("owl-loaded owl-hidden");
             $carousel.find(".owl-stage-outer").children().unwrap();
             $carousel.find(".owl-stage").children().unwrap();
             $carousel.find(".owl-item").children().unwrap();
-
             $carousel.find(".owl-stage-outer").remove();
             $carousel.find(".owl-nav").remove();
             $carousel.find(".owl-dots").remove();
           }
 
-          // khởi tạo lại
           $carousel.owlCarousel({
             autoplay: true,
             autoplayTimeout: 5000,
@@ -1198,12 +1120,15 @@ export default {
               '<i class="bi bi-chevron-right"></i>',
             ],
           });
+        } catch (e) {
+          console.warn("Không thể khởi tạo carousel:", e);
         }
       });
     },
   },
 };
 </script>
+
 <style>
 .carousel-full {
   width: 100vw;
@@ -1221,5 +1146,102 @@ export default {
     padding-left: 20px;
     padding-right: 20px;
   }
+}
+
+/* Thẻ chủ đề & bài học — nổi bật, đổ bóng, hover */
+.favorite-card {
+  position: relative;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 18px !important;
+  box-shadow:
+    0 12px 40px rgba(15, 23, 42, 0.1),
+    0 4px 12px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.38s ease,
+    border-color 0.3s ease;
+  cursor: default;
+}
+
+.favorite-card--topic {
+  cursor: pointer;
+}
+
+.favorite-card--lesson {
+  cursor: default;
+}
+
+.favorite-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 3;
+  border-radius: 18px 18px 0 0;
+  opacity: 0.95;
+}
+
+.favorite-card--topic::before {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.favorite-card--lesson::before {
+  background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
+}
+
+.favorite-card:hover {
+  transform: translateY(-10px);
+  border-color: rgba(102, 126, 234, 0.28);
+  box-shadow:
+    0 24px 56px rgba(102, 126, 234, 0.2),
+    0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+.favorite-card--lesson:hover {
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow:
+    0 24px 56px rgba(14, 165, 233, 0.18),
+    0 12px 28px rgba(15, 23, 42, 0.1);
+}
+
+.favorite-image-wrapper {
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.favorite-card .favorite-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center center;
+}
+
+@media (max-width: 575px) {
+  .favorite-card .favorite-image {
+    min-height: 160px;
+  }
+}
+
+.favorite-card:hover .favorite-image {
+  transform: scale(1.08);
+}
+
+.favorite-card .p-4 {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.favorite-card .btn-outline-primary {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.favorite-card:hover .btn-outline-primary {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(13, 110, 253, 0.2);
 }
 </style>

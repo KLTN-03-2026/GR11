@@ -81,18 +81,38 @@
               class="search-toggle iq-waves-effect d-flex align-items-center teacher-user-chip"
             >
               <div class="caption teacher-user-caption">
-                <span class="teacher-greeting">Xin chào,</span>
-                <h6
-                  class="text-danger font-weight-bold mb-0 line-height teacher-user-name"
+                <div class="teacher-user-line1">
+                  <span class="teacher-greeting">Xin chào,</span>
+                  <h6
+                    class="text-danger font-weight-bold mb-0 line-height teacher-user-name"
+                  >
+                    {{ user.name }}
+                  </h6>
+                </div>
+                <span
+                  v-if="premiumActive"
+                  class="teacher-premium-inline"
+                  title="Gói Premium đang hoạt động"
                 >
-                  {{ user.name }}
-                </h6>
+                  <i class="fa-solid fa-crown" aria-hidden="true"></i>
+                  Premium
+                </span>
               </div>
-              <img
-                :src="user.avatarUrl"
-                class="img-fluid teacher-avatar me-2"
-                alt="user"
-              />
+              <div class="teacher-avatar-wrap me-2">
+                <span
+                  v-if="premiumActive"
+                  class="teacher-premium-mark"
+                  title="Gói Premium đang hoạt động"
+                  aria-label="Premium đang hoạt động"
+                >
+                  <i class="fa-solid fa-crown" aria-hidden="true"></i>
+                </span>
+                <img
+                  :src="user.avatarUrl"
+                  class="img-fluid teacher-avatar"
+                  alt="user"
+                />
+              </div>
             </router-link>
           </li>
         </ul>
@@ -113,6 +133,7 @@ export default {
       echoChannelName: null,
       notifications: [],
       showNotifications: false,
+      premiumActive: false,
     };
   },
   computed: {
@@ -127,6 +148,7 @@ export default {
     this.subscribeRealtimeUnread();
     window.addEventListener("storage", this.dongBoUserTuLocal);
     window.addEventListener("profile-updated", this.dongBoUserTuLocal);
+    window.addEventListener("premium-status-changed", this.taiTrangThaiPremium);
     window.addEventListener('bai-hoc-duoc-duyet', this.handleBaiHocDuyet);
     document.addEventListener('click', this.handleClickOutside);
   },
@@ -134,6 +156,7 @@ export default {
     this.unsubscribeRealtimeUnread();
     window.removeEventListener("storage", this.dongBoUserTuLocal);
     window.removeEventListener("profile-updated", this.dongBoUserTuLocal);
+    window.removeEventListener("premium-status-changed", this.taiTrangThaiPremium);
     window.removeEventListener('bai-hoc-duoc-duyet', this.handleBaiHocDuyet);
     document.removeEventListener('click', this.handleClickOutside);
   },
@@ -173,6 +196,28 @@ export default {
         name: localStorage.getItem("ho_ten") || "Giáo viên",
         avatarUrl: this.duongDanAnh(avatarUrl, ANH_MAC_DINH),
       };
+      this.taiTrangThaiPremium();
+    },
+    taiTrangThaiPremium() {
+      const token = localStorage.getItem("token_teacher");
+      if (!token) {
+        this.premiumActive = false;
+        return;
+      }
+      const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(
+        /\/$/,
+        "",
+      );
+      axios
+        .get(`${base}/api/goi-premium/goi-hien-tai`, {
+          headers: { Authorization: "Bearer " + token },
+        })
+        .then((res) => {
+          this.premiumActive = !!(res.data?.status && res.data?.goi_dang_dung);
+        })
+        .catch(() => {
+          this.premiumActive = false;
+        });
     },
     goToTeacherChat() {
       this.$router.push("/teacher/chat-box");
@@ -244,7 +289,7 @@ export default {
     handleBaiHocDuyet(e) {
       const data = e.detail;
       let msg = '';
-      if (data.trang_thai === 1) {
+      if (data.trang_thai === 0) {
         msg = `✅ Bài học <b>"${data.tieu_de}"</b> đã được Admin duyệt!`;
       } else if (data.trang_thai === 2) {
         msg = `❌ Bài học <b>"${data.tieu_de}"</b> bị Admin từ chối.`;
@@ -254,7 +299,7 @@ export default {
       this.addNotification({
         message: msg,
         link: '/teacher/quan-ly-bai-hoc',
-        type: data.trang_thai === 1 ? 'success' : (data.trang_thai === 2 ? 'error' : 'warning')
+        type: data.trang_thai === 0 ? 'success' : (data.trang_thai === 2 ? 'error' : 'warning')
       });
     },
     addNotification(payload) {
@@ -660,9 +705,16 @@ export default {
 
 .teacher-user-caption {
   display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 0;
+}
+
+.teacher-user-line1 {
+  display: inline-flex;
   align-items: baseline;
   gap: 4px;
-  margin: 0;
 }
 
 .teacher-greeting {
@@ -685,6 +737,50 @@ export default {
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid #ff7a45;
+}
+
+.teacher-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.teacher-premium-mark {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  color: #fff;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  background: linear-gradient(145deg, #fbbf24, #d97706);
+  box-shadow: 0 1px 6px rgba(217, 119, 6, 0.45);
+  pointer-events: none;
+}
+
+.teacher-premium-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #92400e;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  line-height: 1.3;
+}
+
+.teacher-premium-inline i {
+  font-size: 9px;
+  color: #b45309;
 }
 
 .teacher-user-chip:focus,

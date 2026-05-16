@@ -8,8 +8,6 @@ class ChiTietLuyenTap extends Model
 {
     protected $table = 'chi_tiet_luyen_taps';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'phien_id',
         'tu_vung_id',
@@ -21,6 +19,15 @@ class ChiTietLuyenTap extends Model
         'loi_van',
         'loi_thanh_dieu',
         'chi_tiet_loi',
-        'ngay_tao',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'diem_tin_cay' => 'float',
+            'loi_am_dau' => 'boolean',
+            'loi_van' => 'boolean',
+            'loi_thanh_dieu' => 'boolean',
+        ];
+    }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('thoi_gian_bat_dau')->nullable();
             $table->timestamp('thoi_gian_ket_thuc')->nullable();
             $table->integer('tong_diem')->nullable();
-            $table->timestamp('ngay_tao')->useCurrent();
+            $table->timestamps();
         });
     }
 

@@ -43,7 +43,7 @@ class BasicLoTrinhForExistingUsersSeeder extends Seeder
                 try {
                     $loTrinh = LoTrinhCaNhan::firstOrCreate(
                         ['hoc_vien_id' => $user->id, 'ten_lo_trinh' => 'Lộ trình cơ bản'],
-                        ['giao_vien_id' => $giaoVienId, 'ngay_tao' => now()->toDateString()]
+                        ['giao_vien_id' => $giaoVienId]
                     );
 
                     foreach ($existingBaiHocIds as $index => $baiHocId) {
@@ -60,7 +60,6 @@ class BasicLoTrinhForExistingUsersSeeder extends Seeder
                             'bai_hoc_id' => $baiHocId,
                             'thu_tu_uu_tien' => $index + 1,
                             'ghi_chu_gv' => null,
-                            'ngay_tao' => now(),
                         ]);
                     }
 
