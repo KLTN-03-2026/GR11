@@ -886,9 +886,8 @@
 </template>
 
 <script>
-import axios from "axios";
+import { publicHttp } from '../../../api/http.js';
 
-const API = "http://127.0.0.1:8000/api";
 const REGEX_MAT_KHAU_MANH = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
 export default {
@@ -1002,7 +1001,7 @@ export default {
       this.dangGui = true;
       try {
         // Bước 1: Đăng ký tài khoản
-        const res = await axios.post(`${API}/dang-ky`, payload);
+        const res = await publicHttp.post('/dang-ky', payload);
         if (!res.data.status) {
           this.$toast.error(res.data.message || "Đăng ký thất bại.");
           return;
@@ -1034,7 +1033,7 @@ export default {
           if (file) fd.append(key, file);
         }
 
-        const resGv = await axios.post(`${API}/homepage/ho-so-giao-vien`, fd, {
+        const resGv = await publicHttp.post('/homepage/ho-so-giao-vien', fd, {
           headers: {
             Authorization: "Bearer " + token,
             "Content-Type": "multipart/form-data",

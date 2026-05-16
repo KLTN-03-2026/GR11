@@ -329,6 +329,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from "axios";
 
 let _debounce = null;
@@ -337,7 +338,7 @@ export default {
   name: "QuanLyBaiKiemTra",
   data() {
     return {
-      apiBase: (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, ""),
+      apiBase: (API_BASE).replace(/\/$/, ""),
       loading: false,
       danh_sach: [],
       loading_bai_hoc: false,

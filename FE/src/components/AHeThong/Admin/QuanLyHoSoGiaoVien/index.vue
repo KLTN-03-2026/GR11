@@ -446,8 +446,7 @@
 </template>
 
 <script>
-import axios from "axios";
-const API = "http://127.0.0.1:8000/api";
+import { http } from '../../../../api/http.js';
 
 export default {
   name: "QuanLyHoSoGiaoVien",
@@ -496,7 +495,7 @@ export default {
     async loadData() {
       this.loading = true;
       try {
-        const res = await axios.get(`${API}/admin/ho-so-giao-vien`, {
+        const res = await http.get('/admin/ho-so-giao-vien', {
           headers: this.headers(),
         });
         this.allHoSo = res.data.data || [];
@@ -524,8 +523,8 @@ export default {
     async doApprove() {
       this.isActing = true;
       try {
-        const res = await axios.patch(
-          `${API}/admin/ho-so-giao-vien/${this.selectedHoSo.id}/approve`,
+        const res = await http.patch(
+          `/admin/ho-so-giao-vien/${this.selectedHoSo.id}/approve`,
           {},
           { headers: this.headers() },
         );
@@ -549,8 +548,8 @@ export default {
       }
       this.isActing = true;
       try {
-        const res = await axios.patch(
-          `${API}/admin/ho-so-giao-vien/${this.selectedHoSo.id}/reject`,
+        const res = await http.patch(
+          `/admin/ho-so-giao-vien/${this.selectedHoSo.id}/reject`,
           { ghi_chu: this.ghiChu },
           { headers: this.headers() },
         );

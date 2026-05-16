@@ -94,6 +94,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from "axios";
 
 export default {
@@ -125,7 +126,7 @@ export default {
     loadLeaderboard() {
       this.loading = true;
       axios
-        .get("http://127.0.0.1:8000/api/leaderboard?type=points&limit=20")
+        .get(`${API_BASE}/api/leaderboard?type=points&limit=20`)
         .then((res) => {
           if (res.data.status) {
             this.rawLeaderboard = Array.isArray(res.data.data) ? res.data.data : [];

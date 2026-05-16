@@ -549,6 +549,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from 'axios'
 
 const QUIZ_STYLE_PRESETS = [
@@ -619,7 +620,7 @@ export default {
   },
   computed: {
     apiOrigin() {
-      const u = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
+      const u = (API_BASE).replace(/\/$/, '')
       return u.endsWith('/api') ? u.slice(0, -4) : u
     },
     apiBase() {

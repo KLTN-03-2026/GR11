@@ -1,4 +1,4 @@
-import axios from "axios";
+import { http } from '../api/http.js';
 import { createToaster } from "@meforma/vue-toaster";
 const toaster = createToaster({ position: "top-right" });
 
@@ -10,8 +10,8 @@ export default function (to, from, next) {
     return next("/dang-nhap");
   }
 
-  axios
-    .get("http://127.0.0.1:8000/api/check-token", {
+  http
+    .get('/check-token', {
       headers: { Authorization: "Bearer " + token },
     })
     .then((response) => {

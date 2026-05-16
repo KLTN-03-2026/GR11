@@ -143,6 +143,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from "axios";
 
 export default {
@@ -204,7 +205,7 @@ export default {
         loadPhanQuyenData() {
             this.isLoading = true;
             axios
-                .get("http://127.0.0.1:8000/api/admin/phan-quyen/data", {
+                .get(`${API_BASE}/api/admin/phan-quyen/data`, {
                     headers: this.authHeaders()
                 })
                 .then((res) => {
@@ -275,7 +276,7 @@ export default {
             }
             this.isAddingRole = true;
             axios
-                .post("http://127.0.0.1:8000/api/admin/vai-tro/create", {
+                .post(`${API_BASE}/api/admin/vai-tro/create`, {
                     ten_vai_tro: this.ten_vai_tro_moi.trim(),
                     mo_ta: null,
                 }, {
@@ -305,7 +306,7 @@ export default {
                     .filter((q) => !!q.truy_cap_vai_tro[vt.id])
                     .map((q) => q.id);
 
-                return axios.post("http://127.0.0.1:8000/api/admin/phan-quyen/dong-bo", {
+                return axios.post(`${API_BASE}/api/admin/phan-quyen/dong-bo`, {
                     vai_tro_id: vt.id,
                     quyen_ids: quyenIds,
                 }, {

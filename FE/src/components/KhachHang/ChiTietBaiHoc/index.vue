@@ -400,9 +400,8 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from "axios";
-
-const API_BASE = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 
 export default {
     data() {
@@ -824,7 +823,7 @@ export default {
             }
             this.vocabLoading = true;
             axios
-                .get(`http://127.0.0.1:8000/api/bai-hoc/${id}`)
+                .get(`${API_BASE}/api/bai-hoc/${id}`)
                 .then((res) => {
                     const d = res.data?.data;
                     if (!d) {
@@ -925,7 +924,7 @@ export default {
             const token = localStorage.getItem("token_nguoi_dung");
             if (!token) return; // chưa đăng nhập
 
-            axios.post('http://127.0.0.1:8000/api/phien-luyen-taps/start', { bai_hoc_id: id }, {
+            axios.post(`${API_BASE}/api/phien-luyen-taps/start`, { bai_hoc_id: id }, {
                 headers: {
                     Authorization: 'Bearer ' + token
                 }
@@ -948,7 +947,7 @@ export default {
             this.phien_id = null;
             if (!token) return Promise.resolve();
 
-            return axios.post('http://127.0.0.1:8000/api/phien-luyen-taps/end', { phien_id: phienId }, {
+            return axios.post(`${API_BASE}/api/phien-luyen-taps/end`, { phien_id: phienId }, {
                 headers: {
                     Authorization: 'Bearer ' + token
                 }
@@ -965,7 +964,7 @@ export default {
 
             try {
                 while (hasMore) {
-                    const res = await axios.get('http://127.0.0.1:8000/api/bai-hoc', {
+                    const res = await axios.get(`${API_BASE}/api/bai-hoc`, {
                         params: { danh_muc_id: danhMucId, page },
                     });
                     const items = Array.isArray(res.data?.data) ? res.data.data : [];

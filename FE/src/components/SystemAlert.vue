@@ -21,7 +21,8 @@
 </template>
 
 <script>
-import axios from "axios";
+import { API_BASE } from '../api/http.js';
+import { publicHttp } from "../api/http.js";
 
 export default {
   data() {
@@ -34,8 +35,8 @@ export default {
     };
   },
   mounted() {
-    axios
-      .get("http://127.0.0.1:8000/api/cau-hinh/thong-bao")
+    publicHttp
+      .get('/cau-hinh/thong-bao')
       .then((res) => {
         const data = res.data?.data || res.data || {};
         this.alert = {

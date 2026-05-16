@@ -1,4 +1,4 @@
-import axios from "axios";
+import { http } from '../api/http.js';
 import { createToaster } from "@meforma/vue-toaster";
 const toaster = createToaster({ position: "top-right" });
 const TEACHER_AUTH_CACHE_KEY = "teacher_auth_checked_at";
@@ -18,8 +18,8 @@ export default function (to, from, next) {
     return next();
   }
 
-  axios
-    .get("http://127.0.0.1:8000/api/check-token", {
+  http
+    .get('/check-token', {
       headers: { Authorization: "Bearer " + token },
       timeout: 5000,
     })

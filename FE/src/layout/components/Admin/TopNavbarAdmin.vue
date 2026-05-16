@@ -54,7 +54,7 @@
             </transition>
           </li>
           <li>
-            <router-link to="/thong-tin-ca-nhan" class="search-toggle iq-waves-effect d-flex align-items-center admin-user-chip">
+            <router-link to="/admin/thong-tin-ca-nhan" class="search-toggle iq-waves-effect d-flex align-items-center admin-user-chip">
               <div class="caption admin-user-caption">
                 <span class="admin-greeting">Xin chào,</span>
                 <h6 class="text-danger font-weight-bold mb-0 line-height admin-user-name">{{ user.name }}</h6>
@@ -68,6 +68,8 @@
   </div>
 </template>
 <script>
+import { API_BASE } from '../../../api/http.js';
+
 const ANH_MAC_DINH = '/Admin/images/user/1.jpg'
 
 export default {
@@ -111,7 +113,7 @@ export default {
       if (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('blob:')) {
         return source
       }
-      const base = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
+      const base = (API_BASE).replace(/\/$/, '')
       if (source.startsWith('/storage/')) {
         return `${base}${source}`
       }

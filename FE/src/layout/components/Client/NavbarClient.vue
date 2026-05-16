@@ -193,6 +193,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../api/http.js';
 import axios from "axios";
 
 const PROFILE_LS_KEYS = ["ho_ten", "email", "check_token", "ten_vai_tro", "anh_dai_dien", "anh_dai_dien_url", "anh_dai_dien_local", "nguoi_dung_id"];
@@ -245,7 +246,7 @@ export default {
   methods: {
     taiCauHinhChung() {
       axios
-        .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
+        .get(`${API_BASE}/api/cau-hinh/footer/data`)
         .then((res) => {
           if (res.data?.status && res.data?.data) {
             this.branding.logo_icon =
@@ -272,7 +273,7 @@ export default {
       if (source.startsWith("http://") || source.startsWith("https://") || source.startsWith("blob:")) {
         return source;
       }
-      const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+      const base = (API_BASE).replace(/\/$/, "");
       if (source.startsWith("/storage/")) {
         return `${base}${source}`;
       }
@@ -307,7 +308,7 @@ export default {
         this.premiumActive = false;
         return;
       }
-      const base = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(
+      const base = (API_BASE).replace(
         /\/$/,
         "",
       );
@@ -329,7 +330,7 @@ export default {
       const token = localStorage.getItem("token_nguoi_dung");
       axios
         .post(
-          "http://127.0.0.1:8000/api/dang-xuat",
+          `${API_BASE}/api/dang-xuat`,
           {},
           {
             headers: {

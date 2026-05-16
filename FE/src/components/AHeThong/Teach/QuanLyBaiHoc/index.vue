@@ -322,13 +322,14 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from 'axios';
 
 export default {
     name: 'TeachQuanLyBaiHoc',
     data() {
         return {
-            apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
+            apiBase: (API_BASE).replace(/\/$/, ''),
             danh_muc_dang_chon: null,
             danh_muc: [],
             bai_hoc: [],
