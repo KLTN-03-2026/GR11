@@ -329,9 +329,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-
-const API = "http://127.0.0.1:8000/api";
+import { http } from '../../../api/http.js';
 
 export default {
   name: "DangKyGiaoVien",
@@ -371,7 +369,7 @@ export default {
   methods: {
     async pollStatus() {
       try {
-        const res = await axios.get(`${API}/homepage/ho-so-giao-vien/my-status`, {
+        const res = await http.get('/homepage/ho-so-giao-vien/my-status', {
           headers: this.headers(),
         });
         const newStatus = res.data.data;
@@ -424,7 +422,7 @@ export default {
     async loadStatus() {
       this.loadingStatus = true;
       try {
-        const res = await axios.get(`${API}/homepage/ho-so-giao-vien/my-status`, {
+        const res = await http.get('/homepage/ho-so-giao-vien/my-status', {
           headers: this.headers(),
         });
         this.hoSo = res.data.data || null;
@@ -477,7 +475,7 @@ export default {
           }
         }
 
-        const res = await axios.post(`${API}/homepage/ho-so-giao-vien`, fd, {
+        const res = await http.post('/homepage/ho-so-giao-vien', fd, {
           headers: { ...this.headers(), "Content-Type": "multipart/form-data" },
         });
 

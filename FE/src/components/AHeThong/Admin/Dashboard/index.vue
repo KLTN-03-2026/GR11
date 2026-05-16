@@ -378,6 +378,7 @@
 </template>
 
 <script>
+import { API_BASE } from '../../../../api/http.js';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 
@@ -386,7 +387,7 @@ export default {
   data() {
     return {
       ho_ten_admin: '',
-      apiBase: (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
+      apiBase: (API_BASE).replace(/\/$/, ''),
       activeTab: 'monitoring',
       bo_loc_thoi_gian: 'thang',
       apiHealth: {

@@ -160,7 +160,7 @@ const routes = [
     beforeEnter: checkAdmin,
   },
   {
-    path: "/thong-tin-ca-nhan",
+    path: "/admin/thong-tin-ca-nhan",
     component: () => import("../components/Client/Profile/index.vue"),
     meta: { layout: "admin" },
     beforeEnter: checkAdmin,

@@ -139,6 +139,7 @@
 </template>
 
 <script>
+import { publicHttp } from '../../../api/http.js';
 import axios from 'axios'
 import { GoogleLogin } from 'vue3-google-login'
 export default {
@@ -215,7 +216,7 @@ export default {
     },
     taiCauHinhChung() {
       axios
-        .get("http://127.0.0.1:8000/api/cau-hinh/footer/data")
+        .get(`${API_BASE}/api/cau-hinh/footer/data`)
         .then((res) => {
           if (res.data?.status && res.data?.data) {
             this.branding.logo_icon = res.data.data.logo_icon || this.branding.logo_icon;
@@ -334,8 +335,8 @@ export default {
       else {
         this.isLoading = true;
         this.tai_Khoan.code = code;
-        axios
-          .post("http://127.0.0.1:8000/api/dang-nhap", this.tai_Khoan)
+        publicHttp
+          .post('/dang-nhap', this.tai_Khoan)
           .then((res) => {
             if (res.data.status == 1) {
               this.$toast.success(res.data.message);
@@ -414,7 +415,7 @@ export default {
         return;
       }
       axios
-        .get("http://127.0.0.1:8000/api/check-token", {
+        .get(`${API_BASE}/api/check-token`, {
           headers: {
             Authorization: "Bearer " + token,
           },
@@ -450,7 +451,7 @@ export default {
         return
       }
       axios
-        .post('http://127.0.0.1:8000/api/login-google', { id_token: jwt, credential: jwt })
+        .post(`${API_BASE}/api/login-google`, { id_token: jwt, credential: jwt })
         .then((res) => {
           if (res.data.status == 1 || res.data.status === true) {
             this.$toast.success(res.data.message);

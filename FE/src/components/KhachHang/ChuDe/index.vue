@@ -199,6 +199,8 @@
   </template>
   
   <script>
+import { API_BASE } from '../../../api/http.js';
+
   import axios from 'axios';
   
   const TOPIC_STYLE_PRESETS = [
@@ -288,7 +290,7 @@
           },
           fetchTopics() {
               axios
-                  .get('http://127.0.0.1:8000/api/danh-muc-bai-hoc')
+                  .get(`${API_BASE}/api/danh-muc-bai-hoc`)
                   .then((res) => {
                       const rows = Array.isArray(res.data?.data)
                           ? res.data.data

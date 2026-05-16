@@ -616,6 +616,7 @@
 </template>
 
 <script>
+import { API_BASE, storageUrl } from '../../../api/http.js';
 import axios from "axios";
 
 const AI_CHAT_ID = "echokids-ai";
@@ -893,7 +894,7 @@ export default {
       }
 
       this.playingMessageId = msg.id;
-      const ttsUrl = `http://127.0.0.1:8000/api/tts/vietnamese?t=${encodeURIComponent(msg.text)}`;
+      const ttsUrl = `${API_BASE}/api/tts/vietnamese?t=${encodeURIComponent(msg.text)}`;
 
       try {
         const audio = new Audio(ttsUrl);
@@ -955,7 +956,7 @@ export default {
       msg.pdfLoading = true;
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/ai-reports/${snap.snapshot_id}/export-pdf`,
+          `${API_BASE}/api/ai-reports/${snap.snapshot_id}/export-pdf`,
           { headers: this.getAuthHeader() },
         );
         const url = res?.data?.download_url;
@@ -1012,7 +1013,7 @@ export default {
     async loadBranding() {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/admin/cau-hinh/chung/data",
+          `${API_BASE}/api/admin/cau-hinh/chung/data`,
         );
         if (res?.data?.status && res?.data?.data?.logo_icon) {
           this.branding.logo_icon = res.data.data.logo_icon;
@@ -1029,8 +1030,8 @@ export default {
       }
       try {
         const endpoint = this.isTeacherMode
-          ? "http://127.0.0.1:8000/api/teacher/chat/sessions"
-          : "http://127.0.0.1:8000/api/student/chat/sessions";
+          ? `${API_BASE}/api/teacher/chat/sessions`
+          : `${API_BASE}/api/student/chat/sessions`;
         const res = await axios.get(endpoint, {
           headers: this.getAuthHeader(),
         });
@@ -1140,7 +1141,7 @@ export default {
         String(path).startsWith("https://")
       )
         return path;
-      return `http://127.0.0.1:8000/storage/${String(path).replace(/^\/+/, "")}`;
+      return storageUrl(String(path).replace(/^\/+/, ""));
     },
     selectChat(chat) {
       const merged = { ...chat };
@@ -1170,7 +1171,7 @@ export default {
       );
       const payload = cached > 0 ? { session_id: cached } : {};
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/chat/system/session",
+        `${API_BASE}/api/chat/system/session`,
         payload,
         {
           headers: this.getAuthHeader(),
@@ -1192,7 +1193,7 @@ export default {
         throw new Error("Thiếu lesson/teacher để mở chat giáo viên");
       }
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/student/chat/session",
+        `${API_BASE}/api/student/chat/session`,
         { lesson_id: chat.lessonId, teacher_id: chat.teacherId },
         { headers: this.getAuthHeader() },
       );
@@ -1417,7 +1418,7 @@ export default {
         const sessionId = await this.ensureAiSessionReady();
         if (!sessionId) return;
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/chat/system/history",
+          `${API_BASE}/api/chat/system/history`,
           {
             params: { session_id: sessionId },
             headers: this.getAuthHeader(),
@@ -1446,7 +1447,7 @@ export default {
     async fetchGreeting() {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/chat/system/greeting",
+          `${API_BASE}/api/chat/system/greeting`,
           {
             headers: this.getAuthHeader(),
           },
@@ -1506,8 +1507,8 @@ export default {
           return;
         }
         const endpoint = this.isTeacherMode
-          ? `http://127.0.0.1:8000/api/teacher/chat/session/${sessionId}/messages`
-          : `http://127.0.0.1:8000/api/student/chat/session/${sessionId}/messages`;
+          ? `${API_BASE}/api/teacher/chat/session/${sessionId}/messages`
+          : `${API_BASE}/api/student/chat/session/${sessionId}/messages`;
         const res = await axios.get(endpoint, {
           headers: this.getAuthHeader(),
         });
@@ -1586,8 +1587,8 @@ export default {
         if (this.selectedChat.type === "teacher") {
           const sessionId = await this.ensureTeacherSession(this.selectedChat);
           const sendEndpoint = this.isTeacherMode
-            ? `http://127.0.0.1:8000/api/teacher/chat/session/${sessionId}/send`
-            : `http://127.0.0.1:8000/api/student/chat/session/${sessionId}/send`;
+            ? `${API_BASE}/api/teacher/chat/session/${sessionId}/send`
+            : `${API_BASE}/api/student/chat/session/${sessionId}/send`;
           const res = await axios.post(
             sendEndpoint,
             { message: text },
@@ -1627,7 +1628,7 @@ export default {
         } else {
           const sessionId = await this.ensureAiSessionReady();
           const res = await axios.post(
-            "http://127.0.0.1:8000/api/chat/system",
+            `${API_BASE}/api/chat/system`,
             { session_id: sessionId, message: text, input_type: inputType },
             { headers: this.getAuthHeader() },
           );

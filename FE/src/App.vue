@@ -7,19 +7,23 @@
 </template>
 
 <script>
-import ChatBox from './components/Client/ChatBox/index.vue';
+import { defineAsyncComponent } from 'vue';
 import SystemAlert from './components/SystemAlert.vue';
 
-const default_layout = "client";
+const ChatBox = defineAsyncComponent(() =>
+  import('./components/Client/ChatBox/index.vue')
+);
+
+const default_layout = 'client';
 
 export default {
   components: {
     ChatBox,
-    SystemAlert
+    SystemAlert,
   },
   computed: {
     layout() {
-      return (this.$route.meta.layout || default_layout) + "-layout";
+      return (this.$route.meta.layout || default_layout) + '-layout';
     },
   },
 };
