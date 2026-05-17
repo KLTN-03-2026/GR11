@@ -139,8 +139,7 @@
 </template>
 
 <script>
-import { publicHttp } from '../../../api/http.js';
-import axios from 'axios'
+import { publicHttp, http } from '../../../api/http.js';
 import { GoogleLogin } from 'vue3-google-login'
 export default {
   components: { GoogleLogin },
@@ -215,8 +214,8 @@ export default {
       return 'Tài khoản của bạn đã vi phạm chính sách bảo mật của chúng tôi';
     },
     taiCauHinhChung() {
-      axios
-        .get(`${API_BASE}/api/cau-hinh/footer/data`)
+      publicHttp
+        .get('/cau-hinh/footer/data')
         .then((res) => {
           if (res.data?.status && res.data?.data) {
             this.branding.logo_icon = res.data.data.logo_icon || this.branding.logo_icon;
@@ -414,8 +413,8 @@ export default {
       if (!token) {
         return;
       }
-      axios
-        .get(`${API_BASE}/api/check-token`, {
+      http
+        .get('/check-token', {
           headers: {
             Authorization: "Bearer " + token,
           },
@@ -450,8 +449,8 @@ export default {
         this.$toast.error('Không nhận được mã từ Google. Vui lòng thử lại.')
         return
       }
-      axios
-        .post(`${API_BASE}/api/login-google`, { id_token: jwt, credential: jwt })
+      publicHttp
+        .post('/login-google', { id_token: jwt, credential: jwt })
         .then((res) => {
           if (res.data.status == 1 || res.data.status === true) {
             this.$toast.success(res.data.message);
